@@ -23,10 +23,22 @@
   code, .mono { font-family: 'JetBrains Mono', monospace; }
   a { color: inherit; }
 
-  .top { padding: 28px 24px 0; max-width: 1400px; margin: 0 auto; }
+  /* --- NEW AUTH PANEL STYLES --- */
+  .auth-panel { position: absolute; top: 24px; right: 24px; background: var(--surface); padding: 16px; border: 1px solid var(--line); border-radius: 12px; z-index: 1000; width: 260px; font-size: 13px; }
+  .auth-panel h3 { font-size: 14px; margin-bottom: 12px; color: var(--amber); }
+  .auth-panel input { width: 100%; background: var(--void); border: 1px solid var(--line); color: var(--text); padding: 8px; border-radius: 6px; margin-bottom: 8px; font-family: 'IBM Plex Sans', sans-serif; }
+  .auth-panel .auth-btns { display: flex; gap: 8px; margin-top: 4px; }
+  .auth-panel button { flex: 1; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .auth-panel button:hover { background: var(--amber); color: var(--void); border-color: var(--amber); font-weight: 600; }
+  .auth-status { color: var(--muted); margin-bottom: 12px; word-break: break-all; }
+  .logout-btn { background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; }
+  .logout-btn:hover { background: #E63E5C; color: white; border-color: #E63E5C; }
+  
+  /* --- ORIGINAL STYLES --- */
+  .top { padding: 28px 24px 0; max-width: 1400px; margin: 0 auto; position: relative; }
   .commit-line { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
   .commit-line .hash { color: var(--amber); }
-  h1.title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; }
+  h1.title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; max-width: calc(100% - 280px); }
   .subtitle { color: var(--muted); font-size: 15px; margin-top: 6px; max-width: 800px; }
 
   .hero-stats { display: flex; gap: 28px; margin: 22px 0 8px; flex-wrap: wrap; }
@@ -47,7 +59,7 @@
   .legend .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
 
   .layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 0 24px 60px; }
-  @media(max-width:900px){ .layout { grid-template-columns: 1fr; } }
+  @media(max-width:900px){ .layout { grid-template-columns: 1fr; } h1.title { max-width: 100%; } .auth-panel { position: relative; top: 0; right: 0; width: 100%; margin-top: 20px; } }
 
   .sidebar { position: sticky; top: 20px; align-self: start; }
   .branch { display: block; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: 0.2s; }
@@ -98,6 +110,24 @@
 <body>
 
 <div class="top">
+  <!-- NEW AUTH UI INJECTED HERE -->
+  <div class="auth-panel" id="authPanel">
+    <h3>Cloud Sync Login</h3>
+    <div id="unauthUI">
+      <input type="email" id="emailInput" placeholder="Email address">
+      <input type="password" id="passInput" placeholder="Password">
+      <div class="auth-btns">
+        <button id="loginBtn">Login</button>
+        <button id="signupBtn">Sign Up</button>
+      </div>
+      <div id="authError" style="color: #E63E5C; font-size: 11px; margin-top: 8px;"></div>
+    </div>
+    <div id="authUI" style="display: none;">
+      <div class="auth-status">Logged in as:<br><strong id="userEmailDisplay"></strong></div>
+      <button class="logout-btn" id="logoutBtn">Log Out</button>
+    </div>
+  </div>
+
   <div class="commit-line"><span class="hash">roadmap@architect</span> — 8 branches, <span id="totalDaysHead"></span> commits planned</div>
   <h1 class="title">Senior Fullstack Engineer (600-Day Master Path)</h1>
   <p class="subtitle">Designed for working professionals (9 AM - 7 PM). Every single day has a dedicated, actionable link. Scroll tracking enabled.</p>
@@ -132,9 +162,75 @@
   <div class="main" id="main"></div>
 </div>
 
-<footer>600 Days to Architectural Mastery · No Excuses · Push to GitHub Pages to save progress across devices</footer>
+<footer>600 Days to Architectural Mastery · No Excuses · Cloud Synced via Firebase</footer>
 
-<script>
+<!-- TYPE="MODULE" ENABLES FIREBASE IMPORTS -->
+<script type="module">
+// --- 1. FIREBASE CONFIGURATION (YOU MUST UPDATE THIS) ---
+// Go to console.firebase.google.com -> Create a web project -> Enable Authentication (Email/Password) -> Enable Firestore Database
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  // PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
+ apiKey: "AIzaSyAqzmMePlqbWSHeTVtDHXzylwgPXgZDGj8",
+    authDomain: "learning-tracker-a5f98.firebaseapp.com",
+    projectId: "learning-tracker-a5f98",
+    storageBucket: "learning-tracker-a5f98.firebasestorage.app",
+    messagingSenderId: "673033401957",
+    appId: "1:673033401957:web:61012d453a3f4c4a2c788c",
+    measurementId: "G-N22LLZH8N4"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// --- 2. AUTHENTICATION LOGIC ---
+let currentUser = null;
+const unauthUI = document.getElementById('unauthUI');
+const authUI = document.getElementById('authUI');
+const userEmailDisplay = document.getElementById('userEmailDisplay');
+const authError = document.getElementById('authError');
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (user) {
+    unauthUI.style.display = 'none';
+    authUI.style.display = 'block';
+    userEmailDisplay.textContent = user.email;
+    await loadState();
+  } else {
+    unauthUI.style.display = 'block';
+    authUI.style.display = 'none';
+    userEmailDisplay.textContent = '';
+    
+    // Reset to empty state if logged out
+    const t = new Date();
+    state = { startDate: t.toISOString().slice(0,10), done: {} };
+    render();
+  }
+});
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  try {
+    authError.textContent = '';
+    await signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value);
+  } catch (err) { authError.textContent = err.message; }
+});
+
+document.getElementById('signupBtn').addEventListener('click', async () => {
+  try {
+    authError.textContent = '';
+    await createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value);
+  } catch (err) { authError.textContent = err.message; }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+
+// --- 3. ORIGINAL DATA (UNCHANGED) ---
 const RES = (label, url) => ({ label, url });
 
 const PHASES = [
@@ -295,23 +391,40 @@ PHASES.forEach(phase => {
   phase.endDay = globalDay;
 });
 
+
+// --- 4. CLOUD STATE MANAGEMENT ---
 let state = { startDate: null, done: {} };
+
 async function loadState(){
-  try{
-    const saved = localStorage.getItem('senior_roadmap_progress_v3');
-    if(saved) state = JSON.parse(saved);
-  }catch(e){}
-  
-  if(!state.startDate){
-    const t = new Date();
-    state.startDate = t.toISOString().slice(0,10);
-  }
-  if(!state.done) state.done = {};
-}
-async function saveState(){
-  try{ localStorage.setItem('senior_roadmap_progress_v3', JSON.stringify(state)); }catch(e){}
+  if(!currentUser) return; // Wait until they log in
+  try {
+    const docRef = doc(db, "users", currentUser.uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      state = docSnap.data();
+    } else {
+      // First time logging in, create default setup
+      const t = new Date();
+      state = { startDate: t.toISOString().slice(0,10), done: {} };
+      await saveState();
+    }
+  } catch(e) { console.error("Error loading document: ", e); }
+  render(); // Trigger UI rebuild with new data
 }
 
+async function saveState(){
+  if(!currentUser) {
+    alert("You must log in to save your progress permanently.");
+    return;
+  }
+  try {
+    const docRef = doc(db, "users", currentUser.uid);
+    await setDoc(docRef, state);
+  } catch(e) { console.error("Error saving document: ", e); }
+}
+
+
+// --- 5. RENDER ENGINE (UNCHANGED EXCEPT EVENT LISTENER MIGRATION) ---
 function dateForDay(n){
   const start = new Date(state.startDate + 'T00:00:00');
   const weeksFull = Math.floor((n - 1) / 6);
@@ -329,14 +442,14 @@ let currentSearch = '';
 function render(){
   document.getElementById('totalDaysHead').textContent = TOTAL_DAYS;
   document.getElementById('totalDaysCaption').textContent = 'Day ' + TOTAL_DAYS;
-  document.getElementById('startDate').value = state.startDate;
+  if(state.startDate) document.getElementById('startDate').value = state.startDate;
 
-  const doneCount = Object.keys(state.done).filter(k => state.done[k]).length;
+  const doneCount = Object.keys(state.done || {}).filter(k => state.done[k]).length;
   document.getElementById('statDone').textContent = doneCount;
   document.getElementById('statPct').textContent = Math.round((doneCount / TOTAL_DAYS) * 100) + '%';
 
   let currentPhase = PHASES.find(p => {
-    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
     return doneInPhase < p.flatDays.length;
   }) || PHASES[PHASES.length - 1];
   document.getElementById('statPhase').textContent = currentPhase.name;
@@ -352,7 +465,7 @@ function render(){
     seg.style.width = ((p.days / TOTAL_DAYS) * 100) + '%';
     seg.style.background = p.color + '33';
     
-    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
     const fill = document.createElement('div');
     fill.className = 'fill';
     fill.style.width = ((doneInPhase / p.days) * 100) + '%';
@@ -369,7 +482,7 @@ function render(){
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.title = 'Day ' + n + ' — ' + phase.name;
-    if(state.done[n]){ cell.style.background = phase.color; cell.style.borderColor = phase.color; }
+    if((state.done || {})[n]){ cell.style.background = phase.color; cell.style.borderColor = phase.color; }
     hm.appendChild(cell);
   }
   const legend = document.getElementById('legend');
@@ -378,7 +491,7 @@ function render(){
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
   PHASES.forEach(p => {
-    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
     const el = document.createElement('a');
     el.className = 'branch';
     el.href = '#' + p.id;
@@ -391,7 +504,7 @@ function render(){
   const main = document.getElementById('main');
   main.innerHTML = '';
   PHASES.forEach(p => {
-    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
     const section = document.createElement('div');
     section.className = 'phase-section';
     section.id = p.id;
@@ -416,7 +529,7 @@ function render(){
       
       const list = document.createElement('div');
       topic.dayList.forEach(d => {
-        const isDone = !!state.done[d.global];
+        const isDone = !!(state.done || {})[d.global];
         if(currentFilter === 'done' && !isDone) return;
         if(currentFilter === 'pending' && isDone) return;
         if(currentSearch && !(topic.title + ' ' + d.label).toLowerCase().includes(currentSearch)) return;
@@ -444,6 +557,12 @@ function render(){
 
   main.querySelectorAll('input[type=checkbox]').forEach(cb => {
     cb.addEventListener('change', async (e) => {
+      if(!currentUser) {
+        e.preventDefault();
+        e.target.checked = false;
+        alert("Please log in first to track your progress.");
+        return;
+      }
       const day = e.target.getAttribute('data-day');
       state.done[day] = e.target.checked;
       await saveState();
@@ -472,24 +591,26 @@ document.getElementById('search').addEventListener('input', e => {
   currentSearch = e.target.value.toLowerCase();
   render();
 });
-document.querySelectorAll('.controls button').forEach(btn => {
+
+document.querySelectorAll('.controls button[data-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.controls button[data-filter]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentFilter = btn.getAttribute('data-filter');
     render();
   });
 });
+
 document.getElementById('startDate').addEventListener('change', async e => {
+  if(!currentUser) return;
   state.startDate = e.target.value;
   await saveState();
   render();
 });
 
-(async () => {
-  await loadState();
-  render();
-})();
+// Initial empty render until user logs in
+render();
+
 </script>
 </body>
 </html>
