@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Fullstack Java Architect // Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #0B0E14;
+    --surface: #141922;
+    --surface-2: #1B212C;
+    --line: #232935;
+    --text: #E6E9EF;
+    --muted: #7C8494;
+    --muted-2: #525A6A;
+    --amber: #F2A93B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--void); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; margin: 0; }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+  a { color: inherit; }
+
+  .top { padding: 28px 24px 0; max-width: 1400px; margin: 0 auto; }
+  .commit-line { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+  .commit-line .hash { color: var(--amber); }
+  h1.title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; }
+  .subtitle { color: var(--muted); font-size: 15px; margin-top: 6px; max-width: 800px; }
+
+  .hero-stats { display: flex; gap: 28px; margin: 22px 0 8px; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; min-width: 130px; }
+  .stat .num { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; }
+  .stat .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+
+  .progress-rail { height: 10px; border-radius: 6px; background: var(--surface-2); overflow: hidden; display: flex; margin: 18px 0 4px; border: 1px solid var(--line); }
+  .progress-rail .seg { height: 100%; position: relative; }
+  .progress-rail .seg .fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,255,255,.85); opacity: .9; }
+  .rail-caption { display: flex; justify-content: space-between; color: var(--muted-2); font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-bottom: 20px; }
+
+  .heatmap-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 18px 0 30px; overflow-x: auto; }
+  .heatmap-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+  .heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px); gap: 3px; width: max-content; }
+  .cell { width: 11px; height: 11px; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); }
+  .legend { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; font-size: 11px; color: var(--muted); align-items: center; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+
+  .layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 0 24px 60px; }
+  @media(max-width:900px){ .layout { grid-template-columns: 1fr; } }
+
+  .sidebar { position: sticky; top: 20px; align-self: start; }
+  .branch { display: block; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: 0.2s; }
+  .branch:hover { background: var(--surface); }
+  
+  .branch.active-branch { background: var(--surface); border-color: var(--line); border-left: 3px solid var(--amber); padding-left: 9px; }
+  
+  .branch .bname { font-size: 13px; font-weight: 600; }
+  .branch .bmeta { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+  .branch .bbar { height: 4px; border-radius: 3px; background: var(--surface-2); margin-top: 6px; overflow: hidden; }
+  .branch .bbar .f { height: 100%; }
+
+  .controls { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input[type=text] { background: var(--surface); border: 1px solid var(--line); color: var(--text); padding: 8px 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; flex: 1; min-width: 160px; }
+  .controls button { background: var(--surface); border: 1px solid var(--line); color: var(--muted); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; }
+  .controls button.active { color: var(--void); background: var(--amber); border-color: var(--amber); font-weight: 600; }
+  .controls .datefield { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); }
+  .controls .datefield input { background: transparent; border: none; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+
+  .phase-section { margin-bottom: 34px; border-left: 3px solid var(--line); padding-left: 18px; transition: 0.3s; }
+  .phase-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; cursor: pointer; }
+  .phase-head h2 { font-size: 19px; }
+  .phase-head .pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+  .phase-days { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 14px; }
+
+  .topic { margin-bottom: 16px; }
+  .topic-head { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .topic-head .range { color: var(--muted-2); font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 11px; }
+
+  .day { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 13px; border: 1px solid transparent; }
+  .day:hover { background: var(--surface); border-color: var(--line); }
+  .day.done { opacity: .5; }
+  .day.done .task { text-decoration: line-through; }
+  .day input[type=checkbox] { accent-color: var(--amber); cursor: pointer; }
+  .day .code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-2); min-width: 50px; }
+  .day .tag { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); min-width: 56px; text-align: center; }
+  .day .date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted-2); min-width: 64px; }
+  .day .task { flex: 1; }
+  
+  .day-link { font-size: 10px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 4px 10px; border-radius: 4px; text-decoration: none; white-space: nowrap; transition: 0.2s; font-family: 'JetBrains Mono', monospace; }
+  .day-link:hover { background: var(--text); color: var(--void); }
+  .day-link.code-link { color: var(--amber); border-color: var(--amber); }
+  .day-link.code-link:hover { background: var(--amber); color: var(--void); }
+  
+  footer { text-align: center; color: var(--muted-2); font-size: 11px; padding: 20px; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="commit-line"><span class="hash">roadmap@architect</span> — 8 branches, <span id="totalDaysHead"></span> commits planned</div>
+  <h1 class="title">Senior Fullstack Engineer (600-Day Master Path)</h1>
+  <p class="subtitle">Designed for working professionals (9 AM - 7 PM). Every single day has a dedicated, actionable link. Scroll tracking enabled.</p>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="num" id="statDone">0</div><div class="lbl">Days done</div></div>
+    <div class="stat"><div class="num" id="statPct">0%</div><div class="lbl">Overall</div></div>
+    <div class="stat"><div class="num" id="statPhase">—</div><div class="lbl">Current branch</div></div>
+    <div class="stat"><div class="num" id="statETA">—</div><div class="lbl">Est. finish date</div></div>
+  </div>
+
+  <div class="progress-rail" id="progressRail"></div>
+  <div class="rail-caption"><span>Day 1</span><span id="totalDaysCaption"></span></div>
+
+  <div class="heatmap-wrap">
+    <div class="heatmap-title">Execution Graph — Colored by phase. 6 days on, 1 day off.</div>
+    <div class="heatmap" id="heatmap"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search a topic... e.g., 'Kafka', 'JWT', 'Graphs'">
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="pending">Pending</button>
+    <button data-filter="done">Done</button>
+    <div class="datefield">Start Date <input type="date" id="startDate"></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<footer>600 Days to Architectural Mastery · No Excuses · Push to GitHub Pages to save progress across devices</footer>
+
+<script>
+const RES = (label, url) => ({ label, url });
+
+const PHASES = [
+{ id:'p1', name:'Core Java Mastery', branch:'phase-1/java-deep-dive', color:'#F2A93B', days:60, topics:[
+  {
+    title:'Skip Basics & Setup', days:2, 
+    subtopics: ['Environment & IDE Tuning', 'Build Systems: Maven vs Gradle'],
+    learn:RES('Read: Dev.java Official','https://dev.java/learn/'), practice:RES('Code: HackerRank Java Intro','https://www.hackerrank.com/domains/java')
+  },
+  {
+    title:'OOP & SOLID Principles in Java', days:8, 
+    subtopics: ['Classes, Objects, & Constructors', 'Inheritance & Method Overriding', 'Polymorphism & Interfaces', 'Encapsulation & Access Modifiers', 'Single Responsibility & Open/Closed (SOLID)', 'Liskov Substitution & Interface Segregation', 'Dependency Inversion Principle', 'OOP Design Patterns Basics'],
+    learn:RES('Read: Refactoring.guru SOLID','https://refactoring.guru/design-patterns/solid-principles'), practice:RES('Code: HackerRank Java OOP','https://www.hackerrank.com/domains/java?filters%5Bsubdomains%5D%5B%5D=oop')
+  },
+  {
+    title:'Advanced Collections (Map, Set, Hash)', days:10, 
+    subtopics: ['Collection Framework Architecture', 'ArrayList vs LinkedList Internals', 'HashSet & TreeSet implementations', 'HashMap internals (Buckets & Collisions)', 'TreeMap & Sorting mechanisms', 'Queue & Deque Interfaces', 'Concurrent Collections overview', 'Iterators & Spliterators', 'Custom Comparators', 'Memory efficiency in Collections'],
+    learn:RES('Read: Baeldung Java Collections','https://www.baeldung.com/java-collections'), practice:RES('Code: HackerRank Data Structures','https://www.hackerrank.com/domains/java')
+  },
+  {title:'Exception Handling & File NIO.2', days:5, learn:RES('Read: Oracle Java NIO.2 Docs','https://docs.oracle.com/javase/tutorial/essential/io/fileio.html'), practice:RES('Code: HackerRank Exceptions','https://www.hackerrank.com/challenges/java-exception-handling/problem')},
+  {
+    title:'Java 8+ Features: Streams, Lambdas', days:15, 
+    subtopics: ['Lambda Expressions syntax', 'Functional Interfaces (@FunctionalInterface)', 'Method References', 'Streams API Setup', 'map(), filter(), reduce()', 'FlatMap & Complex Streams', 'Collectors & GroupingBy', 'Optional class deep dive', 'Parallel Streams', 'CompletableFuture basics', 'Records (Java 14+)', 'Pattern Matching (Java 16+)', 'Sealed Classes (Java 17)', 'Virtual Threads Intro (Java 21)', 'Performance benchmarking'],
+    learn:RES('Read: Baeldung Java 8 Streams','https://www.baeldung.com/java-8-streams'), practice:RES('Code: HackerRank Advanced Java','https://www.hackerrank.com/domains/java')
+  },
+  {title:'Multithreading, Concurrency, & Executors', days:15, learn:RES('Read: Oracle Concurrency Specs','https://docs.oracle.com/javase/tutorial/essential/concurrency/'), practice:RES('Code: LeetCode Concurrency','https://leetcode.com/problemset/concurrency/')},
+  {title:'JVM Internals, Memory Management, & GC', days:5, learn:RES('Read: Oracle GC Tuning Guide','https://docs.oracle.com/en/java/javase/17/gctuning/introduction-garbage-collection-tuning.html'), practice:RES('Read/Test: Baeldung JVM Guide','https://www.baeldung.com/jvm-garbage-collectors')}
+]},
+{ id:'p2', name:'DSA & Problem Solving', branch:'phase-2/dsa-architecture', color:'#35D0A6', days:110, topics:[
+  {title:'Time/Space Complexity & Math logic', days:5, learn:RES('Read: Big-O Cheat Sheet','https://www.bigocheatsheet.com/'), practice:RES('Code: LeetCode Math','https://leetcode.com/tag/math/')},
+  {title:'Arrays, Strings, & Two Pointers', days:10, learn:RES('Watch: NeetCode Arrays','https://neetcode.io/practice'), practice:RES('Code: LeetCode Arrays','https://leetcode.com/tag/array/')},
+  {title:'Hashing, Sets, & Maps', days:10, learn:RES('Watch: NeetCode Hashing','https://neetcode.io/practice'), practice:RES('Code: LeetCode Hash Table','https://leetcode.com/tag/hash-table/')},
+  {title:'Stacks, Queues, & Linked Lists', days:10, learn:RES('Watch: NeetCode Linked Lists','https://neetcode.io/practice'), practice:RES('Code: LeetCode Linked List','https://leetcode.com/tag/linked-list/')},
+  {title:'Recursion & Backtracking', days:15, learn:RES('Watch: NeetCode Backtracking','https://neetcode.io/practice'), practice:RES('Code: LeetCode Backtracking','https://leetcode.com/tag/backtracking/')},
+  {title:'Trees (Binary, BST, AVL)', days:15, learn:RES('Watch: NeetCode Trees','https://neetcode.io/practice'), practice:RES('Code: LeetCode Trees','https://leetcode.com/tag/tree/')},
+  {title:'Graphs (BFS, DFS, Dijkstra, MST)', days:15, learn:RES('Watch: NeetCode Graphs','https://neetcode.io/practice'), practice:RES('Code: LeetCode Graphs','https://leetcode.com/tag/graph/')},
+  {title:'Dynamic Programming (1D, 2D, Knapsack)', days:20, learn:RES('Watch: NeetCode DP','https://neetcode.io/practice'), practice:RES('Code: LeetCode DP','https://leetcode.com/tag/dynamic-programming/')},
+  {title:'Advanced DSA (Tries, Heaps, Disjoint Set)', days:10, learn:RES('Watch: NeetCode Advanced','https://neetcode.io/practice'), practice:RES('Code: LeetCode Heaps/Tries','https://leetcode.com/tag/heap-priority-queue/')}
+]},
+{ id:'p3', name:'Databases & Data Engineering', branch:'phase-3/databases-sql', color:'#4FA3F7', days:50, topics:[
+  {title:'RDBMS, ACID properties, & Normalization', days:5, learn:RES('Read: Postgres Architecture','https://www.postgresql.org/docs/current/tutorial-arch.html'), practice:RES('Code: HackerRank Database','https://www.hackerrank.com/domains/sql')},
+  {title:'Advanced SQL: Joins, Window Functions, CTEs', days:15, learn:RES('Read: PostgreSQL Tutorial','https://www.postgresqltutorial.com/'), practice:RES('Code: LeetCode Top SQL 50','https://leetcode.com/studyplan/top-sql-50/')},
+  {title:'Indexes, Query Optimization, & Execution Plans', days:10, learn:RES('Read: Use The Index, Luke','https://use-the-index-luke.com/'), practice:RES('Code: LeetCode DB Problems','https://leetcode.com/problemset/database/')},
+  {title:'NoSQL Deep Dive (MongoDB & Cassandra Basics)', days:10, learn:RES('Read: MongoDB Architecture Docs','https://www.mongodb.com/docs/manual/core/architecture-and-tools/'), practice:RES('Code: MongoDB Atlas Hands-on','https://www.mongodb.com/cloud/atlas/register')},
+  {title:'Distributed Data: Sharding, Replication', days:10, learn:RES('Read: System Design DBs','https://github.com/donnemartin/system-design-primer#databases'), practice:RES('Read/Test: System Design Primer (DBs)','https://github.com/donnemartin/system-design-primer#databases')}
+]},
+{ id:'p4', name:'Spring Boot Backend Engineering', branch:'phase-4/spring-boot-pro', color:'#9B7BFF', days:90, topics:[
+  {
+    title:'Spring Core, Inversion of Control, DI', days:10, 
+    subtopics: ['ApplicationContext & BeanFactory', 'Dependency Injection (Constructor vs Setter)', 'Bean Scopes (Singleton, Prototype)', 'Component Scanning (@ComponentScan)', 'Configuration Classes (@Configuration)', 'Spring Profiles (@Profile)', 'Property Sources & @Value', 'Lifecycle Callbacks (@PostConstruct)', 'AOP Concepts (Aspects & Pointcuts)', 'AOP Implementation in Spring'],
+    learn:RES('Read: Spring Core Reference Docs','https://docs.spring.io/spring-framework/reference/core.html'), practice:RES('Code: Spring Initializr Builder','https://start.spring.io/')
+  },
+  {
+    title:'RESTful APIs, DTO Pattern, Exception Handling', days:10, 
+    subtopics: ['DispatcherServlet & Web MVC', 'Building CRUD Endpoints (@RestController)', 'Request & Response Bodies (@RequestBody)', 'Path Variables & Request Params', 'DTO Mapping (MapStruct)', 'Data Validation (Hibernate Validator)', 'Global Exception Handling (@ControllerAdvice)', 'Standardizing Error Responses', 'Content Negotiation (JSON/XML)', 'HATEOAS Basics'],
+    learn:RES('Read: Spring Web MVC Reference','https://docs.spring.io/spring-framework/reference/web/webmvc.html'), practice:RES('Code: Build REST API Playground','https://start.spring.io/')
+  },
+  {
+    title:'Spring Data JPA, Hibernate, N+1 Problem', days:15, 
+    subtopics: ['DataSource Configuration', 'Entity Mapping (@Entity, @Table)', 'Primary Keys & Generators', 'Relationships (@OneToMany, @ManyToMany)', 'Spring Data Repositories (JpaRepository)', 'Derived Query Methods', 'Custom JPQL Queries (@Query)', 'Pagination & Sorting', 'The N+1 Query Problem & EntityGraphs', 'Transactions (@Transactional)'],
+    learn:RES('Read: Spring Data JPA Docs','https://docs.spring.io/spring-data/jpa/reference/'), practice:RES('Code: Database Implementation','https://start.spring.io/')
+  },
+  {
+    title:'Spring Security, JWT Auth, OAuth2', days:15, 
+    subtopics: ['Security Filter Chain architecture', 'Basic Authentication setup', 'UserDetailsService implementation', 'Password Encoding (Bcrypt)', 'Stateless Sessions & SecurityContext', 'JWT Generation & Validation', 'Writing a custom JWT Filter', 'Method Level Security (@PreAuthorize)', 'OAuth2 & OIDC concepts', 'Google OAuth2 Implementation'],
+    learn:RES('Read: Spring Security Architecture','https://docs.spring.io/spring-security/reference/servlet/architecture.html'), practice:RES('Code: Security Sandbox','https://start.spring.io/')
+  },
+  {
+    title:'Caching (Redis) & Connection Pools', days:10, 
+    learn:RES('Read: Spring Boot Caching Specs','https://docs.spring.io/spring-boot/docs/current/reference/html/io.html#io.caching'), practice:RES('Code: Spring Redis Template','https://docs.spring.io/spring-data/redis/reference/')
+  },
+  {title:'Messaging Systems: Apache Kafka Basics', days:15, learn:RES('Read: Apache Kafka Official Docs','https://kafka.apache.org/documentation/'), practice:RES('Code: Apache Kafka Quickstart','https://kafka.apache.org/quickstart')},
+  {title:'Enterprise Testing: JUnit 5, Mockito', days:15, learn:RES('Read: JUnit 5 User Guide','https://junit.org/junit5/docs/current/user-guide/'), practice:RES('Code: Spring Boot Testing Guide','https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing')}
+]},
+{ id:'p5', name:'React Frontend Architecture', branch:'phase-5/react-ui', color:'#FF6FA5', days:50, topics:[
+  {title:'Modern JS (ES6+) & React DOM', days:10, learn:RES('Read: React Dev Docs (Canonical)','https://react.dev/learn'), practice:RES('Code: React Tic-Tac-Toe Tutorial','https://react.dev/learn/tutorial-tic-tac-toe')},
+  {title:'Hooks Deep Dive (useState, useEffect, useMemo)', days:10, learn:RES('Read: React Hooks Reference','https://react.dev/reference/react'), practice:RES('Code: React Interactive State Exercises','https://react.dev/learn/managing-state')},
+  {title:'State Management (Redux Toolkit / Zustand)', days:10, learn:RES('Read: Redux Toolkit Docs','https://redux-toolkit.js.org/introduction/getting-started'), practice:RES('Code: Redux Toolkit Quickstart','https://redux-toolkit.js.org/tutorials/quick-start')},
+  {title:'Routing, API Integration (Axios/React Query)', days:10, learn:RES('Read: TanStack Query Docs','https://tanstack.com/query/v5/docs/framework/react/overview'), practice:RES('Code: React Router Tutorial','https://reactrouter.com/en/main/start/tutorial')},
+  {title:'Performance Optimization & Tailwind CSS', days:10, learn:RES('Read: Tailwind CSS Documentation','https://tailwindcss.com/docs/installation'), practice:RES('Code: Tailwind Play Interactive','https://play.tailwindcss.com/')}
+]},
+{ id:'p6', name:'Microservices & System Design', branch:'phase-6/system-design', color:'#FF8A5B', days:90, topics:[
+  {
+    title:'Monolith to Microservices & API Gateways', days:10, 
+    subtopics: ['Decomposition Strategies', 'Strangler Fig Pattern', 'Bounded Contexts (DDD)', 'Inter-service communication protocols', 'API Gateway Architecture', 'Spring Cloud Gateway Setup', 'Gateway Routing Rules', 'Gateway Cross-cutting concerns (Auth)', 'Rate Limiting patterns', 'BFF (Backend for Frontend) Pattern'],
+    learn:RES('Read: Microservices.io Patterns','https://microservices.io/patterns/index.html'), practice:RES('Code: Spring Cloud Gateway','https://spring.io/projects/spring-cloud-gateway')
+  },
+  {
+    title:'Service Discovery & Config Servers', days:15, 
+    subtopics: ['Centralized Configuration needs', 'Spring Cloud Config Server setup', 'Git-backed Configs', 'Dynamic Refresh (@RefreshScope)', 'Service Registry concepts', 'Netflix Eureka Setup', 'Registering Clients with Eureka', 'Client-side Load Balancing', 'Handling network partitions', 'Review: Discovery Architecture'],
+    learn:RES('Read: Spring Cloud Netflix Docs','https://docs.spring.io/spring-cloud-netflix/reference/'), practice:RES('Code: Spring Cloud Config','https://spring.io/projects/spring-cloud-config')
+  },
+  {
+    title:'Event-Driven Architecture & The Saga Pattern', days:15, 
+    subtopics: ['Synchronous vs Asynchronous flow', 'Event Sourcing basics', 'Message Brokers (Kafka/RabbitMQ) in Microservices', 'Distributed Transactions problem', 'Two-Phase Commit (2PC) limits', 'The Saga Pattern Introduction', 'Choreography-based Sagas', 'Orchestration-based Sagas', 'Compensating Transactions', 'Implementing Sagas reliably'],
+    learn:RES('Read: Microservices.io Saga Pattern','https://microservices.io/patterns/data/saga.html'), practice:RES('Code: Saga Code Examples','https://github.com/microservice-patterns/net.chrisrichardson.ftgo.examples')
+  },
+  {title:'CQRS & Distributed Tracing', days:10, learn:RES('Read: Micrometer Distributed Tracing','https://micrometer.io/docs/tracing'), practice:RES('Code: Zipkin/Jaeger Setup Guide','https://zipkin.io/pages/quickstart.html')},
+  {title:'System Design: Load Balancers, CDNs, Scaling', days:10, learn:RES('Read: System Design Primer Core','https://github.com/donnemartin/system-design-primer'), practice:RES('Read/Test: Primer Architecture Topics','https://github.com/donnemartin/system-design-primer#index-of-system-design-topics')},
+  {title:'Big Tech Case Studies (Netflix, Instagram, Uber)', days:30, learn:RES('Read: High Scalability Blog (Archive)','http://highscalability.com/'), practice:RES('Design: Excalidraw Architecture Practice','https://excalidraw.com/')}
+]},
+{ id:'p7', name:'DevOps, Cloud & Infra', branch:'phase-7/devops', color:'#6EE7B7', days:60, topics:[
+  {title:'Linux Basics & Advanced Git', days:5, learn:RES('Read: Missing Semester (MIT)','https://missing.csail.mit.edu/'), practice:RES('Code: Learn Git Branching Interactive','https://learngitbranching.js.org/')},
+  {title:'Docker: Containerization & Compose', days:15, learn:RES('Read: Docker Official Documentation','https://docs.docker.com/'), practice:RES('Code: Play with Docker Sandbox','https://labs.play-with-docker.com/')},
+  {title:'Kubernetes Architecture, Pods, Deployments', days:15, learn:RES('Read: Kubernetes Concepts Docs','https://kubernetes.io/docs/concepts/'), practice:RES('Code: Killercoda K8s Playground','https://killercoda.com/playgrounds/scenario/kubernetes')},
+  {title:'CI/CD Pipelines using GitHub Actions', days:10, learn:RES('Read: GitHub Actions Docs','https://docs.github.com/en/actions'), practice:RES('Code: GitHub Actions Quickstart','https://docs.github.com/en/actions/quickstart')},
+  {title:'AWS Core (EC2, S3, RDS, IAM)', days:15, learn:RES('Read: AWS Whitepapers & Architecture','https://aws.amazon.com/architecture/'), practice:RES('Code: AWS Free Tier Hands-on','https://aws.amazon.com/getting-started/hands-on/')}
+]},
+{ id:'p8', name:'The Masterpiece Projects', branch:'phase-8/execution', color:'#E63E5C', days:90, topics:[
+  {title:'System Architecture & DB Schema Design', days:10, learn:RES('Study: Microservices Arch Repos','https://github.com/topics/microservices-architecture'), practice:RES('Design: Draw.io / Excalidraw','https://excalidraw.com/')},
+  {title:'Backend Microservices Implementation', days:30, learn:RES('Read: Spring Cloud Reference','https://docs.spring.io/spring-cloud/'), practice:RES('Code: Build in your GitHub Repo','https://github.com/new')},
+  {title:'Frontend React UI Implementation', days:20, learn:RES('Study: Dribbble UI Inspiration','https://dribbble.com/'), practice:RES('Code: Build React App','https://github.com/new')},
+  {title:'Streaming & Real-Time (WebSockets / Kafka)', days:15, learn:RES('Read: Spring WebSockets Docs','https://docs.spring.io/spring-framework/reference/web/websocket.html'), practice:RES('Code: Implement Chat/Notifications','https://github.com/new')},
+  {title:'Cloud Deployment (K8s, AWS), Load Testing', days:15, learn:RES('Read: JMeter Documentation','https://jmeter.apache.org/usermanual/index.html'), practice:RES('Code: Deploy to AWS & Test','https://aws.amazon.com/')}
+]},
+];
+
+const TOTAL_DAYS = PHASES.reduce((s,p)=>s+p.days,0);
+
+function taskType(idx, count){
+  if(count <= 2) return 'LEARN';
+  const learnEnd = Math.max(1, Math.round(count * 0.40));
+  const buildEnd = count - Math.max(1, Math.round(count * 0.15));
+  if(idx < learnEnd) return 'LEARN';
+  if(idx < buildEnd) return 'CODE';
+  return 'REVIEW';
+}
+
+function typeVerb(t){ 
+  if(t === 'LEARN') return 'Deep Dive Docs:';
+  if(t === 'CODE') return 'Execute & Build:';
+  return 'Optimize & Debug:'; 
+}
+
+function getDailyLabel(type, topic, idx) {
+  if (topic.subtopics && topic.subtopics.length > 0) {
+    const sub = topic.subtopics[Math.min(idx, topic.subtopics.length - 1)];
+    return `${typeVerb(type)} ${sub}`;
+  }
+  return `${typeVerb(type)} ${topic.title} (Part ${idx + 1})`;
+}
+
+let globalDay = 0;
+PHASES.forEach(phase => {
+  phase.startDay = globalDay + 1;
+  phase.flatDays = [];
+  phase.topics.forEach(topic => {
+    topic.dayList = [];
+    for(let i=0; i<topic.days; i++){
+      globalDay++;
+      const type = taskType(i, topic.days);
+      const dynamicLabel = getDailyLabel(type, topic, i);
+      const d = {global: globalDay, phaseId: phase.id, type, topic: topic.title, label: dynamicLabel};
+      topic.dayList.push(d);
+      phase.flatDays.push(d);
+    }
+  });
+  phase.endDay = globalDay;
+});
+
+let state = { startDate: null, done: {} };
+async function loadState(){
+  try{
+    const saved = localStorage.getItem('senior_roadmap_progress_v3');
+    if(saved) state = JSON.parse(saved);
+  }catch(e){}
+  
+  if(!state.startDate){
+    const t = new Date();
+    state.startDate = t.toISOString().slice(0,10);
+  }
+  if(!state.done) state.done = {};
+}
+async function saveState(){
+  try{ localStorage.setItem('senior_roadmap_progress_v3', JSON.stringify(state)); }catch(e){}
+}
+
+function dateForDay(n){
+  const start = new Date(state.startDate + 'T00:00:00');
+  const weeksFull = Math.floor((n - 1) / 6);
+  const rem = (n - 1) % 6;
+  const totalCalendarOffset = (weeksFull * 7) + rem;
+  const d = new Date(start);
+  d.setDate(d.getDate() + totalCalendarOffset);
+  return d;
+}
+function fmt(d){ return d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }
+
+let currentFilter = 'all';
+let currentSearch = '';
+
+function render(){
+  document.getElementById('totalDaysHead').textContent = TOTAL_DAYS;
+  document.getElementById('totalDaysCaption').textContent = 'Day ' + TOTAL_DAYS;
+  document.getElementById('startDate').value = state.startDate;
+
+  const doneCount = Object.keys(state.done).filter(k => state.done[k]).length;
+  document.getElementById('statDone').textContent = doneCount;
+  document.getElementById('statPct').textContent = Math.round((doneCount / TOTAL_DAYS) * 100) + '%';
+
+  let currentPhase = PHASES.find(p => {
+    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    return doneInPhase < p.flatDays.length;
+  }) || PHASES[PHASES.length - 1];
+  document.getElementById('statPhase').textContent = currentPhase.name;
+
+  const etaDate = dateForDay(TOTAL_DAYS);
+  document.getElementById('statETA').textContent = fmt(etaDate);
+
+  const rail = document.getElementById('progressRail');
+  rail.innerHTML = '';
+  PHASES.forEach(p => {
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.style.width = ((p.days / TOTAL_DAYS) * 100) + '%';
+    seg.style.background = p.color + '33';
+    
+    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const fill = document.createElement('div');
+    fill.className = 'fill';
+    fill.style.width = ((doneInPhase / p.days) * 100) + '%';
+    fill.style.background = p.color;
+    
+    seg.appendChild(fill);
+    rail.appendChild(seg);
+  });
+
+  const hm = document.getElementById('heatmap');
+  hm.innerHTML = '';
+  for(let n=1; n<=TOTAL_DAYS; n++){
+    const phase = PHASES.find(p => n >= p.startDay && n <= p.endDay);
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.title = 'Day ' + n + ' — ' + phase.name;
+    if(state.done[n]){ cell.style.background = phase.color; cell.style.borderColor = phase.color; }
+    hm.appendChild(cell);
+  }
+  const legend = document.getElementById('legend');
+  legend.innerHTML = PHASES.map(p => `<span><span class="sw" style="background:${p.color}"></span>${p.name}</span>`).join('');
+
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '';
+  PHASES.forEach(p => {
+    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const el = document.createElement('a');
+    el.className = 'branch';
+    el.href = '#' + p.id;
+    el.innerHTML = `<div class="bname" style="color:${p.color}">${p.name}</div>
+      <div class="bmeta">${p.branch} · ${doneInPhase}/${p.days}d</div>
+      <div class="bbar"><div class="f" style="width:${(doneInPhase/p.days)*100}%;background:${p.color}"></div></div>`;
+    sidebar.appendChild(el);
+  });
+
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  PHASES.forEach(p => {
+    const doneInPhase = p.flatDays.filter(d => state.done[d.global]).length;
+    const section = document.createElement('div');
+    section.className = 'phase-section';
+    section.id = p.id;
+    section.style.borderLeftColor = p.color;
+    
+    section.innerHTML = `
+      <div class="phase-head">
+        <h2 style="color:${p.color}">${p.name}</h2>
+        <span class="pct">${doneInPhase}/${p.days} · ${Math.round((doneInPhase/p.days)*100)}%</span>
+      </div>
+      <div class="phase-days">${p.branch} · Days ${p.startDay}–${p.endDay} · Est: ${fmt(dateForDay(p.startDay))} → ${fmt(dateForDay(p.endDay))}</div>
+    `;
+
+    p.topics.forEach(topic => {
+      const first = topic.dayList[0].global;
+      const last = topic.dayList[topic.dayList.length-1].global;
+      
+      const tdiv = document.createElement('div');
+      tdiv.className = 'topic';
+      
+      tdiv.innerHTML = `<div class="topic-head">${topic.title} <span class="range">D${String(first).padStart(3,'0')}–D${String(last).padStart(3,'0')}</span></div>`;
+      
+      const list = document.createElement('div');
+      topic.dayList.forEach(d => {
+        const isDone = !!state.done[d.global];
+        if(currentFilter === 'done' && !isDone) return;
+        if(currentFilter === 'pending' && isDone) return;
+        if(currentSearch && !(topic.title + ' ' + d.label).toLowerCase().includes(currentSearch)) return;
+        
+        const link = (d.type === 'LEARN') ? topic.learn : topic.practice;
+        const linkClass = (d.type === 'CODE' || d.type === 'REVIEW') ? 'day-link code-link' : 'day-link';
+
+        const row = document.createElement('label');
+        row.className = 'day' + (isDone ? ' done' : '');
+        row.innerHTML = `
+          <input type="checkbox" data-day="${d.global}" ${isDone ? 'checked' : ''}>
+          <span class="code">D${String(d.global).padStart(3,'0')}</span>
+          <span class="tag" style="border-color:${d.type==='CODE'?p.color:''}; color:${d.type==='CODE'?p.color:''}">${d.type}</span>
+          <span class="date">${fmt(dateForDay(d.global))}</span>
+          <span class="task">${d.label}</span>
+          <a href="${link.url}" target="_blank" rel="noopener" class="${linkClass}">${link.label}</a>
+        `;
+        list.appendChild(row);
+      });
+      tdiv.appendChild(list);
+      section.appendChild(tdiv);
+    });
+    main.appendChild(section);
+  });
+
+  main.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', async (e) => {
+      const day = e.target.getAttribute('data-day');
+      state.done[day] = e.target.checked;
+      await saveState();
+      render();
+    });
+  });
+
+  initScrollSpy();
+}
+
+function initScrollSpy() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.branch').forEach(b => b.classList.remove('active-branch'));
+        const activeBranch = document.querySelector(`.branch[href="#${entry.target.id}"]`);
+        if(activeBranch) activeBranch.classList.add('active-branch');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+
+  document.querySelectorAll('.phase-section').forEach(sec => observer.observe(sec));
+}
+
+document.getElementById('search').addEventListener('input', e => {
+  currentSearch = e.target.value.toLowerCase();
+  render();
+});
+document.querySelectorAll('.controls button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.getAttribute('data-filter');
+    render();
+  });
+});
+document.getElementById('startDate').addEventListener('change', async e => {
+  state.startDate = e.target.value;
+  await saveState();
+  render();
+});
+
+(async () => {
+  await loadState();
+  render();
+})();
+</script>
+</body>
+</html>
