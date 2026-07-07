@@ -23,22 +23,36 @@
   code, .mono { font-family: 'JetBrains Mono', monospace; }
   a { color: inherit; }
 
-  /* --- NEW AUTH PANEL STYLES --- */
-  .auth-panel { position: absolute; top: 24px; right: 24px; background: var(--surface); padding: 16px; border: 1px solid var(--line); border-radius: 12px; z-index: 1000; width: 260px; font-size: 13px; }
-  .auth-panel h3 { font-size: 14px; margin-bottom: 12px; color: var(--amber); }
-  .auth-panel input { width: 100%; background: var(--void); border: 1px solid var(--line); color: var(--text); padding: 8px; border-radius: 6px; margin-bottom: 8px; font-family: 'IBM Plex Sans', sans-serif; }
-  .auth-panel .auth-btns { display: flex; gap: 8px; margin-top: 4px; }
-  .auth-panel button { flex: 1; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-  .auth-panel button:hover { background: var(--amber); color: var(--void); border-color: var(--amber); font-weight: 600; }
-  .auth-status { color: var(--muted); margin-bottom: 12px; word-break: break-all; }
-  .logout-btn { background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; }
+  /* --- FULL SCREEN AUTH UI STYLES --- */
+  .auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--void); padding: 20px; }
+  .auth-box { background: var(--surface); padding: 40px; border: 1px solid var(--line); border-radius: 12px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .auth-box h2 { font-size: 24px; color: var(--text); margin-bottom: 8px; }
+  .auth-box p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .auth-box input { width: 100%; background: var(--void); border: 1px solid var(--line); color: var(--text); padding: 12px; border-radius: 8px; margin-bottom: 12px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; }
+  .auth-box input:focus { outline: none; border-color: var(--amber); }
+  .auth-btns { display: flex; gap: 12px; margin-bottom: 20px; }
+  .auth-btns button { flex: 1; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: 500; font-family: 'IBM Plex Sans', sans-serif; }
+  .auth-btns button:hover { background: var(--amber); color: var(--void); border-color: var(--amber); }
+  .divider { display: flex; align-items: center; text-align: center; margin: 24px 0; color: var(--muted); font-size: 12px; }
+  .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--line); }
+  .divider span { padding: 0 10px; }
+  
+  .google-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; color: black; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; transition: 0.2s; }
+  .google-btn:hover { background: #f1f1f1; transform: translateY(-1px); }
+  .google-btn img { width: 18px; height: 18px; }
+  
+  /* --- IN-APP USER PANEL STYLES --- */
+  .user-panel { position: absolute; top: 24px; right: 24px; background: var(--surface); padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; z-index: 1000; display: flex; align-items: center; gap: 16px; }
+  .user-panel .auth-status { color: var(--text); font-size: 13px; line-height: 1.2; }
+  .user-panel .auth-status span { color: var(--muted); font-size: 11px; display: block; }
+  .logout-btn { background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; }
   .logout-btn:hover { background: #E63E5C; color: white; border-color: #E63E5C; }
   
   /* --- ORIGINAL STYLES --- */
   .top { padding: 28px 24px 0; max-width: 1400px; margin: 0 auto; position: relative; }
   .commit-line { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
   .commit-line .hash { color: var(--amber); }
-  h1.title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; max-width: calc(100% - 280px); }
+  h1.title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; max-width: calc(100% - 300px); }
   .subtitle { color: var(--muted); font-size: 15px; margin-top: 6px; max-width: 800px; }
 
   .hero-stats { display: flex; gap: 28px; margin: 22px 0 8px; flex-wrap: wrap; }
@@ -59,7 +73,7 @@
   .legend .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
 
   .layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 0 24px 60px; }
-  @media(max-width:900px){ .layout { grid-template-columns: 1fr; } h1.title { max-width: 100%; } .auth-panel { position: relative; top: 0; right: 0; width: 100%; margin-top: 20px; } }
+  @media(max-width:900px){ .layout { grid-template-columns: 1fr; } h1.title { max-width: 100%; } .user-panel { position: relative; top: 0; right: 0; width: 100%; margin-bottom: 20px; justify-content: space-between; } }
 
   .sidebar { position: sticky; top: 20px; align-self: start; }
   .branch { display: block; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: 0.2s; }
@@ -109,72 +123,89 @@
 </head>
 <body>
 
-<div class="top">
-  <!-- NEW AUTH UI INJECTED HERE -->
-  <div class="auth-panel" id="authPanel">
-    <h3>Cloud Sync Login</h3>
-    <div id="unauthUI">
-      <input type="email" id="emailInput" placeholder="Email address">
-      <input type="password" id="passInput" placeholder="Password">
-      <div class="auth-btns">
-        <button id="loginBtn">Login</button>
-        <button id="signupBtn">Sign Up</button>
-      </div>
-      <div id="authError" style="color: #E63E5C; font-size: 11px; margin-top: 8px;"></div>
+<!-- GATEWAY: AUTHENTICATION SCREEN -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h2>Senior Engineer Roadmap</h2>
+    <p>Log in to track and cloud-sync your 600-day execution plan.</p>
+    
+    <div id="authError" style="color: #E63E5C; font-size: 13px; margin-bottom: 16px; min-height: 18px;"></div>
+    
+    <input type="email" id="emailInput" placeholder="Email address">
+    <input type="password" id="passInput" placeholder="Password">
+    
+    <div class="auth-btns">
+      <button id="loginBtn">Log In</button>
+      <button id="signupBtn">Sign Up</button>
     </div>
-    <div id="authUI" style="display: none;">
-      <div class="auth-status">Logged in as:<br><strong id="userEmailDisplay"></strong></div>
+    
+    <div class="divider"><span>OR</span></div>
+    
+    <button id="googleBtn" class="google-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Continue with Google
+    </button>
+  </div>
+</div>
+
+<!-- MAIN APPLICATION CONTENT (HIDDEN UNTIL LOGGED IN) -->
+<div id="appContent" style="display: none;">
+  <div class="top">
+    
+    <div class="user-panel">
+      <div class="auth-status">
+        <span>Logged in as</span>
+        <strong id="userEmailDisplay"></strong>
+      </div>
       <button class="logout-btn" id="logoutBtn">Log Out</button>
     </div>
+
+    <div class="commit-line"><span class="hash">roadmap@architect</span> — 8 branches, <span id="totalDaysHead"></span> commits planned</div>
+    <h1 class="title">Senior Fullstack Engineer (600-Day Master Path)</h1>
+    <p class="subtitle">Designed for working professionals (9 AM - 7 PM). Every single day has a dedicated, actionable link. Scroll tracking enabled.</p>
+
+    <div class="hero-stats">
+      <div class="stat"><div class="num" id="statDone">0</div><div class="lbl">Days done</div></div>
+      <div class="stat"><div class="num" id="statPct">0%</div><div class="lbl">Overall</div></div>
+      <div class="stat"><div class="num" id="statPhase">—</div><div class="lbl">Current branch</div></div>
+      <div class="stat"><div class="num" id="statETA">—</div><div class="lbl">Est. finish date</div></div>
+    </div>
+
+    <div class="progress-rail" id="progressRail"></div>
+    <div class="rail-caption"><span>Day 1</span><span id="totalDaysCaption"></span></div>
+
+    <div class="heatmap-wrap">
+      <div class="heatmap-title">Execution Graph — Colored by phase. 6 days on, 1 day off.</div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search a topic... e.g., 'Kafka', 'JWT', 'Graphs'">
+      <button class="active" data-filter="all">All</button>
+      <button data-filter="pending">Pending</button>
+      <button data-filter="done">Done</button>
+      <div class="datefield">Start Date <input type="date" id="startDate"></div>
+    </div>
   </div>
 
-  <div class="commit-line"><span class="hash">roadmap@architect</span> — 8 branches, <span id="totalDaysHead"></span> commits planned</div>
-  <h1 class="title">Senior Fullstack Engineer (600-Day Master Path)</h1>
-  <p class="subtitle">Designed for working professionals (9 AM - 7 PM). Every single day has a dedicated, actionable link. Scroll tracking enabled.</p>
-
-  <div class="hero-stats">
-    <div class="stat"><div class="num" id="statDone">0</div><div class="lbl">Days done</div></div>
-    <div class="stat"><div class="num" id="statPct">0%</div><div class="lbl">Overall</div></div>
-    <div class="stat"><div class="num" id="statPhase">—</div><div class="lbl">Current branch</div></div>
-    <div class="stat"><div class="num" id="statETA">—</div><div class="lbl">Est. finish date</div></div>
+  <div class="layout">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main" id="main"></div>
   </div>
 
-  <div class="progress-rail" id="progressRail"></div>
-  <div class="rail-caption"><span>Day 1</span><span id="totalDaysCaption"></span></div>
-
-  <div class="heatmap-wrap">
-    <div class="heatmap-title">Execution Graph — Colored by phase. 6 days on, 1 day off.</div>
-    <div class="heatmap" id="heatmap"></div>
-    <div class="legend" id="legend"></div>
-  </div>
-
-  <div class="controls">
-    <input type="text" id="search" placeholder="Search a topic... e.g., 'Kafka', 'JWT', 'Graphs'">
-    <button class="active" data-filter="all">All</button>
-    <button data-filter="pending">Pending</button>
-    <button data-filter="done">Done</button>
-    <div class="datefield">Start Date <input type="date" id="startDate"></div>
-  </div>
+  <footer>600 Days to Architectural Mastery · No Excuses · Cloud Synced via Firebase</footer>
 </div>
-
-<div class="layout">
-  <div class="sidebar" id="sidebar"></div>
-  <div class="main" id="main"></div>
-</div>
-
-<footer>600 Days to Architectural Mastery · No Excuses · Cloud Synced via Firebase</footer>
 
 <!-- TYPE="MODULE" ENABLES FIREBASE IMPORTS -->
 <script type="module">
-// --- 1. FIREBASE CONFIGURATION (YOU MUST UPDATE THIS) ---
-// Go to console.firebase.google.com -> Create a web project -> Enable Authentication (Email/Password) -> Enable Firestore Database
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+// ADDED GoogleAuthProvider and signInWithPopup to imports
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  // PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
- apiKey: "AIzaSyAqzmMePlqbWSHeTVtDHXzylwgPXgZDGj8",
+    apiKey: "AIzaSyAqzmMePlqbWSHeTVtDHXzylwgPXgZDGj8",
     authDomain: "learning-tracker-a5f98.firebaseapp.com",
     projectId: "learning-tracker-a5f98",
     storageBucket: "learning-tracker-a5f98.firebasestorage.app",
@@ -186,33 +217,41 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider(); // Initialize Google Auth
 
-// --- 2. AUTHENTICATION LOGIC ---
-let currentUser = null;
-const unauthUI = document.getElementById('unauthUI');
-const authUI = document.getElementById('authUI');
+// --- UI ELEMENTS ---
+const authScreen = document.getElementById('authScreen');
+const appContent = document.getElementById('appContent');
 const userEmailDisplay = document.getElementById('userEmailDisplay');
 const authError = document.getElementById('authError');
 
+let currentUser = null;
+
+// --- AUTH STATE LISTENER ---
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
-    unauthUI.style.display = 'none';
-    authUI.style.display = 'block';
-    userEmailDisplay.textContent = user.email;
+    // If logged in: hide auth screen, show app content
+    authScreen.style.display = 'none';
+    appContent.style.display = 'block';
+    
+    // Display name (from Google) or email (from email/password)
+    userEmailDisplay.textContent = user.displayName || user.email;
+    
     await loadState();
   } else {
-    unauthUI.style.display = 'block';
-    authUI.style.display = 'none';
+    // If logged out: show auth screen, hide app content
+    authScreen.style.display = 'flex';
+    appContent.style.display = 'none';
     userEmailDisplay.textContent = '';
     
-    // Reset to empty state if logged out
+    // Reset to empty state in memory
     const t = new Date();
     state = { startDate: t.toISOString().slice(0,10), done: {} };
-    render();
   }
 });
 
+// --- AUTH BUTTON ACTIONS ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
   try {
     authError.textContent = '';
@@ -227,10 +266,18 @@ document.getElementById('signupBtn').addEventListener('click', async () => {
   } catch (err) { authError.textContent = err.message; }
 });
 
+// NEW: Google Login Action
+document.getElementById('googleBtn').addEventListener('click', async () => {
+  try {
+    authError.textContent = '';
+    await signInWithPopup(auth, googleProvider);
+  } catch (err) { authError.textContent = err.message; }
+});
+
 document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
 
-// --- 3. ORIGINAL DATA (UNCHANGED) ---
+// --- ORIGINAL DATA ---
 const RES = (label, url) => ({ label, url });
 
 const PHASES = [
@@ -392,7 +439,7 @@ PHASES.forEach(phase => {
 });
 
 
-// --- 4. CLOUD STATE MANAGEMENT ---
+// --- CLOUD STATE MANAGEMENT ---
 let state = { startDate: null, done: {} };
 
 async function loadState(){
@@ -413,10 +460,7 @@ async function loadState(){
 }
 
 async function saveState(){
-  if(!currentUser) {
-    alert("You must log in to save your progress permanently.");
-    return;
-  }
+  if(!currentUser) return;
   try {
     const docRef = doc(db, "users", currentUser.uid);
     await setDoc(docRef, state);
@@ -424,7 +468,7 @@ async function saveState(){
 }
 
 
-// --- 5. RENDER ENGINE (UNCHANGED EXCEPT EVENT LISTENER MIGRATION) ---
+// --- RENDER ENGINE ---
 function dateForDay(n){
   const start = new Date(state.startDate + 'T00:00:00');
   const weeksFull = Math.floor((n - 1) / 6);
@@ -440,6 +484,9 @@ let currentFilter = 'all';
 let currentSearch = '';
 
 function render(){
+  // Only attempt to render data if a user is successfully logged in.
+  if(!currentUser) return;
+
   document.getElementById('totalDaysHead').textContent = TOTAL_DAYS;
   document.getElementById('totalDaysCaption').textContent = 'Day ' + TOTAL_DAYS;
   if(state.startDate) document.getElementById('startDate').value = state.startDate;
@@ -557,12 +604,7 @@ function render(){
 
   main.querySelectorAll('input[type=checkbox]').forEach(cb => {
     cb.addEventListener('change', async (e) => {
-      if(!currentUser) {
-        e.preventDefault();
-        e.target.checked = false;
-        alert("Please log in first to track your progress.");
-        return;
-      }
+      if(!currentUser) return;
       const day = e.target.getAttribute('data-day');
       state.done[day] = e.target.checked;
       await saveState();
@@ -607,9 +649,6 @@ document.getElementById('startDate').addEventListener('change', async e => {
   await saveState();
   render();
 });
-
-// Initial empty render until user logs in
-render();
 
 </script>
 </body>
