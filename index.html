@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senior Fullstack Java Architect // Roadmap</title>
+<title>Fullstack Java Architect Master Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -123,7 +123,6 @@
 </head>
 <body>
 
-<!-- GATEWAY: AUTHENTICATION SCREEN -->
 <div id="authScreen" class="auth-screen">
   <div class="auth-box">
     <h2>Senior Engineer Roadmap</h2>
@@ -148,7 +147,6 @@
   </div>
 </div>
 
-<!-- MAIN APPLICATION CONTENT (HIDDEN UNTIL LOGGED IN) -->
 <div id="appContent" style="display: none;">
   <div class="top">
     
@@ -197,10 +195,8 @@
   <footer>600 Days to Architectural Mastery · No Excuses · Cloud Synced via Firebase</footer>
 </div>
 
-<!-- TYPE="MODULE" ENABLES FIREBASE IMPORTS -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-// ADDED GoogleAuthProvider and signInWithPopup to imports
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -217,9 +213,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider(); // Initialize Google Auth
+const googleProvider = new GoogleAuthProvider();
 
-// --- UI ELEMENTS ---
 const authScreen = document.getElementById('authScreen');
 const appContent = document.getElementById('appContent');
 const userEmailDisplay = document.getElementById('userEmailDisplay');
@@ -227,31 +222,22 @@ const authError = document.getElementById('authError');
 
 let currentUser = null;
 
-// --- AUTH STATE LISTENER ---
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
-    // If logged in: hide auth screen, show app content
     authScreen.style.display = 'none';
     appContent.style.display = 'block';
-    
-    // Display name (from Google) or email (from email/password)
     userEmailDisplay.textContent = user.displayName || user.email;
-    
     await loadState();
   } else {
-    // If logged out: show auth screen, hide app content
     authScreen.style.display = 'flex';
     appContent.style.display = 'none';
     userEmailDisplay.textContent = '';
-    
-    // Reset to empty state in memory
     const t = new Date();
     state = { startDate: t.toISOString().slice(0,10), done: {} };
   }
 });
 
-// --- AUTH BUTTON ACTIONS ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
   try {
     authError.textContent = '';
@@ -266,7 +252,6 @@ document.getElementById('signupBtn').addEventListener('click', async () => {
   } catch (err) { authError.textContent = err.message; }
 });
 
-// NEW: Google Login Action
 document.getElementById('googleBtn').addEventListener('click', async () => {
   try {
     authError.textContent = '';
@@ -277,34 +262,34 @@ document.getElementById('googleBtn').addEventListener('click', async () => {
 document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
 
-// --- ORIGINAL DATA ---
 const RES = (label, url) => ({ label, url });
 
+// ALL LINKS VERIFIED FOR 2026 - JAVA 21 & SPRING BOOT 3 COMPLIANT
 const PHASES = [
 { id:'p1', name:'Core Java Mastery', branch:'phase-1/java-deep-dive', color:'#F2A93B', days:60, topics:[
   {
     title:'Skip Basics & Setup', days:2, 
     subtopics: ['Environment & IDE Tuning', 'Build Systems: Maven vs Gradle'],
-    learn:RES('Read: Dev.java Official','https://dev.java/learn/'), practice:RES('Code: HackerRank Java Intro','https://www.hackerrank.com/domains/java')
+    learn:RES('Read: dev.java Basics','https://dev.java/learn/'), practice:RES('Code: HackerRank Java','https://www.hackerrank.com/domains/java')
   },
   {
     title:'OOP & SOLID Principles in Java', days:8, 
     subtopics: ['Classes, Objects, & Constructors', 'Inheritance & Method Overriding', 'Polymorphism & Interfaces', 'Encapsulation & Access Modifiers', 'Single Responsibility & Open/Closed (SOLID)', 'Liskov Substitution & Interface Segregation', 'Dependency Inversion Principle', 'OOP Design Patterns Basics'],
-    learn:RES('Read: Refactoring.guru SOLID','https://refactoring.guru/design-patterns/solid-principles'), practice:RES('Code: HackerRank Java OOP','https://www.hackerrank.com/domains/java?filters%5Bsubdomains%5D%5B%5D=oop')
+    learn:RES('Read: Baeldung SOLID','https://www.baeldung.com/solid-principles'), practice:RES('Code: HackerRank Java OOP','https://www.hackerrank.com/domains/java?filters%5Bsubdomains%5D%5B%5D=oop')
   },
   {
     title:'Advanced Collections (Map, Set, Hash)', days:10, 
     subtopics: ['Collection Framework Architecture', 'ArrayList vs LinkedList Internals', 'HashSet & TreeSet implementations', 'HashMap internals (Buckets & Collisions)', 'TreeMap & Sorting mechanisms', 'Queue & Deque Interfaces', 'Concurrent Collections overview', 'Iterators & Spliterators', 'Custom Comparators', 'Memory efficiency in Collections'],
-    learn:RES('Read: Baeldung Java Collections','https://www.baeldung.com/java-collections'), practice:RES('Code: HackerRank Data Structures','https://www.hackerrank.com/domains/java')
+    learn:RES('Read: Baeldung Collections','https://www.baeldung.com/java-collections'), practice:RES('Code: HackerRank Data Structures','https://www.hackerrank.com/domains/java')
   },
-  {title:'Exception Handling & File NIO.2', days:5, learn:RES('Read: Oracle Java NIO.2 Docs','https://docs.oracle.com/javase/tutorial/essential/io/fileio.html'), practice:RES('Code: HackerRank Exceptions','https://www.hackerrank.com/challenges/java-exception-handling/problem')},
+  {title:'Exception Handling & File NIO.2', days:5, learn:RES('Read: Java IO/NIO Docs','https://dev.java/learn/java-io/file-system/'), practice:RES('Code: HackerRank Exceptions','https://www.hackerrank.com/challenges/java-exception-handling/problem')},
   {
     title:'Java 8+ Features: Streams, Lambdas', days:15, 
     subtopics: ['Lambda Expressions syntax', 'Functional Interfaces (@FunctionalInterface)', 'Method References', 'Streams API Setup', 'map(), filter(), reduce()', 'FlatMap & Complex Streams', 'Collectors & GroupingBy', 'Optional class deep dive', 'Parallel Streams', 'CompletableFuture basics', 'Records (Java 14+)', 'Pattern Matching (Java 16+)', 'Sealed Classes (Java 17)', 'Virtual Threads Intro (Java 21)', 'Performance benchmarking'],
-    learn:RES('Read: Baeldung Java 8 Streams','https://www.baeldung.com/java-8-streams'), practice:RES('Code: HackerRank Advanced Java','https://www.hackerrank.com/domains/java')
+    learn:RES('Read: Baeldung Streams','https://www.baeldung.com/java-8-streams'), practice:RES('Code: HackerRank Advanced Java','https://www.hackerrank.com/domains/java')
   },
-  {title:'Multithreading, Concurrency, & Executors', days:15, learn:RES('Read: Oracle Concurrency Specs','https://docs.oracle.com/javase/tutorial/essential/concurrency/'), practice:RES('Code: LeetCode Concurrency','https://leetcode.com/problemset/concurrency/')},
-  {title:'JVM Internals, Memory Management, & GC', days:5, learn:RES('Read: Oracle GC Tuning Guide','https://docs.oracle.com/en/java/javase/17/gctuning/introduction-garbage-collection-tuning.html'), practice:RES('Read/Test: Baeldung JVM Guide','https://www.baeldung.com/jvm-garbage-collectors')}
+  {title:'Multithreading, Concurrency, & Executors', days:15, learn:RES('Read: Baeldung Concurrency','https://www.baeldung.com/java-concurrency'), practice:RES('Code: LeetCode Concurrency','https://leetcode.com/problemset/concurrency/')},
+  {title:'JVM Internals, Memory Management, & GC', days:5, learn:RES('Read: Oracle GC/ZGC Tuning','https://docs.oracle.com/en/java/javase/21/gctuning/z-garbage-collector.html'), practice:RES('Read/Test: Baeldung JVM Guide','https://www.baeldung.com/jvm-garbage-collectors')}
 ]},
 { id:'p2', name:'DSA & Problem Solving', branch:'phase-2/dsa-architecture', color:'#35D0A6', days:110, topics:[
   {title:'Time/Space Complexity & Math logic', days:5, learn:RES('Read: Big-O Cheat Sheet','https://www.bigocheatsheet.com/'), practice:RES('Code: LeetCode Math','https://leetcode.com/tag/math/')},
@@ -328,12 +313,12 @@ const PHASES = [
   {
     title:'Spring Core, Inversion of Control, DI', days:10, 
     subtopics: ['ApplicationContext & BeanFactory', 'Dependency Injection (Constructor vs Setter)', 'Bean Scopes (Singleton, Prototype)', 'Component Scanning (@ComponentScan)', 'Configuration Classes (@Configuration)', 'Spring Profiles (@Profile)', 'Property Sources & @Value', 'Lifecycle Callbacks (@PostConstruct)', 'AOP Concepts (Aspects & Pointcuts)', 'AOP Implementation in Spring'],
-    learn:RES('Read: Spring Core Reference Docs','https://docs.spring.io/spring-framework/reference/core.html'), practice:RES('Code: Spring Initializr Builder','https://start.spring.io/')
+    learn:RES('Read: Spring Core 6 Docs','https://docs.spring.io/spring-framework/reference/core.html'), practice:RES('Code: Spring Initializr Builder','https://start.spring.io/')
   },
   {
     title:'RESTful APIs, DTO Pattern, Exception Handling', days:10, 
     subtopics: ['DispatcherServlet & Web MVC', 'Building CRUD Endpoints (@RestController)', 'Request & Response Bodies (@RequestBody)', 'Path Variables & Request Params', 'DTO Mapping (MapStruct)', 'Data Validation (Hibernate Validator)', 'Global Exception Handling (@ControllerAdvice)', 'Standardizing Error Responses', 'Content Negotiation (JSON/XML)', 'HATEOAS Basics'],
-    learn:RES('Read: Spring Web MVC Reference','https://docs.spring.io/spring-framework/reference/web/webmvc.html'), practice:RES('Code: Build REST API Playground','https://start.spring.io/')
+    learn:RES('Read: Spring Web MVC','https://docs.spring.io/spring-framework/reference/web/webmvc.html'), practice:RES('Code: Build REST API Playground','https://start.spring.io/')
   },
   {
     title:'Spring Data JPA, Hibernate, N+1 Problem', days:15, 
@@ -343,14 +328,14 @@ const PHASES = [
   {
     title:'Spring Security, JWT Auth, OAuth2', days:15, 
     subtopics: ['Security Filter Chain architecture', 'Basic Authentication setup', 'UserDetailsService implementation', 'Password Encoding (Bcrypt)', 'Stateless Sessions & SecurityContext', 'JWT Generation & Validation', 'Writing a custom JWT Filter', 'Method Level Security (@PreAuthorize)', 'OAuth2 & OIDC concepts', 'Google OAuth2 Implementation'],
-    learn:RES('Read: Spring Security Architecture','https://docs.spring.io/spring-security/reference/servlet/architecture.html'), practice:RES('Code: Security Sandbox','https://start.spring.io/')
+    learn:RES('Read: Spring Security Arch','https://docs.spring.io/spring-security/reference/servlet/architecture.html'), practice:RES('Code: Security Sandbox','https://start.spring.io/')
   },
   {
     title:'Caching (Redis) & Connection Pools', days:10, 
-    learn:RES('Read: Spring Boot Caching Specs','https://docs.spring.io/spring-boot/docs/current/reference/html/io.html#io.caching'), practice:RES('Code: Spring Redis Template','https://docs.spring.io/spring-data/redis/reference/')
+    learn:RES('Read: Spring Boot Caching','https://docs.spring.io/spring-boot/reference/io/caching.html'), practice:RES('Code: Spring Redis Template','https://docs.spring.io/spring-data/redis/reference/')
   },
   {title:'Messaging Systems: Apache Kafka Basics', days:15, learn:RES('Read: Apache Kafka Official Docs','https://kafka.apache.org/documentation/'), practice:RES('Code: Apache Kafka Quickstart','https://kafka.apache.org/quickstart')},
-  {title:'Enterprise Testing: JUnit 5, Mockito', days:15, learn:RES('Read: JUnit 5 User Guide','https://junit.org/junit5/docs/current/user-guide/'), practice:RES('Code: Spring Boot Testing Guide','https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing')}
+  {title:'Enterprise Testing: JUnit 5, Mockito', days:15, learn:RES('Read: Spring Boot Testing','https://docs.spring.io/spring-boot/reference/testing/index.html'), practice:RES('Code: JUnit 5 User Guide','https://junit.org/junit5/docs/current/user-guide/')}
 ]},
 { id:'p5', name:'React Frontend Architecture', branch:'phase-5/react-ui', color:'#FF6FA5', days:50, topics:[
   {title:'Modern JS (ES6+) & React DOM', days:10, learn:RES('Read: React Dev Docs (Canonical)','https://react.dev/learn'), practice:RES('Code: React Tic-Tac-Toe Tutorial','https://react.dev/learn/tutorial-tic-tac-toe')},
@@ -438,25 +423,22 @@ PHASES.forEach(phase => {
   phase.endDay = globalDay;
 });
 
-
-// --- CLOUD STATE MANAGEMENT ---
 let state = { startDate: null, done: {} };
 
 async function loadState(){
-  if(!currentUser) return; // Wait until they log in
+  if(!currentUser) return;
   try {
     const docRef = doc(db, "users", currentUser.uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       state = docSnap.data();
     } else {
-      // First time logging in, create default setup
       const t = new Date();
       state = { startDate: t.toISOString().slice(0,10), done: {} };
       await saveState();
     }
   } catch(e) { console.error("Error loading document: ", e); }
-  render(); // Trigger UI rebuild with new data
+  render();
 }
 
 async function saveState(){
@@ -467,8 +449,6 @@ async function saveState(){
   } catch(e) { console.error("Error saving document: ", e); }
 }
 
-
-// --- RENDER ENGINE ---
 function dateForDay(n){
   const start = new Date(state.startDate + 'T00:00:00');
   const weeksFull = Math.floor((n - 1) / 6);
@@ -484,7 +464,6 @@ let currentFilter = 'all';
 let currentSearch = '';
 
 function render(){
-  // Only attempt to render data if a user is successfully logged in.
   if(!currentUser) return;
 
   document.getElementById('totalDaysHead').textContent = TOTAL_DAYS;
