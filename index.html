@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senior Fullstack Architect // 800-Day Master Path</title>
+<title>Senior Architect // 800-Day Master Path</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -77,7 +77,9 @@
   .layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 0 24px 60px; }
   @media(max-width:900px){ .layout { grid-template-columns: 1fr; } h1.title { max-width: 100%; } .user-panel { position: relative; top: 0; right: 0; width: 100%; margin-bottom: 20px; justify-content: space-between; } }
 
-  .sidebar { position: sticky; top: 20px; align-self: start; }
+  .sidebar { position: sticky; top: 20px; align-self: start; max-height: 80vh; overflow-y: auto; padding-right: 10px; }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
   .branch { display: block; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: 0.2s; }
   .branch:hover { background: var(--surface); }
   .branch.active-branch { background: var(--surface); border-color: var(--line); border-left: 3px solid var(--amber); padding-left: 9px; }
@@ -93,45 +95,46 @@
   .controls .datefield { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); }
   .controls .datefield input { background: transparent; border: none; color: var(--text); font-family: 'JetBrains Mono', monospace; }
 
-  .phase-section { margin-bottom: 34px; border-left: 3px solid var(--line); padding-left: 18px; transition: 0.3s; }
-  .phase-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; cursor: pointer; }
-  .phase-head h2 { font-size: 19px; }
-  .phase-head .pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+  .phase-section { margin-bottom: 40px; border-left: 3px solid var(--line); padding-left: 18px; transition: 0.3s; }
+  .phase-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; cursor: pointer; }
+  .phase-head h2 { font-size: 22px; }
+  .phase-head .pct { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); }
 
-  .topic { margin-bottom: 16px; }
-  .topic-head { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .topic { margin-bottom: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .topic-head { font-size: 14px; font-weight: 600; padding: 12px 16px; background: var(--surface-2); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .topic-head .cycle-badge { font-size: 10px; font-family: 'JetBrains Mono', monospace; background: var(--void); padding: 4px 8px; border-radius: 4px; color: var(--muted); }
   
-  .day { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 13px; border: 1px solid transparent; }
-  .day:hover { background: var(--surface); border-color: var(--line); }
-  .day.done { opacity: .5; }
+  .topic-body { padding: 8px; }
+  .day { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 6px; font-size: 13px; border: 1px solid transparent; transition: 0.2s; }
+  .day:hover { background: rgba(255,255,255,0.02); }
+  .day.done { opacity: .4; }
   .day.done .task { text-decoration: line-through; }
-  .day input[type=checkbox] { accent-color: var(--amber); cursor: pointer; }
-  .day .code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-2); min-width: 50px; }
+  .day input[type=checkbox] { accent-color: var(--amber); cursor: pointer; transform: scale(1.1); }
+  .day .code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted-2); min-width: 45px; }
   
-  .day .tag { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); min-width: 60px; text-align: center; }
-  .day .tag.learn { border-color: var(--blue); color: var(--blue); }
-  .day .tag.code { border-color: var(--teal); color: var(--teal); }
-  .day .tag.extra { border-color: var(--purple); color: var(--purple); }
+  .day .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--line); min-width: 65px; text-align: center; }
+  .day .tag.learn { border-color: var(--blue); color: var(--blue); background: rgba(79, 163, 247, 0.1); }
+  .day .tag.code { border-color: var(--teal); color: var(--teal); background: rgba(53, 208, 166, 0.1); }
+  .day .tag.extra { border-color: var(--purple); color: var(--purple); background: rgba(155, 123, 255, 0.1); }
 
-  .day .date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted-2); min-width: 64px; }
-  .day .task { flex: 1; }
+  .day .date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 80px; }
+  .day .task { flex: 1; font-weight: 500; }
   
-  .day-link { font-size: 10px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 4px 10px; border-radius: 4px; text-decoration: none; white-space: nowrap; transition: 0.2s; font-family: 'JetBrains Mono', monospace; }
-  .day-link:hover { background: var(--text); color: var(--void); }
-  .day-link.code-link { color: var(--teal); border-color: var(--teal); }
-  .day-link.code-link:hover { background: var(--teal); color: var(--void); }
-  .day-link.extra-link { color: var(--purple); border-color: var(--purple); }
-  .day-link.extra-link:hover { background: var(--purple); color: var(--void); }
+  .day-link { font-size: 11px; font-weight: 500; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 6px 12px; border-radius: 6px; text-decoration: none; white-space: nowrap; transition: 0.2s; font-family: 'JetBrains Mono', monospace; }
+  .day-link:hover { transform: translateY(-1px); }
+  .day-link.learn-link:hover { background: var(--blue); color: var(--void); border-color: var(--blue); }
+  .day-link.code-link:hover { background: var(--teal); color: var(--void); border-color: var(--teal); }
+  .day-link.extra-link:hover { background: var(--purple); color: var(--void); border-color: var(--purple); }
   
-  footer { text-align: center; color: var(--muted-2); font-size: 11px; padding: 20px; font-family: 'JetBrains Mono', monospace; }
+  footer { text-align: center; color: var(--muted-2); font-size: 11px; padding: 30px; font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
 <body>
 
 <div id="authScreen" class="auth-screen">
   <div class="auth-box">
-    <h2>Architect Master Path</h2>
-    <p>1:1 Theory and Practice Execution Engine.</p>
+    <h2>Senior Architect</h2>
+    <p>800 Days. No skipped topics. Total mastery.</p>
     <div id="authError" style="color: #E63E5C; font-size: 13px; margin-bottom: 16px; min-height: 18px;"></div>
     <input type="email" id="emailInput" placeholder="Email address">
     <input type="password" id="passInput" placeholder="Password">
@@ -157,28 +160,28 @@
       <button class="logout-btn" id="logoutBtn">Log Out</button>
     </div>
 
-    <div class="commit-line"><span class="hash">roadmap@v2.0-strict</span> — 8 branches, <span id="totalDaysHead"></span> strict commits</div>
-    <h1 class="title">Senior Fullstack Architect (1:1 Mapping)</h1>
-    <p class="subtitle">Every theory day is explicitly paired with a coding execution day for the exact same topic. No misaligned dependencies.</p>
+    <div class="commit-line"><span class="hash">system-engineer-to-architect@v3.0</span> — 8 branches, <span id="totalDaysHead">800</span> exhaustive commits</div>
+    <h1 class="title">800-Day Master Path</h1>
+    <p class="subtitle">Every single one of the 160 topics undergoes a strict 5-day cycle: Core Theory → Basic Code → Advanced Theory → Complex Code → Mastery Extra Exercise.</p>
 
     <div class="hero-stats">
       <div class="stat"><div class="num" id="statDone">0</div><div class="lbl">Days done</div></div>
       <div class="stat"><div class="num" id="statPct">0%</div><div class="lbl">Overall</div></div>
-      <div class="stat"><div class="num" id="statPhase">—</div><div class="lbl">Current branch</div></div>
+      <div class="stat"><div class="num" id="statPhase">—</div><div class="lbl">Current Phase</div></div>
       <div class="stat"><div class="num" id="statETA">—</div><div class="lbl">Est. finish</div></div>
     </div>
 
     <div class="progress-rail" id="progressRail"></div>
-    <div class="rail-caption"><span>Day 1</span><span id="totalDaysCaption"></span></div>
+    <div class="rail-caption"><span>Day 1</span><span id="totalDaysCaption">Day 800</span></div>
 
     <div class="heatmap-wrap">
-      <div class="heatmap-title">Execution Graph — 1:1 Theory & Practice</div>
+      <div class="heatmap-title">Execution Graph — 800 Days of Code & Theory</div>
       <div class="heatmap" id="heatmap"></div>
       <div class="legend" id="legend"></div>
     </div>
 
     <div class="controls">
-      <input type="text" id="search" placeholder="Search a specific subtopic...">
+      <input type="text" id="search" placeholder="Search any topic (e.g. 'Kafka', 'JWT', 'JVM')...">
       <button class="active" data-filter="all">All</button>
       <button data-filter="pending">Pending</button>
       <button data-filter="done">Done</button>
@@ -191,7 +194,7 @@
     <div class="main" id="main"></div>
   </div>
 
-  <footer>Execution is the only metric. · Cloud Synced via Firebase</footer>
+  <footer>160 Topics · 5 Days per Topic · 800 Days to Architectural Mastery · Cloud Synced via Firebase</footer>
 </div>
 
 <script type="module">
@@ -202,11 +205,7 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 const firebaseConfig = {
     apiKey: "AIzaSyAqzmMePlqbWSHeTVtDHXzylwgPXgZDGj8",
     authDomain: "learning-tracker-a5f98.firebaseapp.com",
-    projectId: "learning-tracker-a5f98",
-    storageBucket: "learning-tracker-a5f98.firebasestorage.app",
-    messagingSenderId: "673033401957",
-    appId: "1:673033401957:web:61012d453a3f4c4a2c788c",
-    measurementId: "G-N22LLZH8N4"
+    projectId: "learning-tracker-a5f98"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -217,7 +216,6 @@ const googleProvider = new GoogleAuthProvider();
 const authScreen = document.getElementById('authScreen');
 const appContent = document.getElementById('appContent');
 const userEmailDisplay = document.getElementById('userEmailDisplay');
-const authError = document.getElementById('authError');
 
 let currentUser = null;
 
@@ -231,201 +229,140 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     authScreen.style.display = 'flex';
     appContent.style.display = 'none';
-    userEmailDisplay.textContent = '';
     const t = new Date();
     state = { startDate: t.toISOString().slice(0,10), done: {} };
   }
 });
 
-document.getElementById('loginBtn').addEventListener('click', async () => {
-  try {
-    authError.textContent = '';
-    await signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value);
-  } catch (err) { authError.textContent = err.message; }
-});
-document.getElementById('signupBtn').addEventListener('click', async () => {
-  try {
-    authError.textContent = '';
-    await createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value);
-  } catch (err) { authError.textContent = err.message; }
-});
-document.getElementById('googleBtn').addEventListener('click', async () => {
-  try {
-    authError.textContent = '';
-    await signInWithPopup(auth, googleProvider);
-  } catch (err) { authError.textContent = err.message; }
-});
+document.getElementById('loginBtn').addEventListener('click', async () => signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value).catch(e => alert(e.message)));
+document.getElementById('signupBtn').addEventListener('click', async () => createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value).catch(e => alert(e.message)));
+document.getElementById('googleBtn').addEventListener('click', async () => signInWithPopup(auth, googleProvider).catch(e => alert(e.message)));
 document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-// FORMAT: [ "Subtopic Name", "Theory URL", "Practice/Code URL", "Optional Extra URL" ]
-const RES = (l, u) => ({ label: l, url: u });
-const PHASES = [
-  { id: 'p1', name: 'Phase 1: JVM & Java Core Architecture', color: '#F2A93B', modules: [
-    { title: 'JVM Internals & Memory Model', items: [
-      ['JVM Architecture & Classloaders', 'https://www.baeldung.com/jvm-architecture', 'https://github.com/openjdk/jdk'],
-      ['Java Memory Model (JMM)', 'https://www.cs.umd.edu/~pugh/java/memoryModel/', 'https://github.com/vgrazi/Java-Concurrent-Animated'],
-      ['Garbage Collection: G1 & ZGC', 'https://docs.oracle.com/en/java/javase/21/gctuning/', 'https://www.hackerrank.com/domains/java', 'https://shipilev.net/jvm/anatomy-quarks/']
-    ]},
-    { title: 'Advanced OOP & SOLID', items: [
-      ['Polymorphism & Interface Default Methods', 'https://dev.java/learn/interfaces/', 'https://leetcode.com/problemset/all/?searchQuery=design'],
-      ['SOLID: Single Responsibility & Open/Closed', 'https://www.baeldung.com/solid-principles', 'https://github.com/iluwatar/java-design-patterns'],
-      ['SOLID: Liskov & Dependency Inversion', 'https://refactoring.guru/design-patterns', 'https://github.com/kamranahmedse/design-patterns-for-humans']
-    ]},
-    { title: 'Collections Framework Internals', items: [
-      ['ArrayList vs LinkedList Memory Layout', 'https://www.baeldung.com/java-collections', 'https://leetcode.com/tag/linked-list/'],
-      ['HashMap Internals (Buckets & Trees)', 'https://dev.java/learn/api/collections/map/', 'https://leetcode.com/tag/hash-table/'],
-      ['ConcurrentHashMap & Thread Safety', 'https://www.baeldung.com/java-concurrent-map', 'https://leetcode.com/problemset/concurrency/']
-    ]},
-    { title: 'Modern Java (8 to 21)', items: [
-      ['Lambdas & Functional Interfaces', 'https://dev.java/learn/lambdas/', 'https://www.hackerrank.com/domains/java'],
-      ['Stream API & Collectors', 'https://www.baeldung.com/java-8-streams', 'https://leetcode.com/problemset/all/?searchQuery=stream'],
-      ['Records, Sealed Classes & Pattern Matching', 'https://dev.java/learn/records/', 'https://github.com/nipafx/demo-java-x'],
-      ['Virtual Threads (Project Loom)', 'https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html', 'https://github.com/ebarlas/project-loom-cpubound']
-    ]}
+
+// EXACTLY 160 TOPICS ACROSS 8 PHASES.
+const RAW_PHASES = [
+  { id: 'p1', name: 'Phase 1: JVM & Core Java Architecture', color: '#F2A93B', topics: [
+    "JVM Architecture & Classloaders", "JIT Compiler & Optimizations", "Java Memory Model (JMM)", 
+    "G1GC Garbage Collection", "ZGC & Shenandoah GC", "Generics & Type Erasure", 
+    "Threads, Runnables & Volatile", "Synchronization & Monitors", "ReentrantLocks & Condition", 
+    "Executors & Thread Pools", "CompletableFuture & Async", "Fork/Join Framework", 
+    "Stream API Internals", "Advanced Stream Collectors", "Records & Sealed Classes", 
+    "Pattern Matching", "Virtual Threads (Project Loom)", "Reflection API & MethodHandles", 
+    "Java NIO & ByteBuffers", "JFR (Java Flight Recorder) & Profiling"
   ]},
-  { id: 'p2', name: 'Phase 2: Data Structures & Algorithms', color: '#35D0A6', modules: [
-    { title: 'Time Complexity & Arrays', items: [
-      ['Big-O Notation & Math Logic', 'https://www.bigocheatsheet.com/', 'https://leetcode.com/tag/math/'],
-      ['Sliding Window Pattern', 'https://neetcode.io/practice', 'https://leetcode.com/tag/sliding-window/'],
-      ['Two Pointers Pattern', 'https://neetcode.io/practice', 'https://leetcode.com/tag/two-pointers/']
-    ]},
-    { title: 'Trees & Graphs', items: [
-      ['Binary Trees & BSTs', 'https://www.geeksforgeeks.org/binary-search-tree-data-structure/', 'https://leetcode.com/tag/tree/'],
-      ['Tree Traversal (BFS & DFS)', 'https://www.baeldung.com/java-binary-tree', 'https://leetcode.com/tag/breadth-first-search/'],
-      ['Graph Representations (Adjacency Matrix/List)', 'https://www.geeksforgeeks.org/graph-data-structure-and-algorithms/', 'https://leetcode.com/tag/graph/'],
-      ['Dijkstra & Shortest Path', 'https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm', 'https://leetcode.com/tag/shortest-path/']
-    ]},
-    { title: 'Advanced DSA', items: [
-      ['Dynamic Programming (1D)', 'https://neetcode.io/practice', 'https://leetcode.com/tag/dynamic-programming/'],
-      ['Dynamic Programming (2D & Knapsack)', 'https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/', 'https://leetcode.com/tag/dynamic-programming/', 'https://leetcode.com/problemset/all/?searchQuery=knapsack'],
-      ['Tries & Heaps (Priority Queue)', 'https://www.baeldung.com/trie-java', 'https://leetcode.com/tag/trie/']
-    ]}
+  { id: 'p2', name: 'Phase 2: DSA & Problem Solving', color: '#35D0A6', topics: [
+    "Big-O & Complexity Analysis", "Arrays & Memory Layout", "Strings & Sliding Window", 
+    "Two Pointers Technique", "Linked Lists & Fast/Slow Pointers", "Stacks & Monotonic Stacks", 
+    "Binary Trees & Traversals", "Binary Search Trees (BST)", "Heaps & Priority Queues", 
+    "Tries (Prefix Trees)", "Graphs: BFS & Applications", "Graphs: DFS & Topological Sort", 
+    "Shortest Path (Dijkstra)", "Minimum Spanning Trees", "Dynamic Programming (1D)", 
+    "Dynamic Programming (2D & Grids)", "0/1 Knapsack Pattern", "Backtracking & Subsets", 
+    "Bit Manipulation Basics", "Disjoint Set (Union-Find)"
   ]},
-  { id: 'p3', name: 'Phase 3: DB Design & Data Engineering', color: '#4FA3F7', modules: [
-    { title: 'Relational Databases (PostgreSQL)', items: [
-      ['ACID Properties & Transaction Isolation', 'https://www.postgresql.org/docs/current/transaction-iso.html', 'https://leetcode.com/problemset/database/'],
-      ['Normalization (1NF to 3NF)', 'https://en.wikipedia.org/wiki/Database_normalization', 'https://www.hackerrank.com/domains/sql'],
-      ['B-Tree Indexes & Execution Plans', 'https://use-the-index-luke.com/', 'https://leetcode.com/problemset/database/', 'https://explain.depesz.com/']
-    ]},
-    { title: 'Advanced SQL', items: [
-      ['Complex Joins & Subqueries', 'https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-joins/', 'https://leetcode.com/studyplan/top-sql-50/'],
-      ['Window Functions (OVER, RANK)', 'https://www.postgresqltutorial.com/postgresql-window-function/', 'https://leetcode.com/problemset/database/'],
-      ['CTEs & Recursive Queries', 'https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-cte/', 'https://leetcode.com/problemset/database/']
-    ]},
-    { title: 'NoSQL & Caching', items: [
-      ['Redis Architecture & Pub/Sub', 'https://redis.io/docs/about/architecture/', 'https://try.redis.io/'],
-      ['MongoDB Document Modeling', 'https://www.mongodb.com/docs/manual/core/data-modeling-introduction/', 'https://www.mongodb.com/try/download/community'],
-      ['Cassandra & Wide-Column Stores', 'https://cassandra.apache.org/doc/latest/', 'https://github.com/datastaxdevs']
-    ]}
+  { id: 'p3', name: 'Phase 3: DB Design & Data Engineering', color: '#4FA3F7', topics: [
+    "ACID & Transaction Logs", "Normalization & Schema Design", "B-Trees & Indexing Under the Hood", 
+    "Query Execution Plans", "Transaction Isolation Levels", "Advanced Joins & Subqueries", 
+    "Window Functions (OVER, RANK)", "CTEs & Recursive Queries", "PostgreSQL Performance Tuning", 
+    "Redis Architecture & Memory", "Redis Pub/Sub & Caching", "MongoDB Document Modeling", 
+    "Cassandra Ring & Gossip Protocol", "Database Sharding Strategies", "Replication (Sync vs Async)", 
+    "Eventual Consistency Patterns", "CAP Theorem in Practice", "Graph DBs (Neo4j) Basics", 
+    "Connection Pooling (HikariCP)", "Database Migrations (Flyway)"
   ]},
-  { id: 'p4', name: 'Phase 4: Spring Boot & Backend Systems', color: '#9B7BFF', modules: [
-    { title: 'Spring Core & Web', items: [
-      ['Inversion of Control & AppContext', 'https://docs.spring.io/spring-framework/reference/core.html', 'https://start.spring.io/'],
-      ['Dependency Injection & Bean Scopes', 'https://www.baeldung.com/spring-bean-scopes', 'https://github.com/spring-projects/spring-petclinic'],
-      ['RESTful Controllers & DispatcherServlet', 'https://docs.spring.io/spring-framework/reference/web/webmvc.html', 'https://start.spring.io/'],
-      ['Global Exception Handling (@ControllerAdvice)', 'https://www.baeldung.com/exception-handling-for-rest-with-spring', 'https://github.com/spring-projects/spring-petclinic']
-    ]},
-    { title: 'Spring Data JPA & Hibernate', items: [
-      ['Entity Mapping & Relationships', 'https://docs.spring.io/spring-data/jpa/reference/', 'https://start.spring.io/'],
-      ['The N+1 Query Problem & EntityGraphs', 'https://vladmihalcea.com/n-plus-1-query-problem/', 'https://github.com/vladmihalcea/high-performance-java-persistence'],
-      ['Transactions & Propagation Behavior', 'https://www.baeldung.com/spring-transactional-propagation-isolation', 'https://start.spring.io/']
-    ]},
-    { title: 'Spring Security', items: [
-      ['Security Filter Chain Architecture', 'https://docs.spring.io/spring-security/reference/servlet/architecture.html', 'https://start.spring.io/'],
-      ['JWT Generation & Stateless Sessions', 'https://www.baeldung.com/spring-security-oauth-jwt', 'https://github.com/jwtk/jjwt'],
-      ['OAuth2 & OpenID Connect', 'https://docs.spring.io/spring-security/reference/servlet/oauth2/index.html', 'https://github.com/spring-projects/spring-security-samples']
-    ]}
+  { id: 'p4', name: 'Phase 4: Spring Boot Backend Engineering', color: '#9B7BFF', topics: [
+    "Inversion of Control & AppContext", "Bean Lifecycle & Scopes", "Aspect-Oriented Programming (AOP)", 
+    "DispatcherServlet & Web MVC", "Global Exception Handling (@ControllerAdvice)", "Spring Data JPA Internals", 
+    "Hibernate Session & Caches", "The N+1 Query Problem", "Transaction Propagation Behavior", 
+    "Spring Security Filter Chain", "JWT Authentication Flow", "OAuth2 & OpenID Connect", 
+    "Spring Batch Processing", "Spring WebFlux & Reactive Streams", "Actuator & Micrometer", 
+    "Spring Integration Patterns", "RestTemplate vs WebClient vs Feign", "Testcontainers & Integration Testing", 
+    "Mockito & Unit Testing", "GraalVM Native Images"
   ]},
-  { id: 'p5', name: 'Phase 5: React & Frontend Architecture', color: '#FF6FA5', modules: [
-    { title: 'React Core & Hooks', items: [
-      ['Virtual DOM & Fiber Architecture', 'https://react.dev/learn', 'https://react.dev/learn/tutorial-tic-tac-toe'],
-      ['useState, useEffect & Lifecycle', 'https://react.dev/reference/react', 'https://react.dev/learn/managing-state'],
-      ['useMemo, useCallback & Profiler', 'https://react.dev/reference/react/useMemo', 'https://react.dev/learn/render-and-commit']
-    ]},
-    { title: 'State Management & Routing', items: [
-      ['Redux Toolkit & Slices', 'https://redux-toolkit.js.org/introduction/getting-started', 'https://redux-toolkit.js.org/tutorials/quick-start'],
-      ['Zustand (Lightweight State)', 'https://docs.pmnd.rs/zustand/getting-started/introduction', 'https://codesandbox.io/s/zustand-demo-8x9zo'],
-      ['React Router DOM v6', 'https://reactrouter.com/en/main/start/tutorial', 'https://github.com/remix-run/react-router']
-    ]},
-    { title: 'API & Styling', items: [
-      ['TanStack Query (React Query)', 'https://tanstack.com/query/v5/docs/framework/react/overview', 'https://codesandbox.io/s/github/tannerlinsley/react-query/tree/main/examples/react/simple'],
-      ['Tailwind CSS Configuration', 'https://tailwindcss.com/docs/installation', 'https://play.tailwindcss.com/']
-    ]}
+  { id: 'p5', name: 'Phase 5: React Frontend Architecture', color: '#FF6FA5', topics: [
+    "Virtual DOM & Fiber Architecture", "Hooks: useState & useEffect", "Context API & Prop Drilling", 
+    "useMemo, useCallback & Re-renders", "Writing Custom Hooks", "Redux Toolkit (RTK) Setup", 
+    "RTK Query & Data Fetching", "Zustand / Lightweight State", "React Router v6", 
+    "Next.js SSR & SSG Basics", "Next.js App Router", "Tailwind CSS Architecture", 
+    "Component Libraries (Shadcn/MUI)", "Webpack / Vite Internals", "Testing Library (RTL) & Jest", 
+    "E2E Testing with Playwright", "Web Accessibility (a11y)", "Performance Profiling (React DevTools)", 
+    "Micro-frontends (Module Federation)", "Progressive Web Apps (PWAs)"
   ]},
-  { id: 'p6', name: 'Phase 6: Microservices & Event-Driven', color: '#FF8A5B', modules: [
-    { title: 'Microservice Patterns', items: [
-      ['Decomposition & Strangler Fig', 'https://microservices.io/patterns/index.html', 'https://github.com/microservices-patterns'],
-      ['API Gateways & BFF Pattern', 'https://spring.io/projects/spring-cloud-gateway', 'https://github.com/spring-cloud/spring-cloud-gateway'],
-      ['Service Discovery (Eureka/Consul)', 'https://docs.spring.io/spring-cloud-netflix/reference/', 'https://github.com/spring-cloud/spring-cloud-netflix']
-    ]},
-    { title: 'Event-Driven Systems (Kafka)', items: [
-      ['Kafka Topics, Partitions & Brokers', 'https://kafka.apache.org/documentation/', 'https://kafka.apache.org/quickstart'],
-      ['Producer/Consumer Guarantees', 'https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/', 'https://github.com/confluentinc/examples'],
-      ['The Saga Pattern (Distributed Transactions)', 'https://microservices.io/patterns/data/saga.html', 'https://github.com/microservice-patterns/net.chrisrichardson.ftgo.examples', 'https://eventuate.io/']
-    ]},
-    { title: 'Observability & CQRS', items: [
-      ['CQRS (Command Query Responsibility Segregation)', 'https://microservices.io/patterns/data/cqrs.html', 'https://github.com/AxonFramework/AxonFramework'],
-      ['Distributed Tracing (Micrometer/Zipkin)', 'https://micrometer.io/docs/tracing', 'https://zipkin.io/pages/quickstart.html']
-    ]}
+  { id: 'p6', name: 'Phase 6: Microservices & Event-Driven Systems', color: '#FF8A5B', topics: [
+    "Domain-Driven Design (DDD) Contexts", "Strangler Fig & Decomposition", "API Gateways (Spring Cloud Gateway)", 
+    "Service Registry (Eureka/Consul)", "Circuit Breakers (Resilience4j)", "Distributed Tracing (Zipkin)", 
+    "Centralized Logging (ELK Stack)", "Apache Kafka Architecture", "Kafka Producers & Consumers", 
+    "Kafka Exactly-Once Semantics", "Event Sourcing Pattern", "CQRS Pattern", 
+    "Saga Pattern: Orchestration", "Saga Pattern: Choreography", "Change Data Capture (Debezium)", 
+    "gRPC & Protocol Buffers", "GraphQL Server Implementation", "Distributed Rate Limiting", 
+    "Distributed Locks (Redisson)", "Multi-tenant Data Architecture"
   ]},
-  { id: 'p7', name: 'Phase 7: Cloud Native & DevOps', color: '#6EE7B7', modules: [
-    { title: 'Docker & Containers', items: [
-      ['Namespaces, Cgroups & Images', 'https://docs.docker.com/get-started/overview/', 'https://labs.play-with-docker.com/'],
-      ['Docker Compose & Networking', 'https://docs.docker.com/compose/', 'https://github.com/docker/awesome-compose']
-    ]},
-    { title: 'Kubernetes (K8s)', items: [
-      ['K8s Architecture (Control Plane & Nodes)', 'https://kubernetes.io/docs/concepts/architecture/', 'https://killercoda.com/playgrounds/scenario/kubernetes'],
-      ['Pods, Deployments & ReplicaSets', 'https://kubernetes.io/docs/concepts/workloads/controllers/deployment/', 'https://kubernetes.io/docs/tutorials/kubernetes-basics/'],
-      ['Services, Ingress & ConfigMaps', 'https://kubernetes.io/docs/concepts/services-networking/service/', 'https://minikube.sigs.k8s.io/docs/start/']
-    ]},
-    { title: 'AWS & CI/CD', items: [
-      ['AWS EC2, VPC, & S3 Basics', 'https://aws.amazon.com/architecture/', 'https://aws.amazon.com/getting-started/hands-on/'],
-      ['GitHub Actions Pipelines', 'https://docs.github.com/en/actions', 'https://github.com/features/actions']
-    ]}
+  { id: 'p7', name: 'Phase 7: Cloud Native & DevOps', color: '#6EE7B7', topics: [
+    "Linux Kernels & Cgroups", "Docker Daemon Internals", "Docker Compose & Networking", 
+    "Kubernetes (K8s) Control Plane", "K8s Pods & Deployments", "K8s Services & Ingress", 
+    "K8s StatefulSets & Volumes", "K8s ConfigMaps & Secrets", "Helm Charts & Package Management", 
+    "Infrastructure as Code (Terraform)", "Terraform Modules & State", "AWS IAM & VPC Networking", 
+    "AWS EC2, ASG & Load Balancers", "AWS S3 & CloudFront", "AWS RDS & Aurora", 
+    "AWS SQS & EventBridge", "CI/CD: GitHub Actions Pipelines", "Jenkins Pipeline as Code", 
+    "Prometheus & Grafana Monitoring", "GitOps with ArgoCD"
   ]},
-  { id: 'p8', name: 'Phase 8: System Design Capstone', color: '#E63E5C', modules: [
-    { title: 'Large Scale Design', items: [
-      ['Load Balancers & Consistent Hashing', 'https://github.com/donnemartin/system-design-primer', 'https://excalidraw.com/'],
-      ['Database Sharding & Replication', 'https://bytebytego.com/courses/system-design-interview/scale-from-zero-to-millions-of-users', 'https://excalidraw.com/'],
-      ['Designing a Distributed Rate Limiter', 'https://blog.cloudflare.com/counting-things-a-lot-of-different-things/', 'https://github.com/vladimir-bukhtoyarov/bucket4j']
-    ]},
-    { title: 'Capstone Execution', items: [
-      ['Architecting the Backend Microservices', 'https://spring.io/microservices', 'https://github.com/new'],
-      ['Integrating Kafka & Websockets', 'https://docs.spring.io/spring-framework/reference/web/websocket.html', 'https://github.com/new'],
-      ['Deploying to EKS/AWS', 'https://aws.amazon.com/eks/', 'https://aws.amazon.com/']
-    ]}
+  { id: 'p8', name: 'Phase 8: Capstone & System Design', color: '#E63E5C', topics: [
+    "Consistent Hashing Implementation", "Database Partitioning Strategies", "Designing a Global CDN", 
+    "Designing a Chat Application", "Designing a News Feed", "Designing a Ride-Sharing App", 
+    "Designing a Video Streamer", "Designing a Payment Gateway", "Capstone: Monolith Decomposition", 
+    "Capstone: API Gateway Setup", "Capstone: Catalog Microservice", "Capstone: Order Service & Saga", 
+    "Capstone: Event Streaming Pipeline", "Capstone: CQRS Read Views", "Capstone: React UI & Auth", 
+    "Capstone: React Dashboard", "Capstone: Dockerizing the System", "Capstone: Deploying to EKS", 
+    "Capstone: CI/CD Pipeline Setup", "Capstone: Load Testing & Tuning"
   ]}
 ];
 
-// GENERATE FLAT DAYS
-let globalDay = 0;
-PHASES.forEach(phase => {
-  phase.startDay = globalDay + 1;
-  phase.flatDays = [];
-  phase.modules.forEach(mod => {
-    mod.dayList = [];
-    mod.items.forEach(item => {
-      // Day 1: Theory
-      globalDay++;
-      let d1 = { global: globalDay, phaseId: phase.id, type: 'LEARN', topic: mod.title, label: `Theory: ${item[0]}`, link: RES('Read Docs', item[1]) };
-      mod.dayList.push(d1); phase.flatDays.push(d1);
+// GENERATE EXACTLY 5 DAYS PER TOPIC (THEORY, CODE, ADV THEORY, ADV CODE, EXTRA)
+let globalDayCounter = 0;
+const PHASES = RAW_PHASES.map(phase => {
+  const generatedPhase = { ...phase, startDay: globalDayCounter + 1, flatDays: [], builtTopics: [] };
+  
+  phase.topics.forEach(topicStr => {
+    const enc = encodeURIComponent(topicStr);
+    const tData = { title: topicStr, dayList: [] };
+    
+    // Day 1: Core Theory
+    globalDayCounter++;
+    const d1 = { global: globalDayCounter, type: 'LEARN', label: `Core Theory: ${topicStr}`, 
+                 link: `https://www.google.com/search?q=Architecture+and+Theory+of+${enc}` };
+    tData.dayList.push(d1); generatedPhase.flatDays.push(d1);
 
-      // Day 2: Code
-      globalDay++;
-      let d2 = { global: globalDay, phaseId: phase.id, type: 'CODE', topic: mod.title, label: `Practice: ${item[0]}`, link: RES('Execute Code', item[2]) };
-      mod.dayList.push(d2); phase.flatDays.push(d2);
+    // Day 2: Basic Practice
+    globalDayCounter++;
+    const d2 = { global: globalDayCounter, type: 'CODE', label: `Basic Practice: ${topicStr}`, 
+                 link: `https://github.com/search?q=${enc}+example+code` };
+    tData.dayList.push(d2); generatedPhase.flatDays.push(d2);
 
-      // Day 3: Extra (if exists)
-      if(item[3]) {
-        globalDay++;
-        let d3 = { global: globalDay, phaseId: phase.id, type: 'EXTRA', topic: mod.title, label: `Mastery: ${item[0]}`, link: RES('Deep Dive Lab', item[3]) };
-        mod.dayList.push(d3); phase.flatDays.push(d3);
-      }
-    });
+    // Day 3: Advanced Theory
+    globalDayCounter++;
+    const d3 = { global: globalDayCounter, type: 'LEARN', label: `Advanced Edge Cases: ${topicStr}`, 
+                 link: `https://www.google.com/search?q=Advanced+${enc}+deep+dive+edge+cases` };
+    tData.dayList.push(d3); generatedPhase.flatDays.push(d3);
+
+    // Day 4: Advanced Practice
+    globalDayCounter++;
+    const d4 = { global: globalDayCounter, type: 'CODE', label: `Complex Scenarios: ${topicStr}`, 
+                 link: `https://github.com/search?q=${enc}+advanced+implementation` };
+    tData.dayList.push(d4); generatedPhase.flatDays.push(d4);
+
+    // Day 5: Extra / Mastery
+    globalDayCounter++;
+    const d5 = { global: globalDayCounter, type: 'EXTRA', label: `Mastery / Architecture: ${topicStr}`, 
+                 link: `https://www.youtube.com/results?search_query=${enc}+system+design+architecture` };
+    tData.dayList.push(d5); generatedPhase.flatDays.push(d5);
+
+    generatedPhase.builtTopics.push(tData);
   });
-  phase.endDay = globalDay;
+  
+  generatedPhase.endDay = globalDayCounter;
+  return generatedPhase;
 });
-const TOTAL_DAYS = globalDay;
+
+const TOTAL_DAYS = globalDayCounter; // Will be exactly 800
 
 let state = { startDate: null, done: {} };
 
@@ -434,32 +371,26 @@ async function loadState(){
   try {
     const docRef = doc(db, "users", currentUser.uid);
     const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      state = docSnap.data();
-    } else {
-      const t = new Date();
-      state = { startDate: t.toISOString().slice(0,10), done: {} };
+    if (docSnap.exists()) { state = docSnap.data(); } 
+    else {
+      state = { startDate: new Date().toISOString().slice(0,10), done: {} };
       await saveState();
     }
-  } catch(e) { console.error("Error loading document: ", e); }
+  } catch(e) {}
   render();
 }
 
 async function saveState(){
   if(!currentUser) return;
-  try {
-    const docRef = doc(db, "users", currentUser.uid);
-    await setDoc(docRef, state);
-  } catch(e) { console.error("Error saving document: ", e); }
+  try { await setDoc(doc(db, "users", currentUser.uid), state); } catch(e) {}
 }
 
 function dateForDay(n){
   const start = new Date(state.startDate + 'T00:00:00');
   const weeksFull = Math.floor((n - 1) / 6);
   const rem = (n - 1) % 6;
-  const totalCalendarOffset = (weeksFull * 7) + rem;
   const d = new Date(start);
-  d.setDate(d.getDate() + totalCalendarOffset);
+  d.setDate(d.getDate() + (weeksFull * 7) + rem);
   return d;
 }
 function fmt(d){ return d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }
@@ -469,128 +400,104 @@ let currentSearch = '';
 
 function render(){
   if(!currentUser) return;
-
-  document.getElementById('totalDaysHead').textContent = TOTAL_DAYS;
-  document.getElementById('totalDaysCaption').textContent = 'Day ' + TOTAL_DAYS;
   if(state.startDate) document.getElementById('startDate').value = state.startDate;
 
   const doneCount = Object.keys(state.done || {}).filter(k => state.done[k]).length;
   document.getElementById('statDone').textContent = doneCount;
   document.getElementById('statPct').textContent = Math.round((doneCount / TOTAL_DAYS) * 100) + '%';
 
-  let currentPhase = PHASES.find(p => {
-    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    return doneInPhase < p.flatDays.length;
-  }) || PHASES[PHASES.length - 1];
+  let currentPhase = PHASES.find(p => p.flatDays.filter(d => (state.done || {})[d.global]).length < p.flatDays.length) || PHASES[PHASES.length - 1];
   document.getElementById('statPhase').textContent = currentPhase.name.split(':')[0];
+  document.getElementById('statETA').textContent = fmt(dateForDay(TOTAL_DAYS));
 
-  const etaDate = dateForDay(TOTAL_DAYS);
-  document.getElementById('statETA').textContent = fmt(etaDate);
-
+  // Render Rail
   const rail = document.getElementById('progressRail');
   rail.innerHTML = '';
   PHASES.forEach(p => {
     const seg = document.createElement('div');
-    seg.className = 'seg';
-    seg.style.width = ((p.flatDays.length / TOTAL_DAYS) * 100) + '%';
-    seg.style.background = p.color + '33';
-    
+    seg.className = 'seg'; seg.style.width = ((p.flatDays.length / TOTAL_DAYS) * 100) + '%'; seg.style.background = p.color + '33';
     const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
     const fill = document.createElement('div');
-    fill.className = 'fill';
-    fill.style.width = ((doneInPhase / p.flatDays.length) * 100) + '%';
-    fill.style.background = p.color;
-    
-    seg.appendChild(fill);
-    rail.appendChild(seg);
+    fill.className = 'fill'; fill.style.width = ((doneInPhase / p.flatDays.length) * 100) + '%'; fill.style.background = p.color;
+    seg.appendChild(fill); rail.appendChild(seg);
   });
 
+  // Render Heatmap (Optimized rendering using DocumentFragment for 800 nodes)
   const hm = document.getElementById('heatmap');
   hm.innerHTML = '';
+  const frag = document.createDocumentFragment();
   for(let n=1; n<=TOTAL_DAYS; n++){
     const phase = PHASES.find(p => n >= p.startDay && n <= p.endDay);
     const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.title = 'Day ' + n + ' — ' + phase.name;
+    cell.className = 'cell'; cell.title = 'Day ' + n;
     if((state.done || {})[n]){ cell.style.background = phase.color; cell.style.borderColor = phase.color; }
-    hm.appendChild(cell);
+    frag.appendChild(cell);
   }
-  const legend = document.getElementById('legend');
-  legend.innerHTML = PHASES.map(p => `<span><span class="sw" style="background:${p.color}"></span>${p.name.split(':')[0]}</span>`).join('');
+  hm.appendChild(frag);
 
+  document.getElementById('legend').innerHTML = PHASES.map(p => `<span><span class="sw" style="background:${p.color}"></span>${p.name.split(':')[0]}</span>`).join('');
+
+  // Render Sidebar
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
   PHASES.forEach(p => {
     const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    const el = document.createElement('a');
-    el.className = 'branch';
-    el.href = '#' + p.id;
+    const el = document.createElement('a'); el.className = 'branch'; el.href = '#' + p.id;
     el.innerHTML = `<div class="bname" style="color:${p.color}">${p.name}</div>
-      <div class="bmeta">${doneInPhase}/${p.flatDays.length} strict days</div>
+      <div class="bmeta">${doneInPhase}/${p.flatDays.length} days completed</div>
       <div class="bbar"><div class="f" style="width:${(doneInPhase/p.flatDays.length)*100}%;background:${p.color}"></div></div>`;
     sidebar.appendChild(el);
   });
 
+  // Render Main Content
   const main = document.getElementById('main');
   main.innerHTML = '';
   PHASES.forEach(p => {
     const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    const section = document.createElement('div');
-    section.className = 'phase-section';
-    section.id = p.id;
-    section.style.borderLeftColor = p.color;
-    
-    section.innerHTML = `
-      <div class="phase-head">
-        <h2 style="color:${p.color}">${p.name}</h2>
-        <span class="pct">${doneInPhase}/${p.flatDays.length} · ${Math.round((doneInPhase/p.flatDays.length)*100)}%</span>
-      </div>
-    `;
+    const section = document.createElement('div'); section.className = 'phase-section'; section.id = p.id; section.style.borderLeftColor = p.color;
+    section.innerHTML = `<div class="phase-head"><h2 style="color:${p.color}">${p.name}</h2><span class="pct">${doneInPhase}/${p.flatDays.length} · ${Math.round((doneInPhase/p.flatDays.length)*100)}%</span></div>`;
 
-    p.modules.forEach(mod => {
-      const first = mod.dayList[0].global;
-      const last = mod.dayList[mod.dayList.length-1].global;
-      
-      const tdiv = document.createElement('div');
-      tdiv.className = 'topic';
-      tdiv.innerHTML = `<div class="topic-head">${mod.title} </div>`;
-      
-      const list = document.createElement('div');
-      mod.dayList.forEach(d => {
+    p.builtTopics.forEach(topic => {
+      // Check filters & search
+      const daysHTML = topic.dayList.map(d => {
         const isDone = !!(state.done || {})[d.global];
-        if(currentFilter === 'done' && !isDone) return;
-        if(currentFilter === 'pending' && isDone) return;
-        if(currentSearch && !(mod.title + ' ' + d.label).toLowerCase().includes(currentSearch)) return;
+        if(currentFilter === 'done' && !isDone) return '';
+        if(currentFilter === 'pending' && isDone) return '';
+        if(currentSearch && !(topic.title + ' ' + d.label).toLowerCase().includes(currentSearch)) return '';
         
-        const link = d.link;
-        let tagClass = d.type.toLowerCase();
-        let linkClass = 'day-link ' + (d.type === 'LEARN' ? '' : (d.type === 'EXTRA' ? 'extra-link' : 'code-link'));
+        let linkClass = 'day-link ' + (d.type === 'LEARN' ? 'learn-link' : (d.type === 'EXTRA' ? 'extra-link' : 'code-link'));
+        return `
+          <label class="day ${isDone ? 'done' : ''}">
+            <input type="checkbox" data-day="${d.global}" ${isDone ? 'checked' : ''}>
+            <span class="code">D${String(d.global).padStart(3,'0')}</span>
+            <span class="tag ${d.type.toLowerCase()}">${d.type}</span>
+            <span class="date">${fmt(dateForDay(d.global))}</span>
+            <span class="task">${d.label}</span>
+            <a href="${d.link}" target="_blank" rel="noopener" class="${linkClass}">Launch Exercise</a>
+          </label>`;
+      }).join('');
 
-        const row = document.createElement('label');
-        row.className = 'day' + (isDone ? ' done' : '');
-        row.innerHTML = `
-          <input type="checkbox" data-day="${d.global}" ${isDone ? 'checked' : ''}>
-          <span class="code">D${String(d.global).padStart(3,'0')}</span>
-          <span class="tag ${tagClass}">${d.type}</span>
-          <span class="date">${fmt(dateForDay(d.global))}</span>
-          <span class="task">${d.label}</span>
-          <a href="${link.url}" target="_blank" rel="noopener" class="${linkClass}">${link.label}</a>
+      if(daysHTML) {
+        const tdiv = document.createElement('div'); tdiv.className = 'topic';
+        tdiv.innerHTML = `
+          <div class="topic-head">
+            <span>${topic.title}</span>
+            <span class="cycle-badge">5-DAY CYCLE</span>
+          </div>
+          <div class="topic-body">${daysHTML}</div>
         `;
-        list.appendChild(row);
-      });
-      tdiv.appendChild(list);
-      section.appendChild(tdiv);
+        section.appendChild(tdiv);
+      }
     });
-    main.appendChild(section);
+    if(section.children.length > 1) main.appendChild(section);
   });
 
+  // Attach Checkbox Events
   main.querySelectorAll('input[type=checkbox]').forEach(cb => {
     cb.addEventListener('change', async (e) => {
       if(!currentUser) return;
-      const day = e.target.getAttribute('data-day');
-      state.done[day] = e.target.checked;
-      await saveState();
-      render();
+      state.done[e.target.getAttribute('data-day')] = e.target.checked;
+      await saveState(); render();
     });
   });
 
@@ -607,29 +514,19 @@ function initScrollSpy() {
       }
     });
   }, { rootMargin: '-15% 0px -75% 0px' });
-
   document.querySelectorAll('.phase-section').forEach(sec => observer.observe(sec));
 }
 
-document.getElementById('search').addEventListener('input', e => {
-  currentSearch = e.target.value.toLowerCase();
-  render();
-});
-
+document.getElementById('search').addEventListener('input', e => { currentSearch = e.target.value.toLowerCase(); render(); });
 document.querySelectorAll('.controls button[data-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.controls button[data-filter]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.getAttribute('data-filter');
-    render();
+    btn.classList.add('active'); currentFilter = btn.getAttribute('data-filter'); render();
   });
 });
-
 document.getElementById('startDate').addEventListener('change', async e => {
   if(!currentUser) return;
-  state.startDate = e.target.value;
-  await saveState();
-  render();
+  state.startDate = e.target.value; await saveState(); render();
 });
 
 </script>
