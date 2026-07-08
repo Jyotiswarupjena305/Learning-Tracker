@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senior Architect // 800-Day Master Path</title>
+<title>Senior Architect // 800-Day Master Path (Udemy & LeetCode Edition)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -134,7 +134,7 @@
 <div id="authScreen" class="auth-screen">
   <div class="auth-box">
     <h2>Senior Architect</h2>
-    <p>800 Days. No skipped topics. Total mastery.</p>
+    <p>800 Days. Udemy & LeetCode Linked. Total mastery.</p>
     <div id="authError" style="color: #E63E5C; font-size: 13px; margin-bottom: 16px; min-height: 18px;"></div>
     <input type="email" id="emailInput" placeholder="Email address">
     <input type="password" id="passInput" placeholder="Password">
@@ -160,9 +160,9 @@
       <button class="logout-btn" id="logoutBtn">Log Out</button>
     </div>
 
-    <div class="commit-line"><span class="hash">system-engineer-to-architect@v3.0</span> — 8 branches, <span id="totalDaysHead">800</span> exhaustive commits</div>
+    <div class="commit-line"><span class="hash">system-engineer-to-architect@v4.0</span> — 8 branches, <span id="totalDaysHead">800</span> exhaustive commits</div>
     <h1 class="title">800-Day Master Path</h1>
-    <p class="subtitle">Every single one of the 160 topics undergoes a strict 5-day cycle: Core Theory → Basic Code → Advanced Theory → Complex Code → Mastery Extra Exercise.</p>
+    <p class="subtitle">Directly integrated with Udemy (Theory), HackerRank (Foundational Code), and LeetCode (Advanced Scenarios & Architecture Discuss boards).</p>
 
     <div class="hero-stats">
       <div class="stat"><div class="num" id="statDone">0</div><div class="lbl">Days done</div></div>
@@ -194,7 +194,7 @@
     <div class="main" id="main"></div>
   </div>
 
-  <footer>160 Topics · 5 Days per Topic · 800 Days to Architectural Mastery · Cloud Synced via Firebase</footer>
+  <footer>160 Topics · 5 Days per Topic · Cloud Synced via Firebase</footer>
 </div>
 
 <script type="module">
@@ -316,7 +316,7 @@ const RAW_PHASES = [
   ]}
 ];
 
-// GENERATE EXACTLY 5 DAYS PER TOPIC (THEORY, CODE, ADV THEORY, ADV CODE, EXTRA)
+// GENERATE EXACTLY 5 DAYS PER TOPIC MAP TO PLATFORMS
 let globalDayCounter = 0;
 const PHASES = RAW_PHASES.map(phase => {
   const generatedPhase = { ...phase, startDay: globalDayCounter + 1, flatDays: [], builtTopics: [] };
@@ -325,34 +325,34 @@ const PHASES = RAW_PHASES.map(phase => {
     const enc = encodeURIComponent(topicStr);
     const tData = { title: topicStr, dayList: [] };
     
-    // Day 1: Core Theory
+    // Day 1: Core Theory -> Udemy Search
     globalDayCounter++;
-    const d1 = { global: globalDayCounter, type: 'LEARN', label: `Core Theory: ${topicStr}`, 
-                 link: `https://www.google.com/search?q=Architecture+and+Theory+of+${enc}` };
+    const d1 = { global: globalDayCounter, type: 'LEARN', label: `Theory (Udemy): ${topicStr}`, 
+                 link: `https://www.udemy.com/courses/search/?q=${enc}` };
     tData.dayList.push(d1); generatedPhase.flatDays.push(d1);
 
-    // Day 2: Basic Practice
+    // Day 2: Basic Practice -> HackerRank (via targeted Dork as they lack a global query URL)
     globalDayCounter++;
-    const d2 = { global: globalDayCounter, type: 'CODE', label: `Basic Practice: ${topicStr}`, 
-                 link: `https://github.com/search?q=${enc}+example+code` };
+    const d2 = { global: globalDayCounter, type: 'CODE', label: `Foundation (HackerRank): ${topicStr}`, 
+                 link: `https://www.google.com/search?q=site:hackerrank.com+"${enc}"+OR+${enc}` };
     tData.dayList.push(d2); generatedPhase.flatDays.push(d2);
 
-    // Day 3: Advanced Theory
+    // Day 3: Advanced Theory -> Udemy Advanced Search
     globalDayCounter++;
-    const d3 = { global: globalDayCounter, type: 'LEARN', label: `Advanced Edge Cases: ${topicStr}`, 
-                 link: `https://www.google.com/search?q=Advanced+${enc}+deep+dive+edge+cases` };
+    const d3 = { global: globalDayCounter, type: 'LEARN', label: `Advanced Edge Cases (Udemy): ${topicStr}`, 
+                 link: `https://www.udemy.com/courses/search/?q=Advanced+${enc}` };
     tData.dayList.push(d3); generatedPhase.flatDays.push(d3);
 
-    // Day 4: Advanced Practice
+    // Day 4: Complex Practice -> LeetCode Problem Set
     globalDayCounter++;
-    const d4 = { global: globalDayCounter, type: 'CODE', label: `Complex Scenarios: ${topicStr}`, 
-                 link: `https://github.com/search?q=${enc}+advanced+implementation` };
+    const d4 = { global: globalDayCounter, type: 'CODE', label: `Complex Scenarios (LeetCode): ${topicStr}`, 
+                 link: `https://leetcode.com/problemset/all/?searchQuery=${enc}` };
     tData.dayList.push(d4); generatedPhase.flatDays.push(d4);
 
-    // Day 5: Extra / Mastery
+    // Day 5: Extra / Mastery -> LeetCode Discuss (Architecture & System Design Interviews)
     globalDayCounter++;
-    const d5 = { global: globalDayCounter, type: 'EXTRA', label: `Mastery / Architecture: ${topicStr}`, 
-                 link: `https://www.youtube.com/results?search_query=${enc}+system+design+architecture` };
+    const d5 = { global: globalDayCounter, type: 'EXTRA', label: `Architecture & System Design: ${topicStr}`, 
+                 link: `https://leetcode.com/discuss/general-discussion?currentPage=1&orderBy=hot&query=${enc}` };
     tData.dayList.push(d5); generatedPhase.flatDays.push(d5);
 
     generatedPhase.builtTopics.push(tData);
@@ -362,7 +362,7 @@ const PHASES = RAW_PHASES.map(phase => {
   return generatedPhase;
 });
 
-const TOTAL_DAYS = globalDayCounter; // Will be exactly 800
+const TOTAL_DAYS = globalDayCounter; // Exactly 800
 
 let state = { startDate: null, done: {} };
 
