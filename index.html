@@ -34,10 +34,13 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+  #appContent { display: none; height: 100vh; flex-direction: column; }
+
   /* ---------- AUTH GATEWAY ---------- */
   .auth-screen { 
     position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; 
     background: var(--bg-base); background-image: radial-gradient(circle at 50% 50%, rgba(251,191,36,0.05) 0%, transparent 60%);
+    padding: 20px;
   }
   .auth-box { 
     background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); border: 1px solid var(--border); 
@@ -142,11 +145,11 @@
     background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text-main);
     padding: 10px 14px; border-radius: 6px; font-family: var(--font-ui); font-size: 13px; outline: none;
   }
-  input[type="text"] { flex: 1; }
+  input[type="text"] { flex: 1; min-width: 0; }
   input[type="text"]:focus, select:focus { border-color: var(--text-muted); }
   button.action-btn {
     background: var(--text-main); color: var(--bg-base); border: none; font-weight: 700; font-family: var(--font-mono); font-size: 12px;
-    padding: 0 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+    padding: 0 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase; white-space: nowrap;
   }
   button.action-btn:hover { background: var(--text-muted); }
   
@@ -159,11 +162,11 @@
   }
   .quest-item.done .quest-check { background: var(--xp-color); border-color: var(--xp-color); }
   .quest-item.done .quest-check::after { content: '✓'; color: #000; font-weight: bold; font-size: 12px; }
-  .quest-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-  .quest-text { font-size: 13px; transition: 0.3s; line-height: 1.4; }
+  .quest-content { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .quest-text { font-size: 13px; transition: 0.3s; line-height: 1.4; word-wrap: break-word; }
   .quest-item.done .quest-text { text-decoration: line-through; color: var(--text-muted); }
-  .quest-meta { display: flex; justify-content: space-between; align-items: center; }
-  .quest-badge { font-family: var(--font-mono); font-size: 9px; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); text-transform: uppercase; }
+  .quest-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .quest-badge { font-family: var(--font-mono); font-size: 9px; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
   .quest-bounty { font-family: var(--font-mono); font-size: 10px; color: var(--xp-color); font-weight: 700; }
   .btn-abort { background: none; border: none; color: var(--text-muted); cursor: pointer; font-family: var(--font-mono); font-size: 10px; font-weight: 700; transition: 0.2s; }
   .btn-abort:hover { color: var(--danger); }
@@ -171,12 +174,12 @@
   /* ---------- Modals (Tracker & Leaderboard) ---------- */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
+    z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; padding: 20px;
   }
   .modal-overlay.visible { display: flex; opacity: 1; }
   .modal-content {
     background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px;
-    width: 900px; max-width: 90vw; max-height: 85vh; padding: 32px; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    width: 900px; max-width: 100%; max-height: 90vh; padding: 32px; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
   }
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
   .modal-header h2 { font-size: 24px; font-weight: 800; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 2px; }
@@ -188,10 +191,10 @@
   .stat-box .lab { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
   .daily-log-container { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 8px; }
   .day-row { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 6px; border: 1px solid transparent; }
-  .day-date { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--text-muted); width: 90px; }
+  .day-date { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--text-muted); width: 90px; flex-shrink: 0; }
   .day-bar-wrap { flex: 1; height: 12px; background: rgba(0,0,0,0.5); border-radius: 6px; overflow: hidden; display: flex; }
   .day-segment { height: 100%; transition: width 0.3s; }
-  .day-total-xp { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: #fff; width: 80px; text-align: right; }
+  .day-total-xp { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: #fff; width: 80px; text-align: right; flex-shrink: 0; }
 
   /* Leaderboard specifics */
   .lb-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
@@ -199,12 +202,62 @@
   .lb-item:nth-child(1) { border-color: var(--xp-color); background: rgba(251, 191, 36, 0.05); }
   .lb-rank { width: 40px; font-family: var(--font-mono); font-size: 16px; font-weight: 800; color: var(--text-muted); }
   .lb-item:nth-child(1) .lb-rank { color: var(--xp-color); }
-  .lb-name { flex: 1; font-weight: 600; font-size: 16px; }
-  .lb-lvl { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-right: 24px; }
-  .lb-xp { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: #fff; }
+  .lb-name { flex: 1; font-weight: 600; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-lvl { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-right: 16px; }
+  .lb-xp { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: #fff; }
 
   .floating-text { position: fixed; pointer-events: none; font-family: var(--font-mono); font-weight: 800; font-size: 24px; color: var(--xp-color); text-shadow: 0 0 10px var(--xp-color); z-index: 9999; animation: floatUp 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
   @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
+
+  /* =========================================
+     MOBILE RESPONSIVE ARCHITECTURE
+     ========================================= */
+  @media (max-width: 1024px) {
+    body { overflow-y: auto; height: auto; display: block; }
+    #appContent { height: auto !important; display: flex !important; }
+    
+    .hud-header { flex-direction: column; gap: 16px; padding: 20px; text-align: center; }
+    .hud-actions { flex-wrap: wrap; justify-content: center; width: 100%; gap: 10px; }
+    
+    /* Convert Grid to Stack */
+    .layout { display: flex; flex-direction: column; overflow: visible; }
+    
+    /* Z-Axis Reordering for UX */
+    .center-stage { 
+      order: 1; 
+      min-height: 450px; 
+      padding: 40px 20px; 
+      justify-content: center; 
+      border-bottom: 1px solid var(--border);
+    }
+    .left-panel { 
+      order: 2; 
+      border-right: none; 
+      border-bottom: 1px solid var(--border); 
+      background: var(--bg-base); /* Remove gradients on mobile */
+    }
+    .right-panel { 
+      order: 3; 
+      border-left: none; 
+      background: var(--bg-base); 
+      padding-bottom: 60px; /* Safe area for bottom */
+    }
+    
+    .panel { overflow-y: visible; }
+    .active-quest-card { width: 100%; max-width: 100%; }
+    
+    /* Modals Responsive */
+    .modal-content { padding: 20px; width: 100%; }
+    .modal-header h2 { font-size: 18px; }
+    .tracker-stats-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+    .day-row { flex-wrap: wrap; }
+    .day-date { width: 100%; margin-bottom: 4px; }
+    .day-bar-wrap { min-width: 100%; margin-bottom: 4px; }
+    .day-total-xp { text-align: left; }
+    
+    .lb-name { font-size: 14px; }
+    .lb-xp { font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -228,14 +281,14 @@
   </div>
 </div>
 
-<div id="appContent" style="display: none; height: 100vh; flex-direction: column;">
+<div id="appContent">
   <div class="hud-header">
     <div class="brand"><h1>NEXUS</h1></div>
     <div class="hud-actions">
       <button class="btn-hud accent" onclick="toggleModal('leaderboardOverlay')"><span class="icon">🏆</span> Global Ranks</button>
       <button class="btn-hud" onclick="toggleModal('trackerOverlay')"><span class="icon">▤</span> Player Archive</button>
       <div class="player-level">Total Level <span id="totalPlayerLevel">1</span></div>
-      <button class="btn-hud" id="logoutBtn" style="margin-left: 12px;">Logout</button>
+      <button class="btn-hud" id="logoutBtn">Logout</button>
     </div>
   </div>
 
@@ -271,7 +324,7 @@
         </div>
       </div>
       <div class="quest-list" id="questContainer"></div>
-      <button class="btn-hud" style="width:100%; justify-content:center; margin-top:auto;" onclick="resetBoard()">[ Wipe Daily Board ]</button>
+      <button class="btn-hud" style="width:100%; justify-content:center; margin-top:16px;" onclick="resetBoard()">[ Wipe Daily Board ]</button>
     </div>
   </div>
 </div>
@@ -292,7 +345,7 @@
 </div>
 
 <div class="modal-overlay" id="leaderboardOverlay">
-  <div class="modal-content" style="width: 700px;">
+  <div class="modal-content" style="max-width: 700px;">
     <div class="modal-header">
       <h2>Global Network Rankings</h2>
       <button class="btn-icon" style="font-size: 24px;" onclick="toggleModal('leaderboardOverlay')">✕</button>
@@ -355,20 +408,17 @@ let sceneInitialized = false;
    AUTH LOGIC
    ========================================= */
 const authScreen = document.getElementById('authScreen');
-const appContent = document.getElementById('appContent');
 const authError = document.getElementById('authError');
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
     authScreen.style.display = 'none';
-    appContent.style.display = 'flex';
     await loadState();
     if(!sceneInitialized) { init3D(); sceneInitialized = true; }
     update3DCore();
   } else {
     authScreen.style.display = 'flex';
-    appContent.style.display = 'none';
     clearInterval(liveTimerInterval);
   }
 });
@@ -400,10 +450,8 @@ async function loadState() {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       appData = docSnap.data();
-      // Resume active session if exists
       if (appData.activeSubjectId && appData.lastSessionStart) startLiveTimer();
     } else {
-      // Initialize default state tailored for Full-Stack / Systems Engineering
       appData = {
         displayName: currentUser.displayName || currentUser.email.split('@')[0],
         totalXp: 0,
@@ -426,7 +474,6 @@ async function loadState() {
 async function saveState() {
   if(!currentUser) return;
   try {
-    // Calculate global XP for leaderboard indexing
     appData.totalXp = appData.subjects.reduce((sum, s) => sum + s.xp, 0);
     appData.displayName = currentUser.displayName || currentUser.email.split('@')[0];
     await setDoc(doc(db, "users", currentUser.uid), appData);
@@ -599,7 +646,7 @@ function renderQuestLog() {
       <div class="quest-content">
         <div class="quest-text">${task.text}</div>
         <div class="quest-meta">
-          <div class="quest-badge" style="color: ${subColor}; border: 1px solid ${subColor}40;">${subName}</div>
+          <div class="quest-badge" style="color: ${subColor}; border: 1px solid ${subColor}40;" title="${subName}">${subName}</div>
           ${!task.completed ? `<div class="quest-bounty">+${QUEST_BOUNTY_XP} XP</div>` : ''}
           <button class="btn-abort" onclick="deleteTask(${task.id})">[ ABORT ]</button>
         </div>
@@ -724,7 +771,7 @@ let scene, camera, renderer, coreMesh, wireframeMesh, particlesMesh;
 
 function init3D() {
   const container = document.getElementById('canvas-container');
-  if (renderer) return; // Prevent double init
+  if (renderer) return; 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
   camera.position.set(0, 0, 15);
@@ -803,8 +850,6 @@ window.addEventListener('beforeunload', () => {
   if (appData.activeSubjectId && currentUser) {
     commitSessionTime(Date.now());
     appData.lastSessionStart = Date.now();
-    
-    // Quick synchronous save workaround for unload
     appData.totalXp = appData.subjects.reduce((sum, s) => sum + s.xp, 0);
     setDoc(doc(db, "users", currentUser.uid), appData);
   }
