@@ -3,211 +3,321 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fullstack Java Architect Master Roadmap</title>
+<title>NEXUS // RPG Cloud Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   :root {
-    --void: #0B0E14;
-    --surface: #141922;
-    --surface-2: #1B212C;
-    --line: #232935;
-    --text: #E6E9EF;
-    --muted: #7C8494;
-    --muted-2: #525A6A;
-    --amber: #F2A93B;
+    --bg-base: #09090b;
+    --bg-surface: #18181b;
+    --bg-surface-hover: #27272a;
+    --border: #3f3f46;
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --xp-color: #fbbf24;
+    --danger: #ef4444;
+    --font-ui: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--void); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; }
-  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; margin: 0; }
-  code, .mono { font-family: 'JetBrains Mono', monospace; }
-  a { color: inherit; }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg-base); color: var(--text-main);
+    font-family: var(--font-ui); overflow: hidden; height: 100vh;
+    display: flex; flex-direction: column;
+    background-image: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 70%);
+  }
+  
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* --- FULL SCREEN AUTH UI STYLES --- */
-  .auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--void); padding: 20px; }
-  .auth-box { background: var(--surface); padding: 40px; border: 1px solid var(--line); border-radius: 12px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-  .auth-box h2 { font-size: 24px; color: var(--text); margin-bottom: 8px; }
-  .auth-box p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
-  .auth-box input { width: 100%; background: var(--void); border: 1px solid var(--line); color: var(--text); padding: 12px; border-radius: 8px; margin-bottom: 12px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; }
-  .auth-box input:focus { outline: none; border-color: var(--amber); }
+  /* ---------- AUTH GATEWAY ---------- */
+  .auth-screen { 
+    position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; 
+    background: var(--bg-base); background-image: radial-gradient(circle at 50% 50%, rgba(251,191,36,0.05) 0%, transparent 60%);
+  }
+  .auth-box { 
+    background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); border: 1px solid var(--border); 
+    padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+  }
+  .auth-box h2 { font-family: var(--font-mono); font-size: 28px; font-weight: 800; letter-spacing: 2px; margin-bottom: 8px; color: #fff; }
+  .auth-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; font-family: var(--font-mono); text-transform: uppercase; }
+  .auth-box input { 
+    width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text-main); 
+    padding: 12px; border-radius: 6px; margin-bottom: 12px; font-family: var(--font-ui); font-size: 14px; outline: none; 
+  }
+  .auth-box input:focus { border-color: var(--xp-color); box-shadow: 0 0 10px rgba(251,191,36,0.2); }
   .auth-btns { display: flex; gap: 12px; margin-bottom: 20px; }
-  .auth-btns button { flex: 1; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: 500; font-family: 'IBM Plex Sans', sans-serif; }
-  .auth-btns button:hover { background: var(--amber); color: var(--void); border-color: var(--amber); }
-  .divider { display: flex; align-items: center; text-align: center; margin: 24px 0; color: var(--muted); font-size: 12px; }
-  .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--line); }
+  .auth-btns button { 
+    flex: 1; background: var(--bg-surface-hover); border: 1px solid var(--border); color: var(--text-main); 
+    padding: 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; 
+  }
+  .auth-btns button:hover { background: var(--text-main); color: var(--bg-base); }
+  
+  .divider { display: flex; align-items: center; text-align: center; margin: 24px 0; color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; }
+  .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
   .divider span { padding: 0 10px; }
   
-  .google-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; color: black; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; transition: 0.2s; }
-  .google-btn:hover { background: #f1f1f1; transform: translateY(-1px); }
+  .google-btn { 
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; 
+    background: #fff; color: #000; border: none; padding: 12px; border-radius: 6px; 
+    font-weight: 700; cursor: pointer; font-family: var(--font-mono); font-size: 13px; transition: 0.2s; text-transform: uppercase;
+  }
+  .google-btn:hover { background: #e5e5e5; transform: translateY(-2px); }
   .google-btn img { width: 18px; height: 18px; }
+  #authError { color: var(--danger); font-size: 12px; min-height: 18px; margin-bottom: 16px; font-family: var(--font-mono); }
+
+  /* ---------- Top HUD ---------- */
+  .hud-header {
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; 
+    border-bottom: 1px solid var(--border); background: rgba(9, 9, 11, 0.85); backdrop-filter: blur(12px); z-index: 100; position: relative;
+  }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand h1 { font-weight: 800; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
   
-  /* --- IN-APP USER PANEL STYLES --- */
-  .user-panel { position: absolute; top: 24px; right: 24px; background: var(--surface); padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; z-index: 1000; display: flex; align-items: center; gap: 16px; }
-  .user-panel .auth-status { color: var(--text); font-size: 13px; line-height: 1.2; }
-  .user-panel .auth-status span { color: var(--muted); font-size: 11px; display: block; }
-  .logout-btn { background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; }
-  .logout-btn:hover { background: #E63E5C; color: white; border-color: #E63E5C; }
+  .hud-actions { display: flex; align-items: center; gap: 12px; }
   
-  /* --- ORIGINAL STYLES --- */
-  .top { padding: 28px 24px 0; max-width: 1400px; margin: 0 auto; position: relative; }
-  .commit-line { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
-  .commit-line .hash { color: var(--amber); }
-  h1.title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; max-width: calc(100% - 300px); }
-  .subtitle { color: var(--muted); font-size: 15px; margin-top: 6px; max-width: 800px; }
+  .btn-hud {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); 
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-hud:hover { background: rgba(255,255,255,0.1); border-color: var(--text-muted); }
+  .btn-hud.accent .icon { color: var(--xp-color); }
 
-  .hero-stats { display: flex; gap: 28px; margin: 22px 0 8px; flex-wrap: wrap; }
-  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; min-width: 130px; }
-  .stat .num { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; }
-  .stat .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+  .player-level {
+    display: flex; align-items: center; gap: 12px; background: rgba(251, 191, 36, 0.1); 
+    border: 1px solid var(--xp-color); padding: 6px 16px; border-radius: 50px; font-weight: 600;
+  }
+  .player-level span { font-family: var(--font-mono); font-weight: 700; color: var(--xp-color); font-size: 18px; }
 
-  .progress-rail { height: 10px; border-radius: 6px; background: var(--surface-2); overflow: hidden; display: flex; margin: 18px 0 4px; border: 1px solid var(--line); }
-  .progress-rail .seg { height: 100%; position: relative; }
-  .progress-rail .seg .fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,255,255,.85); opacity: .9; }
-  .rail-caption { display: flex; justify-content: space-between; color: var(--muted-2); font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-bottom: 20px; }
+  /* ---------- Main Layout ---------- */
+  .layout { display: grid; grid-template-columns: 360px 1fr 350px; flex: 1; overflow: hidden; position: relative; }
+  .panel { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; z-index: 10; }
+  .left-panel { border-right: 1px solid var(--border); background: linear-gradient(90deg, rgba(24,24,27,0.8) 0%, transparent 100%); }
+  .right-panel { border-left: 1px solid var(--border); background: linear-gradient(-90deg, rgba(24,24,27,0.8) 0%, transparent 100%); }
+  .section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
 
-  .heatmap-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 18px 0 30px; overflow-x: auto; }
-  .heatmap-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
-  .heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px); gap: 3px; width: max-content; }
-  .cell { width: 11px; height: 11px; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); }
-  .legend { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; font-size: 11px; color: var(--muted); align-items: center; }
-  .legend .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
-
-  .layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 0 24px 60px; }
-  @media(max-width:900px){ .layout { grid-template-columns: 1fr; } h1.title { max-width: 100%; } .user-panel { position: relative; top: 0; right: 0; width: 100%; margin-bottom: 20px; justify-content: space-between; } }
-
-  .sidebar { position: sticky; top: 20px; align-self: start; }
-  .branch { display: block; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: 0.2s; }
-  .branch:hover { background: var(--surface); }
+  /* ---------- Center 3D & Active Quest ---------- */
+  .center-stage { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 40px; }
+  #canvas-container { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
   
-  .branch.active-branch { background: var(--surface); border-color: var(--line); border-left: 3px solid var(--amber); padding-left: 9px; }
+  .active-quest-card {
+    position: relative; z-index: 10; width: 420px; background: rgba(24, 24, 27, 0.7); backdrop-filter: blur(16px);
+    border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .active-quest-card.is-active { border-color: currentColor; box-shadow: 0 0 50px -15px currentColor; transform: translateY(-10px); }
+  .active-quest-card .status { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .active-quest-card h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+  .active-quest-card .timer { font-family: var(--font-mono); font-size: 42px; font-weight: 700; text-shadow: 0 0 20px currentColor; margin-bottom: 12px; font-variant-numeric: tabular-nums; }
+  .active-quest-card .xp-gain { color: var(--xp-color); font-weight: 700; font-size: 13px; font-family: var(--font-mono); animation: pulseXP 2s infinite; }
+  @keyframes pulseXP { 0%,100%{ opacity:0.6; } 50%{ opacity:1; } }
+
+  /* ---------- Skill Tree & Quests ---------- */
+  .skill-list, .quest-list { display: flex; flex-direction: column; gap: 12px; }
+  .skill-card {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
+  }
+  .skill-card:hover { background: var(--bg-surface-hover); transform: translateX(4px); }
+  .skill-card.active { border-color: currentColor; background: rgba(255,255,255,0.03); }
+  .skill-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .skill-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .skill-lvl { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .skill-card.active .skill-lvl { color: currentColor; }
+  .btn-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px; transition: 0.2s; margin-left: 8px; }
+  .btn-icon:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+  .xp-bar-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.6); border-radius: 3px; overflow: hidden; position: relative; }
+  .xp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-out; }
+  .xp-meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .xp-text { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+  .quest-input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .input-row { display: flex; gap: 8px; }
+  input[type="text"], select {
+    background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text-main);
+    padding: 10px 14px; border-radius: 6px; font-family: var(--font-ui); font-size: 13px; outline: none;
+  }
+  input[type="text"] { flex: 1; }
+  input[type="text"]:focus, select:focus { border-color: var(--text-muted); }
+  button.action-btn {
+    background: var(--text-main); color: var(--bg-base); border: none; font-weight: 700; font-family: var(--font-mono); font-size: 12px;
+    padding: 0 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+  }
+  button.action-btn:hover { background: var(--text-muted); }
   
-  .branch .bname { font-size: 13px; font-weight: 600; }
-  .branch .bmeta { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
-  .branch .bbar { height: 4px; border-radius: 3px; background: var(--surface-2); margin-top: 6px; overflow: hidden; }
-  .branch .bbar .f { height: 100%; }
+  .quest-list { flex: 1; overflow-y: auto; padding-right: 4px; }
+  .quest-item {
+    display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; transition: 0.3s;
+  }
+  .quest-check {
+    width: 20px; height: 20px; border: 2px solid var(--text-muted); border-radius: 4px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+  .quest-item.done .quest-check { background: var(--xp-color); border-color: var(--xp-color); }
+  .quest-item.done .quest-check::after { content: '✓'; color: #000; font-weight: bold; font-size: 12px; }
+  .quest-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .quest-text { font-size: 13px; transition: 0.3s; line-height: 1.4; }
+  .quest-item.done .quest-text { text-decoration: line-through; color: var(--text-muted); }
+  .quest-meta { display: flex; justify-content: space-between; align-items: center; }
+  .quest-badge { font-family: var(--font-mono); font-size: 9px; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); text-transform: uppercase; }
+  .quest-bounty { font-family: var(--font-mono); font-size: 10px; color: var(--xp-color); font-weight: 700; }
+  .btn-abort { background: none; border: none; color: var(--text-muted); cursor: pointer; font-family: var(--font-mono); font-size: 10px; font-weight: 700; transition: 0.2s; }
+  .btn-abort:hover { color: var(--danger); }
 
-  .controls { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
-  .controls input[type=text] { background: var(--surface); border: 1px solid var(--line); color: var(--text); padding: 8px 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; flex: 1; min-width: 160px; }
-  .controls button { background: var(--surface); border: 1px solid var(--line); color: var(--muted); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; }
-  .controls button.active { color: var(--void); background: var(--amber); border-color: var(--amber); font-weight: 600; }
-  .controls .datefield { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); }
-  .controls .datefield input { background: transparent; border: none; color: var(--text); font-family: 'JetBrains Mono', monospace; }
-
-  .phase-section { margin-bottom: 34px; border-left: 3px solid var(--line); padding-left: 18px; transition: 0.3s; }
-  .phase-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; cursor: pointer; }
-  .phase-head h2 { font-size: 19px; }
-  .phase-head .pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
-  .phase-days { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 14px; }
-
-  .topic { margin-bottom: 16px; }
-  .topic-head { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-  .topic-head .range { color: var(--muted-2); font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 11px; }
-
-  .day { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 13px; border: 1px solid transparent; }
-  .day:hover { background: var(--surface); border-color: var(--line); }
-  .day.done { opacity: .5; }
-  .day.done .task { text-decoration: line-through; }
-  .day input[type=checkbox] { accent-color: var(--amber); cursor: pointer; }
-  .day .code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-2); min-width: 50px; }
-  .day .tag { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); min-width: 56px; text-align: center; }
-  .day .date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted-2); min-width: 64px; }
-  .day .task { flex: 1; }
+  /* ---------- Modals (Tracker & Leaderboard) ---------- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
+  }
+  .modal-overlay.visible { display: flex; opacity: 1; }
+  .modal-content {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px;
+    width: 900px; max-width: 90vw; max-height: 85vh; padding: 32px; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  .modal-header h2 { font-size: 24px; font-weight: 800; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 2px; }
   
-  .day-link { font-size: 10px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 4px 10px; border-radius: 4px; text-decoration: none; white-space: nowrap; transition: 0.2s; font-family: 'JetBrains Mono', monospace; }
-  .day-link:hover { background: var(--text); color: var(--void); }
-  .day-link.code-link { color: var(--amber); border-color: var(--amber); }
-  .day-link.code-link:hover { background: var(--amber); color: var(--void); }
-  
-  footer { text-align: center; color: var(--muted-2); font-size: 11px; padding: 20px; font-family: 'JetBrains Mono', monospace; }
+  /* Tracker specifics */
+  .tracker-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; }
+  .stat-box .val { font-family: var(--font-mono); font-size: 32px; font-weight: 700; color: var(--xp-color); margin-bottom: 8px; }
+  .stat-box .lab { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  .daily-log-container { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 8px; }
+  .day-row { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 6px; border: 1px solid transparent; }
+  .day-date { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--text-muted); width: 90px; }
+  .day-bar-wrap { flex: 1; height: 12px; background: rgba(0,0,0,0.5); border-radius: 6px; overflow: hidden; display: flex; }
+  .day-segment { height: 100%; transition: width 0.3s; }
+  .day-total-xp { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: #fff; width: 80px; text-align: right; }
+
+  /* Leaderboard specifics */
+  .lb-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+  .lb-item { display: flex; align-items: center; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; }
+  .lb-item:nth-child(1) { border-color: var(--xp-color); background: rgba(251, 191, 36, 0.05); }
+  .lb-rank { width: 40px; font-family: var(--font-mono); font-size: 16px; font-weight: 800; color: var(--text-muted); }
+  .lb-item:nth-child(1) .lb-rank { color: var(--xp-color); }
+  .lb-name { flex: 1; font-weight: 600; font-size: 16px; }
+  .lb-lvl { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-right: 24px; }
+  .lb-xp { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: #fff; }
+
+  .floating-text { position: fixed; pointer-events: none; font-family: var(--font-mono); font-weight: 800; font-size: 24px; color: var(--xp-color); text-shadow: 0 0 10px var(--xp-color); z-index: 9999; animation: floatUp 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+  @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
 </style>
 </head>
 <body>
 
 <div id="authScreen" class="auth-screen">
   <div class="auth-box">
-    <h2>Senior Engineer Roadmap</h2>
-    <p>Log in to track and cloud-sync your 600-day execution plan.</p>
-    
-    <div id="authError" style="color: #E63E5C; font-size: 13px; margin-bottom: 16px; min-height: 18px;"></div>
-    
-    <input type="email" id="emailInput" placeholder="Email address">
+    <h2>NEXUS CORE</h2>
+    <p>Authentication Required for Database Sync</p>
+    <div id="authError"></div>
+    <input type="email" id="emailInput" placeholder="Email Address">
     <input type="password" id="passInput" placeholder="Password">
-    
     <div class="auth-btns">
-      <button id="loginBtn">Log In</button>
-      <button id="signupBtn">Sign Up</button>
+      <button id="loginBtn">Initialize</button>
+      <button id="signupBtn">Register</button>
     </div>
-    
     <div class="divider"><span>OR</span></div>
-    
     <button id="googleBtn" class="google-btn">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-      Continue with Google
+      Sync via Google
     </button>
   </div>
 </div>
 
-<div id="appContent" style="display: none;">
-  <div class="top">
-    
-    <div class="user-panel">
-      <div class="auth-status">
-        <span>Logged in as</span>
-        <strong id="userEmailDisplay"></strong>
-      </div>
-      <button class="logout-btn" id="logoutBtn">Log Out</button>
-    </div>
-
-    <div class="commit-line"><span class="hash">roadmap@architect</span> — 8 branches, <span id="totalDaysHead"></span> commits planned</div>
-    <h1 class="title">Fullstack Java Architect Master Roadmap</h1>
-    <p class="subtitle">Designed for working professionals (9 AM - 7 PM). Every single day has a dedicated, actionable link. Scroll tracking enabled.</p>
-
-    <div class="hero-stats">
-      <div class="stat"><div class="num" id="statDone">0</div><div class="lbl">Days done</div></div>
-      <div class="stat"><div class="num" id="statPct">0%</div><div class="lbl">Overall</div></div>
-      <div class="stat"><div class="num" id="statPhase">—</div><div class="lbl">Current branch</div></div>
-      <div class="stat"><div class="num" id="statETA">—</div><div class="lbl">Est. finish date</div></div>
-    </div>
-
-    <div class="progress-rail" id="progressRail"></div>
-    <div class="rail-caption"><span>Day 1</span><span id="totalDaysCaption"></span></div>
-
-    <div class="heatmap-wrap">
-      <div class="heatmap-title">Execution Graph — Colored by phase. 6 days on, 1 day off.</div>
-      <div class="heatmap" id="heatmap"></div>
-      <div class="legend" id="legend"></div>
-    </div>
-
-    <div class="controls">
-      <input type="text" id="search" placeholder="Search a topic... e.g., 'Kafka', 'JWT', 'Graphs'">
-      <button class="active" data-filter="all">All</button>
-      <button data-filter="pending">Pending</button>
-      <button data-filter="done">Done</button>
-      <div class="datefield">Start Date <input type="date" id="startDate"></div>
+<div id="appContent" style="display: none; height: 100vh; flex-direction: column;">
+  <div class="hud-header">
+    <div class="brand"><h1>NEXUS</h1></div>
+    <div class="hud-actions">
+      <button class="btn-hud accent" onclick="toggleModal('leaderboardOverlay')"><span class="icon">🏆</span> Global Ranks</button>
+      <button class="btn-hud" onclick="toggleModal('trackerOverlay')"><span class="icon">▤</span> Player Archive</button>
+      <div class="player-level">Total Level <span id="totalPlayerLevel">1</span></div>
+      <button class="btn-hud" id="logoutBtn" style="margin-left: 12px;">Logout</button>
     </div>
   </div>
 
   <div class="layout">
-    <div class="sidebar" id="sidebar"></div>
-    <div class="main" id="main"></div>
-  </div>
+    <div class="panel left-panel">
+      <div class="section-title">Skill Tree</div>
+      <div class="skill-list" id="skillContainer"></div>
+      <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px;">
+        <div class="input-row">
+          <input type="text" id="newSubjectInput" placeholder="Initialize New Subject..." onkeypress="if(event.key === 'Enter') addSubject()">
+          <button class="action-btn" onclick="addSubject()">Add</button>
+        </div>
+      </div>
+    </div>
 
-  <footer>600 Days to Architectural Mastery · No Excuses · Cloud Synced via Firebase</footer>
+    <div class="center-stage">
+      <div id="canvas-container"></div>
+      <div class="active-quest-card" id="activeCard">
+        <div class="status" id="activeStatus">System Idle</div>
+        <h2 id="activeName">Select a Skill</h2>
+        <div class="timer" id="activeTimer" style="color: var(--text-muted);">00:00:00</div>
+        <div class="xp-gain" id="activeXpRate">Gain XP by tracking time or completing quests</div>
+      </div>
+    </div>
+
+    <div class="panel right-panel">
+      <div class="section-title">Quest Log</div>
+      <div class="quest-input-group">
+        <input type="text" id="taskInput" placeholder="Define objective..." onkeypress="if(event.key === 'Enter') addTask()">
+        <div class="input-row">
+          <select id="taskSubjectSelect" style="flex:1;"></select>
+          <button class="action-btn" onclick="addTask()">Deploy</button>
+        </div>
+      </div>
+      <div class="quest-list" id="questContainer"></div>
+      <button class="btn-hud" style="width:100%; justify-content:center; margin-top:auto;" onclick="resetBoard()">[ Wipe Daily Board ]</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="trackerOverlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Player Archive // XP History</h2>
+      <button class="btn-icon" style="font-size: 24px;" onclick="toggleModal('trackerOverlay')">✕</button>
+    </div>
+    <div class="tracker-stats-grid">
+      <div class="stat-box"><div class="val" id="statTotalXp">0</div><div class="lab">Lifetime XP</div></div>
+      <div class="stat-box"><div class="val" id="statTodayXp">0</div><div class="lab">XP Farmed Today</div></div>
+    </div>
+    <div class="section-title" style="border:none; margin-bottom:8px;">7-Day Telemetry</div>
+    <div class="daily-log-container" id="dailyLogContainer"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="leaderboardOverlay">
+  <div class="modal-content" style="width: 700px;">
+    <div class="modal-header">
+      <h2>Global Network Rankings</h2>
+      <button class="btn-icon" style="font-size: 24px;" onclick="toggleModal('leaderboardOverlay')">✕</button>
+    </div>
+    <div class="lb-list" id="leaderboardList">
+      <div style="text-align:center; padding: 40px; color: var(--text-muted); font-family: var(--font-mono);">Connecting to global server...</div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
+/* =========================================
+   FIREBASE CONFIG & INIT
+   ========================================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAqzmMePlqbWSHeTVtDHXzylwgPXgZDGj8",
-    authDomain: "learning-tracker-a5f98.firebaseapp.com",
-    projectId: "learning-tracker-a5f98",
-    storageBucket: "learning-tracker-a5f98.firebasestorage.app",
-    messagingSenderId: "673033401957",
-    appId: "1:673033401957:web:61012d453a3f4c4a2c788c",
-    measurementId: "G-N22LLZH8N4"
+  apiKey: "AIzaSyAqzmMePlqbWSHeTVtDHXzylwgPXgZDGj8",
+  authDomain: "learning-tracker-a5f98.firebaseapp.com",
+  projectId: "learning-tracker-a5f98",
+  storageBucket: "learning-tracker-a5f98.firebasestorage.app",
+  messagingSenderId: "673033401957",
+  appId: "1:673033401957:web:61012d453a3f4c4a2c788c"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -215,420 +325,490 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
+/* =========================================
+   RPG ENGINE CONFIG
+   ========================================= */
+const PALETTE = ['#38bdf8', '#a78bfa', '#fb7185', '#34d399', '#facc15', '#fb923c', '#22d3ee'];
+const XP_PER_SECOND = 1;
+const QUEST_BOUNTY_XP = 1200; 
+
+function getXpForNextLevel(level) { return Math.floor(1000 * Math.pow(level, 1.2)); }
+function calculateLevelAndProgress(totalXp) {
+  let lvl = 1, xp = totalXp, required = getXpForNextLevel(lvl);
+  while (xp >= required) { xp -= required; lvl++; required = getXpForNextLevel(lvl); }
+  return { level: lvl, currentXp: xp, requiredXp: required, percent: (xp / required) * 100 };
+}
+function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
+function formatHMS(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const s = String(Math.floor(seconds % 60)).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+let appData = { subjects: [], tasks: [], dailyLogs: {}, activeSubjectId: null, lastSessionStart: null };
+let currentUser = null;
+let liveTimerInterval;
+let sceneInitialized = false;
+
+/* =========================================
+   AUTH LOGIC
+   ========================================= */
 const authScreen = document.getElementById('authScreen');
 const appContent = document.getElementById('appContent');
-const userEmailDisplay = document.getElementById('userEmailDisplay');
 const authError = document.getElementById('authError');
-
-let currentUser = null;
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
     authScreen.style.display = 'none';
-    appContent.style.display = 'block';
-    userEmailDisplay.textContent = user.displayName || user.email;
+    appContent.style.display = 'flex';
     await loadState();
+    if(!sceneInitialized) { init3D(); sceneInitialized = true; }
+    update3DCore();
   } else {
     authScreen.style.display = 'flex';
     appContent.style.display = 'none';
-    userEmailDisplay.textContent = '';
-    const t = new Date();
-    state = { startDate: t.toISOString().slice(0,10), done: {} };
+    clearInterval(liveTimerInterval);
   }
 });
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
-  try {
-    authError.textContent = '';
-    await signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value);
-  } catch (err) { authError.textContent = err.message; }
+  try { authError.textContent = ''; await signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); } 
+  catch (err) { authError.textContent = err.message; }
 });
-
 document.getElementById('signupBtn').addEventListener('click', async () => {
-  try {
-    authError.textContent = '';
-    await createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value);
-  } catch (err) { authError.textContent = err.message; }
+  try { authError.textContent = ''; await createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); } 
+  catch (err) { authError.textContent = err.message; }
 });
-
 document.getElementById('googleBtn').addEventListener('click', async () => {
-  try {
-    authError.textContent = '';
-    await signInWithPopup(auth, googleProvider);
-  } catch (err) { authError.textContent = err.message; }
+  try { authError.textContent = ''; await signInWithPopup(auth, googleProvider); } 
+  catch (err) { authError.textContent = err.message; }
+});
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  if (appData.activeSubjectId) { commitSessionTime(Date.now()); await saveState(); }
+  signOut(auth);
 });
 
-document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-
-
-const RES = (label, url) => ({ label, url });
-
-// ALL LINKS VERIFIED FOR 2026 - JAVA 21 & SPRING BOOT 3 COMPLIANT
-const PHASES = [
-{ id:'p1', name:'Core Java Mastery', branch:'phase-1/java-deep-dive', color:'#F2A93B', days:60, topics:[
-  {
-    title:'Skip Basics & Setup', days:2, 
-    subtopics: ['Environment & IDE Tuning', 'Build Systems: Maven vs Gradle'],
-    learn:RES('Read: dev.java Basics','https://dev.java/learn/'), practice:RES('Code: HackerRank Java','https://www.hackerrank.com/domains/java')
-  },
-  {
-    title:'OOP & SOLID Principles in Java', days:8, 
-    subtopics: ['Classes, Objects, & Constructors', 'Inheritance & Method Overriding', 'Polymorphism & Interfaces', 'Encapsulation & Access Modifiers', 'Single Responsibility & Open/Closed (SOLID)', 'Liskov Substitution & Interface Segregation', 'Dependency Inversion Principle', 'OOP Design Patterns Basics'],
-    learn:RES('Read: Baeldung SOLID','https://www.baeldung.com/solid-principles'), practice:RES('Code: HackerRank Java OOP','https://www.hackerrank.com/domains/java?filters%5Bsubdomains%5D%5B%5D=oop')
-  },
-  {
-    title:'Advanced Collections (Map, Set, Hash)', days:10, 
-    subtopics: ['Collection Framework Architecture', 'ArrayList vs LinkedList Internals', 'HashSet & TreeSet implementations', 'HashMap internals (Buckets & Collisions)', 'TreeMap & Sorting mechanisms', 'Queue & Deque Interfaces', 'Concurrent Collections overview', 'Iterators & Spliterators', 'Custom Comparators', 'Memory efficiency in Collections'],
-    learn:RES('Read: Baeldung Collections','https://www.baeldung.com/java-collections'), practice:RES('Code: HackerRank Data Structures','https://www.hackerrank.com/domains/java')
-  },
-  {title:'Exception Handling & File NIO.2', days:5, learn:RES('Read: Java IO/NIO Docs','https://dev.java/learn/java-io/file-system/'), practice:RES('Code: HackerRank Exceptions','https://www.hackerrank.com/challenges/java-exception-handling/problem')},
-  {
-    title:'Java 8+ Features: Streams, Lambdas', days:15, 
-    subtopics: ['Lambda Expressions syntax', 'Functional Interfaces (@FunctionalInterface)', 'Method References', 'Streams API Setup', 'map(), filter(), reduce()', 'FlatMap & Complex Streams', 'Collectors & GroupingBy', 'Optional class deep dive', 'Parallel Streams', 'CompletableFuture basics', 'Records (Java 14+)', 'Pattern Matching (Java 16+)', 'Sealed Classes (Java 17)', 'Virtual Threads Intro (Java 21)', 'Performance benchmarking'],
-    learn:RES('Read: Baeldung Streams','https://www.baeldung.com/java-8-streams'), practice:RES('Code: HackerRank Advanced Java','https://www.hackerrank.com/domains/java')
-  },
-  {title:'Multithreading, Concurrency, & Executors', days:15, learn:RES('Read: Baeldung Concurrency','https://www.baeldung.com/java-concurrency'), practice:RES('Code: LeetCode Concurrency','https://leetcode.com/problemset/concurrency/')},
-  {title:'JVM Internals, Memory Management, & GC', days:5, learn:RES('Read: Oracle GC/ZGC Tuning','https://docs.oracle.com/en/java/javase/21/gctuning/z-garbage-collector.html'), practice:RES('Read/Test: Baeldung JVM Guide','https://www.baeldung.com/jvm-garbage-collectors')}
-]},
-{ id:'p2', name:'DSA & Problem Solving', branch:'phase-2/dsa-architecture', color:'#35D0A6', days:110, topics:[
-  {title:'Time/Space Complexity & Math logic', days:5, learn:RES('Read: Big-O Cheat Sheet','https://www.bigocheatsheet.com/'), practice:RES('Code: LeetCode Math','https://leetcode.com/tag/math/')},
-  {title:'Arrays, Strings, & Two Pointers', days:10, learn:RES('Watch: NeetCode Arrays','https://neetcode.io/practice'), practice:RES('Code: LeetCode Arrays','https://leetcode.com/tag/array/')},
-  {title:'Hashing, Sets, & Maps', days:10, learn:RES('Watch: NeetCode Hashing','https://neetcode.io/practice'), practice:RES('Code: LeetCode Hash Table','https://leetcode.com/tag/hash-table/')},
-  {title:'Stacks, Queues, & Linked Lists', days:10, learn:RES('Watch: NeetCode Linked Lists','https://neetcode.io/practice'), practice:RES('Code: LeetCode Linked List','https://leetcode.com/tag/linked-list/')},
-  {title:'Recursion & Backtracking', days:15, learn:RES('Watch: NeetCode Backtracking','https://neetcode.io/practice'), practice:RES('Code: LeetCode Backtracking','https://leetcode.com/tag/backtracking/')},
-  {title:'Trees (Binary, BST, AVL)', days:15, learn:RES('Watch: NeetCode Trees','https://neetcode.io/practice'), practice:RES('Code: LeetCode Trees','https://leetcode.com/tag/tree/')},
-  {title:'Graphs (BFS, DFS, Dijkstra, MST)', days:15, learn:RES('Watch: NeetCode Graphs','https://neetcode.io/practice'), practice:RES('Code: LeetCode Graphs','https://leetcode.com/tag/graph/')},
-  {title:'Dynamic Programming (1D, 2D, Knapsack)', days:20, learn:RES('Watch: NeetCode DP','https://neetcode.io/practice'), practice:RES('Code: LeetCode DP','https://leetcode.com/tag/dynamic-programming/')},
-  {title:'Advanced DSA (Tries, Heaps, Disjoint Set)', days:10, learn:RES('Watch: NeetCode Advanced','https://neetcode.io/practice'), practice:RES('Code: LeetCode Heaps/Tries','https://leetcode.com/tag/heap-priority-queue/')}
-]},
-{ id:'p3', name:'Databases & Data Engineering', branch:'phase-3/databases-sql', color:'#4FA3F7', days:50, topics:[
-  {title:'RDBMS, ACID properties, & Normalization', days:5, learn:RES('Read: Postgres Architecture','https://www.postgresql.org/docs/current/tutorial-arch.html'), practice:RES('Code: HackerRank Database','https://www.hackerrank.com/domains/sql')},
-  {title:'Advanced SQL: Joins, Window Functions, CTEs', days:15, learn:RES('Read: PostgreSQL Tutorial','https://www.postgresqltutorial.com/'), practice:RES('Code: LeetCode Top SQL 50','https://leetcode.com/studyplan/top-sql-50/')},
-  {title:'Indexes, Query Optimization, & Execution Plans', days:10, learn:RES('Read: Use The Index, Luke','https://use-the-index-luke.com/'), practice:RES('Code: LeetCode DB Problems','https://leetcode.com/problemset/database/')},
-  {title:'NoSQL Deep Dive (MongoDB & Cassandra Basics)', days:10, learn:RES('Read: MongoDB Architecture Docs','https://www.mongodb.com/docs/manual/core/architecture-and-tools/'), practice:RES('Code: MongoDB Atlas Hands-on','https://www.mongodb.com/cloud/atlas/register')},
-  {title:'Distributed Data: Sharding, Replication', days:10, learn:RES('Read: System Design DBs','https://github.com/donnemartin/system-design-primer#databases'), practice:RES('Read/Test: System Design Primer (DBs)','https://github.com/donnemartin/system-design-primer#databases')}
-]},
-{ id:'p4', name:'Spring Boot Backend Engineering', branch:'phase-4/spring-boot-pro', color:'#9B7BFF', days:90, topics:[
-  {
-    title:'Spring Core, Inversion of Control, DI', days:10, 
-    subtopics: ['ApplicationContext & BeanFactory', 'Dependency Injection (Constructor vs Setter)', 'Bean Scopes (Singleton, Prototype)', 'Component Scanning (@ComponentScan)', 'Configuration Classes (@Configuration)', 'Spring Profiles (@Profile)', 'Property Sources & @Value', 'Lifecycle Callbacks (@PostConstruct)', 'AOP Concepts (Aspects & Pointcuts)', 'AOP Implementation in Spring'],
-    learn:RES('Read: Spring Core 6 Docs','https://docs.spring.io/spring-framework/reference/core.html'), practice:RES('Code: Spring Initializr Builder','https://start.spring.io/')
-  },
-  {
-    title:'RESTful APIs, DTO Pattern, Exception Handling', days:10, 
-    subtopics: ['DispatcherServlet & Web MVC', 'Building CRUD Endpoints (@RestController)', 'Request & Response Bodies (@RequestBody)', 'Path Variables & Request Params', 'DTO Mapping (MapStruct)', 'Data Validation (Hibernate Validator)', 'Global Exception Handling (@ControllerAdvice)', 'Standardizing Error Responses', 'Content Negotiation (JSON/XML)', 'HATEOAS Basics'],
-    learn:RES('Read: Spring Web MVC','https://docs.spring.io/spring-framework/reference/web/webmvc.html'), practice:RES('Code: Build REST API Playground','https://start.spring.io/')
-  },
-  {
-    title:'Spring Data JPA, Hibernate, N+1 Problem', days:15, 
-    subtopics: ['DataSource Configuration', 'Entity Mapping (@Entity, @Table)', 'Primary Keys & Generators', 'Relationships (@OneToMany, @ManyToMany)', 'Spring Data Repositories (JpaRepository)', 'Derived Query Methods', 'Custom JPQL Queries (@Query)', 'Pagination & Sorting', 'The N+1 Query Problem & EntityGraphs', 'Transactions (@Transactional)'],
-    learn:RES('Read: Spring Data JPA Docs','https://docs.spring.io/spring-data/jpa/reference/'), practice:RES('Code: Database Implementation','https://start.spring.io/')
-  },
-  {
-    title:'Spring Security, JWT Auth, OAuth2', days:15, 
-    subtopics: ['Security Filter Chain architecture', 'Basic Authentication setup', 'UserDetailsService implementation', 'Password Encoding (Bcrypt)', 'Stateless Sessions & SecurityContext', 'JWT Generation & Validation', 'Writing a custom JWT Filter', 'Method Level Security (@PreAuthorize)', 'OAuth2 & OIDC concepts', 'Google OAuth2 Implementation'],
-    learn:RES('Read: Spring Security Arch','https://docs.spring.io/spring-security/reference/servlet/architecture.html'), practice:RES('Code: Security Sandbox','https://start.spring.io/')
-  },
-  {
-    title:'Caching (Redis) & Connection Pools', days:10, 
-    learn:RES('Read: Spring Boot Caching','https://docs.spring.io/spring-boot/reference/io/caching.html'), practice:RES('Code: Spring Redis Template','https://docs.spring.io/spring-data/redis/reference/')
-  },
-  {title:'Messaging Systems: Apache Kafka Basics', days:15, learn:RES('Read: Apache Kafka Official Docs','https://kafka.apache.org/documentation/'), practice:RES('Code: Apache Kafka Quickstart','https://kafka.apache.org/quickstart')},
-  {title:'Enterprise Testing: JUnit 5, Mockito', days:15, learn:RES('Read: Spring Boot Testing','https://docs.spring.io/spring-boot/reference/testing/index.html'), practice:RES('Code: JUnit 5 User Guide','https://junit.org/junit5/docs/current/user-guide/')}
-]},
-{ id:'p5', name:'React Frontend Architecture', branch:'phase-5/react-ui', color:'#FF6FA5', days:50, topics:[
-  {title:'Modern JS (ES6+) & React DOM', days:10, learn:RES('Read: React Dev Docs (Canonical)','https://react.dev/learn'), practice:RES('Code: React Tic-Tac-Toe Tutorial','https://react.dev/learn/tutorial-tic-tac-toe')},
-  {title:'Hooks Deep Dive (useState, useEffect, useMemo)', days:10, learn:RES('Read: React Hooks Reference','https://react.dev/reference/react'), practice:RES('Code: React Interactive State Exercises','https://react.dev/learn/managing-state')},
-  {title:'State Management (Redux Toolkit / Zustand)', days:10, learn:RES('Read: Redux Toolkit Docs','https://redux-toolkit.js.org/introduction/getting-started'), practice:RES('Code: Redux Toolkit Quickstart','https://redux-toolkit.js.org/tutorials/quick-start')},
-  {title:'Routing, API Integration (Axios/React Query)', days:10, learn:RES('Read: TanStack Query Docs','https://tanstack.com/query/v5/docs/framework/react/overview'), practice:RES('Code: React Router Tutorial','https://reactrouter.com/en/main/start/tutorial')},
-  {title:'Performance Optimization & Tailwind CSS', days:10, learn:RES('Read: Tailwind CSS Documentation','https://tailwindcss.com/docs/installation'), practice:RES('Code: Tailwind Play Interactive','https://play.tailwindcss.com/')}
-]},
-{ id:'p6', name:'Microservices & System Design', branch:'phase-6/system-design', color:'#FF8A5B', days:90, topics:[
-  {
-    title:'Monolith to Microservices & API Gateways', days:10, 
-    subtopics: ['Decomposition Strategies', 'Strangler Fig Pattern', 'Bounded Contexts (DDD)', 'Inter-service communication protocols', 'API Gateway Architecture', 'Spring Cloud Gateway Setup', 'Gateway Routing Rules', 'Gateway Cross-cutting concerns (Auth)', 'Rate Limiting patterns', 'BFF (Backend for Frontend) Pattern'],
-    learn:RES('Read: Microservices.io Patterns','https://microservices.io/patterns/index.html'), practice:RES('Code: Spring Cloud Gateway','https://spring.io/projects/spring-cloud-gateway')
-  },
-  {
-    title:'Service Discovery & Config Servers', days:15, 
-    subtopics: ['Centralized Configuration needs', 'Spring Cloud Config Server setup', 'Git-backed Configs', 'Dynamic Refresh (@RefreshScope)', 'Service Registry concepts', 'Netflix Eureka Setup', 'Registering Clients with Eureka', 'Client-side Load Balancing', 'Handling network partitions', 'Review: Discovery Architecture'],
-    learn:RES('Read: Spring Cloud Netflix Docs','https://docs.spring.io/spring-cloud-netflix/reference/'), practice:RES('Code: Spring Cloud Config','https://spring.io/projects/spring-cloud-config')
-  },
-  {
-    title:'Event-Driven Architecture & The Saga Pattern', days:15, 
-    subtopics: ['Synchronous vs Asynchronous flow', 'Event Sourcing basics', 'Message Brokers (Kafka/RabbitMQ) in Microservices', 'Distributed Transactions problem', 'Two-Phase Commit (2PC) limits', 'The Saga Pattern Introduction', 'Choreography-based Sagas', 'Orchestration-based Sagas', 'Compensating Transactions', 'Implementing Sagas reliably'],
-    learn:RES('Read: Microservices.io Saga Pattern','https://microservices.io/patterns/data/saga.html'), practice:RES('Code: Saga Code Examples','https://github.com/microservice-patterns/net.chrisrichardson.ftgo.examples')
-  },
-  {title:'CQRS & Distributed Tracing', days:10, learn:RES('Read: Micrometer Distributed Tracing','https://micrometer.io/docs/tracing'), practice:RES('Code: Zipkin/Jaeger Setup Guide','https://zipkin.io/pages/quickstart.html')},
-  {title:'System Design: Load Balancers, CDNs, Scaling', days:10, learn:RES('Read: System Design Primer Core','https://github.com/donnemartin/system-design-primer'), practice:RES('Read/Test: Primer Architecture Topics','https://github.com/donnemartin/system-design-primer#index-of-system-design-topics')},
-  {title:'Big Tech Case Studies (Netflix, Instagram, Uber)', days:30, learn:RES('Read: High Scalability Blog (Archive)','http://highscalability.com/'), practice:RES('Design: Excalidraw Architecture Practice','https://excalidraw.com/')}
-]},
-{ id:'p7', name:'DevOps, Cloud & Infra', branch:'phase-7/devops', color:'#6EE7B7', days:60, topics:[
-  {title:'Linux Basics & Advanced Git', days:5, learn:RES('Read: Missing Semester (MIT)','https://missing.csail.mit.edu/'), practice:RES('Code: Learn Git Branching Interactive','https://learngitbranching.js.org/')},
-  {title:'Docker: Containerization & Compose', days:15, learn:RES('Read: Docker Official Documentation','https://docs.docker.com/'), practice:RES('Code: Play with Docker Sandbox','https://labs.play-with-docker.com/')},
-  {title:'Kubernetes Architecture, Pods, Deployments', days:15, learn:RES('Read: Kubernetes Concepts Docs','https://kubernetes.io/docs/concepts/'), practice:RES('Code: Killercoda K8s Playground','https://killercoda.com/playgrounds/scenario/kubernetes')},
-  {title:'CI/CD Pipelines using GitHub Actions', days:10, learn:RES('Read: GitHub Actions Docs','https://docs.github.com/en/actions'), practice:RES('Code: GitHub Actions Quickstart','https://docs.github.com/en/actions/quickstart')},
-  {title:'AWS Core (EC2, S3, RDS, IAM)', days:15, learn:RES('Read: AWS Whitepapers & Architecture','https://aws.amazon.com/architecture/'), practice:RES('Code: AWS Free Tier Hands-on','https://aws.amazon.com/getting-started/hands-on/')}
-]},
-{ id:'p8', name:'The Masterpiece Projects', branch:'phase-8/execution', color:'#E63E5C', days:90, topics:[
-  {title:'System Architecture & DB Schema Design', days:10, learn:RES('Study: Microservices Arch Repos','https://github.com/topics/microservices-architecture'), practice:RES('Design: Draw.io / Excalidraw','https://excalidraw.com/')},
-  {title:'Backend Microservices Implementation', days:30, learn:RES('Read: Spring Cloud Reference','https://docs.spring.io/spring-cloud/'), practice:RES('Code: Build in your GitHub Repo','https://github.com/new')},
-  {title:'Frontend React UI Implementation', days:20, learn:RES('Study: Dribbble UI Inspiration','https://dribbble.com/'), practice:RES('Code: Build React App','https://github.com/new')},
-  {title:'Streaming & Real-Time (WebSockets / Kafka)', days:15, learn:RES('Read: Spring WebSockets Docs','https://docs.spring.io/spring-framework/reference/web/websocket.html'), practice:RES('Code: Implement Chat/Notifications','https://github.com/new')},
-  {title:'Cloud Deployment (K8s, AWS), Load Testing', days:15, learn:RES('Read: JMeter Documentation','https://jmeter.apache.org/usermanual/index.html'), practice:RES('Code: Deploy to AWS & Test','https://aws.amazon.com/')}
-]},
-];
-
-const TOTAL_DAYS = PHASES.reduce((s,p)=>s+p.days,0);
-
-function taskType(idx, count){
-  if(count <= 2) return 'LEARN';
-  const learnEnd = Math.max(1, Math.round(count * 0.40));
-  const buildEnd = count - Math.max(1, Math.round(count * 0.15));
-  if(idx < learnEnd) return 'LEARN';
-  if(idx < buildEnd) return 'CODE';
-  return 'REVIEW';
-}
-
-function typeVerb(t){ 
-  if(t === 'LEARN') return 'Deep Dive Docs:';
-  if(t === 'CODE') return 'Execute & Build:';
-  return 'Optimize & Debug:'; 
-}
-
-function getDailyLabel(type, topic, idx) {
-  if (topic.subtopics && topic.subtopics.length > 0) {
-    const sub = topic.subtopics[Math.min(idx, topic.subtopics.length - 1)];
-    return `${typeVerb(type)} ${sub}`;
-  }
-  return `${typeVerb(type)} ${topic.title} (Part ${idx + 1})`;
-}
-
-let globalDay = 0;
-PHASES.forEach(phase => {
-  phase.startDay = globalDay + 1;
-  phase.flatDays = [];
-  phase.topics.forEach(topic => {
-    topic.dayList = [];
-    for(let i=0; i<topic.days; i++){
-      globalDay++;
-      const type = taskType(i, topic.days);
-      const dynamicLabel = getDailyLabel(type, topic, i);
-      const d = {global: globalDay, phaseId: phase.id, type, topic: topic.title, label: dynamicLabel};
-      topic.dayList.push(d);
-      phase.flatDays.push(d);
-    }
-  });
-  phase.endDay = globalDay;
-});
-
-let state = { startDate: null, done: {} };
-
-async function loadState(){
+/* =========================================
+   FIRESTORE DATA LOGIC
+   ========================================= */
+async function loadState() {
   if(!currentUser) return;
   try {
     const docRef = doc(db, "users", currentUser.uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      state = docSnap.data();
+      appData = docSnap.data();
+      // Resume active session if exists
+      if (appData.activeSubjectId && appData.lastSessionStart) startLiveTimer();
     } else {
-      const t = new Date();
-      state = { startDate: t.toISOString().slice(0,10), done: {} };
+      // Initialize default state tailored for Full-Stack / Systems Engineering
+      appData = {
+        displayName: currentUser.displayName || currentUser.email.split('@')[0],
+        totalXp: 0,
+        subjects: [
+          { id: 's1', name: 'AEM Architecture', xp: 0, color: PALETTE[0] },
+          { id: 's2', name: 'React (MERN Stack)', xp: 0, color: PALETTE[1] },
+          { id: 's3', name: 'Exam Prep (OPSC/RRB)', xp: 0, color: PALETTE[2] }
+        ],
+        tasks: [],
+        dailyLogs: {},
+        activeSubjectId: null,
+        lastSessionStart: null
+      };
       await saveState();
     }
-  } catch(e) { console.error("Error loading document: ", e); }
-  render();
+  } catch(e) { console.error("Error loading state: ", e); }
+  renderUI();
 }
 
-async function saveState(){
+async function saveState() {
   if(!currentUser) return;
   try {
-    const docRef = doc(db, "users", currentUser.uid);
-    await setDoc(docRef, state);
-  } catch(e) { console.error("Error saving document: ", e); }
+    // Calculate global XP for leaderboard indexing
+    appData.totalXp = appData.subjects.reduce((sum, s) => sum + s.xp, 0);
+    appData.displayName = currentUser.displayName || currentUser.email.split('@')[0];
+    await setDoc(doc(db, "users", currentUser.uid), appData);
+  } catch(e) { console.error("Error saving state: ", e); }
 }
 
-function dateForDay(n){
-  const start = new Date(state.startDate + 'T00:00:00');
-  const weeksFull = Math.floor((n - 1) / 6);
-  const rem = (n - 1) % 6;
-  const totalCalendarOffset = (weeksFull * 7) + rem;
-  const d = new Date(start);
-  d.setDate(d.getDate() + totalCalendarOffset);
-  return d;
-}
-function fmt(d){ return d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }
-
-let currentFilter = 'all';
-let currentSearch = '';
-
-function render(){
-  if(!currentUser) return;
-
-  document.getElementById('totalDaysHead').textContent = TOTAL_DAYS;
-  document.getElementById('totalDaysCaption').textContent = 'Day ' + TOTAL_DAYS;
-  if(state.startDate) document.getElementById('startDate').value = state.startDate;
-
-  const doneCount = Object.keys(state.done || {}).filter(k => state.done[k]).length;
-  document.getElementById('statDone').textContent = doneCount;
-  document.getElementById('statPct').textContent = Math.round((doneCount / TOTAL_DAYS) * 100) + '%';
-
-  let currentPhase = PHASES.find(p => {
-    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    return doneInPhase < p.flatDays.length;
-  }) || PHASES[PHASES.length - 1];
-  document.getElementById('statPhase').textContent = currentPhase.name;
-
-  const etaDate = dateForDay(TOTAL_DAYS);
-  document.getElementById('statETA').textContent = fmt(etaDate);
-
-  const rail = document.getElementById('progressRail');
-  rail.innerHTML = '';
-  PHASES.forEach(p => {
-    const seg = document.createElement('div');
-    seg.className = 'seg';
-    seg.style.width = ((p.days / TOTAL_DAYS) * 100) + '%';
-    seg.style.background = p.color + '33';
-    
-    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    const fill = document.createElement('div');
-    fill.className = 'fill';
-    fill.style.width = ((doneInPhase / p.days) * 100) + '%';
-    fill.style.background = p.color;
-    
-    seg.appendChild(fill);
-    rail.appendChild(seg);
-  });
-
-  const hm = document.getElementById('heatmap');
-  hm.innerHTML = '';
-  for(let n=1; n<=TOTAL_DAYS; n++){
-    const phase = PHASES.find(p => n >= p.startDay && n <= p.endDay);
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.title = 'Day ' + n + ' — ' + phase.name;
-    if((state.done || {})[n]){ cell.style.background = phase.color; cell.style.borderColor = phase.color; }
-    hm.appendChild(cell);
+async function fetchLeaderboard() {
+  const lbList = document.getElementById('leaderboardList');
+  lbList.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Fetching network data...</div>';
+  try {
+    const q = query(collection(db, "users"), orderBy("totalXp", "desc"), limit(25));
+    const querySnapshot = await getDocs(q);
+    lbList.innerHTML = '';
+    let rank = 1;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const totalLvl = data.subjects ? data.subjects.reduce((sum, s) => sum + calculateLevelAndProgress(s.xp).level, 0) : 1;
+      
+      const item = document.createElement('div');
+      item.className = 'lb-item';
+      item.innerHTML = `
+        <div class="lb-rank">#${rank}</div>
+        <div class="lb-name">${data.displayName} ${currentUser.uid === doc.id ? '<span style="color:var(--xp-color); font-size:10px; margin-left:8px;">[ YOU ]</span>' : ''}</div>
+        <div class="lb-lvl">LVL ${totalLvl}</div>
+        <div class="lb-xp">${(data.totalXp || 0).toLocaleString()} XP</div>
+      `;
+      lbList.appendChild(item);
+      rank++;
+    });
+  } catch(e) { 
+    console.error(e); 
+    lbList.innerHTML = '<div style="color:var(--danger); text-align:center;">Failed to connect to global servers.</div>'; 
   }
-  const legend = document.getElementById('legend');
-  legend.innerHTML = PHASES.map(p => `<span><span class="sw" style="background:${p.color}"></span>${p.name}</span>`).join('');
+}
 
-  const sidebar = document.getElementById('sidebar');
-  sidebar.innerHTML = '';
-  PHASES.forEach(p => {
-    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    const el = document.createElement('a');
-    el.className = 'branch';
-    el.href = '#' + p.id;
-    el.innerHTML = `<div class="bname" style="color:${p.color}">${p.name}</div>
-      <div class="bmeta">${p.branch} · ${doneInPhase}/${p.days}d</div>
-      <div class="bbar"><div class="f" style="width:${(doneInPhase/p.days)*100}%;background:${p.color}"></div></div>`;
-    sidebar.appendChild(el);
-  });
+/* =========================================
+   TRACKING & UI ENGINE
+   ========================================= */
+function addXpToDailyLog(subjectId, xpAmount) {
+  if(xpAmount <= 0) return;
+  const today = getTodayDateString();
+  if(!appData.dailyLogs[today]) appData.dailyLogs[today] = {};
+  if(!appData.dailyLogs[today][subjectId]) appData.dailyLogs[today][subjectId] = 0;
+  appData.dailyLogs[today][subjectId] += xpAmount;
+}
+function removeXpFromDailyLog(subjectId, xpAmount) {
+  const today = getTodayDateString();
+  if(appData.dailyLogs[today] && appData.dailyLogs[today][subjectId]) {
+    appData.dailyLogs[today][subjectId] = Math.max(0, appData.dailyLogs[today][subjectId] - xpAmount);
+  }
+}
 
-  const main = document.getElementById('main');
-  main.innerHTML = '';
-  PHASES.forEach(p => {
-    const doneInPhase = p.flatDays.filter(d => (state.done || {})[d.global]).length;
-    const section = document.createElement('div');
-    section.className = 'phase-section';
-    section.id = p.id;
-    section.style.borderLeftColor = p.color;
+window.toggleTracking = async function(subjectId) {
+  const now = Date.now();
+  if (appData.activeSubjectId) {
+    clearInterval(liveTimerInterval);
+    commitSessionTime(now);
+  }
+  if (appData.activeSubjectId === subjectId) {
+    appData.activeSubjectId = null;
+    appData.lastSessionStart = null;
+  } else {
+    appData.activeSubjectId = subjectId;
+    appData.lastSessionStart = now;
+    startLiveTimer();
+  }
+  renderUI(); update3DCore(); await saveState();
+}
+
+function commitSessionTime(endTime) {
+  if (!appData.activeSubjectId || !appData.lastSessionStart) return;
+  const elapsed = Math.floor((endTime - appData.lastSessionStart) / 1000);
+  if (elapsed <= 0) return;
+  const subject = appData.subjects.find(s => s.id === appData.activeSubjectId);
+  if (subject) {
+    const xpEarned = elapsed * XP_PER_SECOND;
+    subject.xp += xpEarned;
+    addXpToDailyLog(subject.id, xpEarned);
+  }
+}
+
+function startLiveTimer() {
+  liveTimerInterval = setInterval(() => {
+    if (!appData.activeSubjectId) return;
+    const elapsed = Math.floor((Date.now() - appData.lastSessionStart) / 1000);
+    document.getElementById('activeTimer').innerText = formatHMS(elapsed);
+    if (elapsed % 5 === 0) renderSkillTree(); 
+  }, 1000);
+}
+
+function renderUI() {
+  renderSkillTree();
+  renderActiveCard();
+  renderQuestLog();
+  let totalLvl = 0;
+  appData.subjects.forEach(s => totalLvl += calculateLevelAndProgress(s.xp).level);
+  document.getElementById('totalPlayerLevel').innerText = totalLvl || 1;
+}
+
+function renderSkillTree() {
+  const container = document.getElementById('skillContainer');
+  const select = document.getElementById('taskSubjectSelect');
+  container.innerHTML = ''; select.innerHTML = '<option value="">Select Target Subject...</option>';
+
+  appData.subjects.forEach(subject => {
+    let displayXp = subject.xp;
+    if (appData.activeSubjectId === subject.id && appData.lastSessionStart) {
+      displayXp += Math.floor((Date.now() - appData.lastSessionStart) / 1000) * XP_PER_SECOND;
+    }
+    const stats = calculateLevelAndProgress(displayXp);
+    const isActive = appData.activeSubjectId === subject.id;
+    const totalTimeDisplay = formatHMS(displayXp);
     
-    section.innerHTML = `
-      <div class="phase-head">
-        <h2 style="color:${p.color}">${p.name}</h2>
-        <span class="pct">${doneInPhase}/${p.days} · ${Math.round((doneInPhase/p.days)*100)}%</span>
+    const card = document.createElement('div');
+    card.className = `skill-card ${isActive ? 'active' : ''}`;
+    card.style.color = isActive ? subject.color : 'inherit';
+    card.innerHTML = `
+      <div class="skill-head">
+        <div class="skill-name"><div style="width:10px; height:10px; border-radius:50%; background:${subject.color}; box-shadow: 0 0 10px ${subject.color}"></div>${subject.name}</div>
+        <div style="display:flex; align-items:center;">
+          <div class="skill-lvl">LVL ${stats.level}</div>
+          <button class="btn-icon" onclick="event.stopPropagation(); deleteSubject('${subject.id}')">✕</button>
+        </div>
       </div>
-      <div class="phase-days">${p.branch} · Days ${p.startDay}–${p.endDay} · Est: ${fmt(dateForDay(p.startDay))} → ${fmt(dateForDay(p.endDay))}</div>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" style="width: ${stats.percent}%; background: ${subject.color};"></div></div>
+      <div class="xp-meta-row">
+        <div class="xp-text" style="color:currentColor;">⏱ ${totalTimeDisplay} Total</div>
+        <div class="xp-text">${stats.currentXp} / ${stats.requiredXp} XP</div>
+      </div>
     `;
+    card.onclick = () => toggleTracking(subject.id);
+    container.appendChild(card);
+    select.innerHTML += `<option value="${subject.id}">${subject.name}</option>`;
+  });
+}
 
-    p.topics.forEach(topic => {
-      const first = topic.dayList[0].global;
-      const last = topic.dayList[topic.dayList.length-1].global;
-      
-      const tdiv = document.createElement('div');
-      tdiv.className = 'topic';
-      
-      tdiv.innerHTML = `<div class="topic-head">${topic.title} <span class="range">D${String(first).padStart(3,'0')}–D${String(last).padStart(3,'0')}</span></div>`;
-      
-      const list = document.createElement('div');
-      topic.dayList.forEach(d => {
-        const isDone = !!(state.done || {})[d.global];
-        if(currentFilter === 'done' && !isDone) return;
-        if(currentFilter === 'pending' && isDone) return;
-        if(currentSearch && !(topic.title + ' ' + d.label).toLowerCase().includes(currentSearch)) return;
-        
-        const link = (d.type === 'LEARN') ? topic.learn : topic.practice;
-        const linkClass = (d.type === 'CODE' || d.type === 'REVIEW') ? 'day-link code-link' : 'day-link';
+function renderActiveCard() {
+  const card = document.getElementById('activeCard');
+  const status = document.getElementById('activeStatus');
+  const name = document.getElementById('activeName');
+  const timer = document.getElementById('activeTimer');
+  const rate = document.getElementById('activeXpRate');
 
-        const row = document.createElement('label');
-        row.className = 'day' + (isDone ? ' done' : '');
-        row.innerHTML = `
-          <input type="checkbox" data-day="${d.global}" ${isDone ? 'checked' : ''}>
-          <span class="code">D${String(d.global).padStart(3,'0')}</span>
-          <span class="tag" style="border-color:${d.type==='CODE'?p.color:''}; color:${d.type==='CODE'?p.color:''}">${d.type}</span>
-          <span class="date">${fmt(dateForDay(d.global))}</span>
-          <span class="task">${d.label}</span>
-          <a href="${link.url}" target="_blank" rel="noopener" class="${linkClass}">${link.label}</a>
-        `;
-        list.appendChild(row);
+  if (appData.activeSubjectId) {
+    const subject = appData.subjects.find(s => s.id === appData.activeSubjectId);
+    card.className = 'active-quest-card is-active'; card.style.color = subject.color;
+    status.innerText = 'Engaged // Farming XP'; name.innerText = subject.name;
+    const elapsed = appData.lastSessionStart ? Math.floor((Date.now() - appData.lastSessionStart) / 1000) : 0;
+    timer.innerText = formatHMS(elapsed); timer.style.color = '#fff';
+    rate.innerText = `+${XP_PER_SECOND} XP / SEC`;
+  } else {
+    card.className = 'active-quest-card'; card.style.color = 'var(--text-main)';
+    status.innerText = 'System Idle'; name.innerText = 'Select a Skill to Train';
+    timer.innerText = '00:00:00'; timer.style.color = 'var(--text-muted)'; rate.innerText = 'Standby...';
+  }
+}
+
+function renderQuestLog() {
+  const container = document.getElementById('questContainer');
+  container.innerHTML = '';
+  appData.tasks.forEach(task => {
+    const subject = appData.subjects.find(s => s.id === task.subjectId);
+    const subColor = subject ? subject.color : 'var(--border)';
+    const subName = subject ? subject.name : 'Unassigned';
+
+    const item = document.createElement('div');
+    item.className = `quest-item ${task.completed ? 'done' : ''}`;
+    item.innerHTML = `
+      <div class="quest-check" onclick="toggleTask(${task.id}, event)"></div>
+      <div class="quest-content">
+        <div class="quest-text">${task.text}</div>
+        <div class="quest-meta">
+          <div class="quest-badge" style="color: ${subColor}; border: 1px solid ${subColor}40;">${subName}</div>
+          ${!task.completed ? `<div class="quest-bounty">+${QUEST_BOUNTY_XP} XP</div>` : ''}
+          <button class="btn-abort" onclick="deleteTask(${task.id})">[ ABORT ]</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function renderTrackerData() {
+  const container = document.getElementById('dailyLogContainer');
+  container.innerHTML = '';
+  let lifetimeXp = appData.subjects.reduce((sum, s) => sum + s.xp, 0);
+  let liveElapsed = (appData.activeSubjectId && appData.lastSessionStart) ? Math.floor((Date.now() - appData.lastSessionStart)/1000) * XP_PER_SECOND : 0;
+  lifetimeXp += liveElapsed;
+  document.getElementById('statTotalXp').innerText = lifetimeXp.toLocaleString();
+
+  const todayStr = getTodayDateString();
+  let todayTotalXp = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayData = appData.dailyLogs[dateStr] || {};
+    let dayTotal = 0;
+    if (dateStr === todayStr && appData.activeSubjectId) { dayData[appData.activeSubjectId] = (dayData[appData.activeSubjectId] || 0) + liveElapsed; }
+    Object.values(dayData).forEach(xp => dayTotal += xp);
+    if (dateStr === todayStr) todayTotalXp = dayTotal;
+
+    const row = document.createElement('div'); row.className = 'day-row';
+    const dateLabel = i === 0 ? 'TODAY' : i === 1 ? 'YESTERDAY' : dateStr.slice(5);
+    
+    let barsHTML = '';
+    if (dayTotal > 0) {
+      appData.subjects.forEach(t => {
+        const tXp = dayData[t.id];
+        if (tXp) { barsHTML += `<div class="day-segment" style="width: ${(tXp / dayTotal) * 100}%; background: ${t.color};" title="${t.name}: ${tXp} XP"></div>`; }
       });
-      tdiv.appendChild(list);
-      section.appendChild(tdiv);
-    });
-    main.appendChild(section);
-  });
+    }
 
-  main.querySelectorAll('input[type=checkbox]').forEach(cb => {
-    cb.addEventListener('change', async (e) => {
-      if(!currentUser) return;
-      const day = e.target.getAttribute('data-day');
-      state.done[day] = e.target.checked;
-      await saveState();
-      render();
-    });
-  });
-
-  initScrollSpy();
+    row.innerHTML = `<div class="day-date">${dateLabel}</div><div class="day-bar-wrap">${barsHTML}</div><div class="day-total-xp">${dayTotal.toLocaleString()} XP</div>`;
+    container.appendChild(row);
+  }
+  document.getElementById('statTodayXp').innerText = todayTotalXp.toLocaleString();
 }
 
-function initScrollSpy() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        document.querySelectorAll('.branch').forEach(b => b.classList.remove('active-branch'));
-        const activeBranch = document.querySelector(`.branch[href="#${entry.target.id}"]`);
-        if(activeBranch) activeBranch.classList.add('active-branch');
-      }
-    });
-  }, { rootMargin: '-15% 0px -75% 0px' });
-
-  document.querySelectorAll('.phase-section').forEach(sec => observer.observe(sec));
+/* =========================================
+   ACTIONS (EXPOSED TO WINDOW)
+   ========================================= */
+window.toggleModal = function(id) {
+  const modal = document.getElementById(id);
+  if(modal.classList.contains('visible')) { modal.classList.remove('visible'); } 
+  else {
+    if(id === 'trackerOverlay') renderTrackerData();
+    if(id === 'leaderboardOverlay') fetchLeaderboard();
+    modal.classList.add('visible');
+  }
 }
 
-document.getElementById('search').addEventListener('input', e => {
-  currentSearch = e.target.value.toLowerCase();
-  render();
+window.addTask = async function() {
+  const input = document.getElementById('taskInput');
+  const select = document.getElementById('taskSubjectSelect');
+  if (!input.value.trim() || !select.value) return;
+  appData.tasks.push({ id: Date.now(), text: input.value.trim(), subjectId: select.value, completed: false });
+  input.value = ''; renderUI(); await saveState();
+}
+
+window.toggleTask = async function(taskId, event) {
+  const task = appData.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  task.completed = !task.completed;
+  if (task.completed && task.subjectId) {
+    const subject = appData.subjects.find(s => s.id === task.subjectId);
+    if (subject) {
+      subject.xp += QUEST_BOUNTY_XP; addXpToDailyLog(subject.id, QUEST_BOUNTY_XP);
+      const rect = event.target.getBoundingClientRect();
+      spawnFloatingText(`+${QUEST_BOUNTY_XP} XP`, rect.left, rect.top, subject.color);
+      update3DCore(); 
+    }
+  } else if (!task.completed && task.subjectId) {
+    const subject = appData.subjects.find(s => s.id === task.subjectId);
+    if (subject) { subject.xp = Math.max(0, subject.xp - QUEST_BOUNTY_XP); removeXpFromDailyLog(subject.id, QUEST_BOUNTY_XP); }
+  }
+  renderUI(); await saveState();
+}
+
+window.deleteTask = async function(taskId) { appData.tasks = appData.tasks.filter(t => t.id !== taskId); renderUI(); await saveState(); }
+
+window.deleteSubject = async function(subjectId) {
+  if(!confirm("WARNING: Erase this subject and all its XP from the database?")) return;
+  if (appData.activeSubjectId === subjectId) toggleTracking(subjectId);
+  appData.subjects = appData.subjects.filter(s => s.id !== subjectId);
+  appData.tasks = appData.tasks.filter(t => t.subjectId !== subjectId);
+  appData.subjects.forEach((s, i) => { s.color = PALETTE[i % PALETTE.length]; });
+  renderUI(); update3DCore(); await saveState();
+}
+
+window.addSubject = async function() {
+  const input = document.getElementById('newSubjectInput');
+  if (!input.value.trim()) return;
+  appData.subjects.push({ id: 's_' + Date.now(), name: input.value.trim(), xp: 0, color: PALETTE[appData.subjects.length % PALETTE.length] });
+  input.value = ''; renderUI(); await saveState();
+}
+
+window.resetBoard = async function() {
+  if(confirm("Wipe the daily board? This clears all quests (XP earned is kept).")) {
+    appData.tasks = []; renderUI(); await saveState();
+  }
+}
+
+function spawnFloatingText(text, x, y, color) {
+  const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = text;
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  if(color) { el.style.color = color; el.style.textShadow = `0 0 10px ${color}`; }
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
+}
+
+/* =========================================
+   THREE.JS - THE NEXUS CORE
+   ========================================= */
+let scene, camera, renderer, coreMesh, wireframeMesh, particlesMesh;
+
+function init3D() {
+  const container = document.getElementById('canvas-container');
+  if (renderer) return; // Prevent double init
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 15);
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+
+  const coreGroup = new THREE.Group(); scene.add(coreGroup);
+  const geo = new THREE.IcosahedronGeometry(3, 0); 
+  const mat = new THREE.MeshStandardMaterial({ color: 0x3f3f46, emissive: 0x000000, roughness: 0.2, metalness: 0.8, flatShading: true });
+  coreMesh = new THREE.Mesh(geo, mat); coreGroup.add(coreMesh);
+
+  const wireMat = new THREE.MeshBasicMaterial({ color: 0x3f3f46, wireframe: true, transparent: true, opacity: 0.3 });
+  wireframeMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(3.5, 1), wireMat); coreGroup.add(wireframeMesh);
+
+  const pGeo = new THREE.BufferGeometry(); const pCount = 300; const pPos = new Float32Array(pCount * 3);
+  for(let i=0; i<pCount*3; i++) pPos[i] = (Math.random() - 0.5) * 30;
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  particlesMesh = new THREE.Points(pGeo, new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.2 }));
+  scene.add(particlesMesh);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5)); 
+  const pointLight = new THREE.PointLight(0xffffff, 2, 50); pointLight.position.set(5, 5, 5); scene.add(pointLight);
+
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const time = clock.getElapsedTime();
+    coreMesh.rotation.y += 0.005; coreMesh.rotation.x += 0.002;
+    wireframeMesh.rotation.y -= 0.003; particlesMesh.rotation.y = time * 0.02;
+    
+    if (appData.activeSubjectId) {
+      coreMesh.rotation.y += 0.015; wireframeMesh.rotation.y -= 0.01;
+      const scale = 1 + Math.sin(time * 4) * 0.05;
+      coreMesh.scale.set(scale, scale, scale);
+    } else {
+      coreMesh.scale.set(1, 1, 1);
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+function update3DCore() {
+  if (!coreMesh) return;
+  if (appData.activeSubjectId) {
+    const subject = appData.subjects.find(s => s.id === appData.activeSubjectId);
+    if (subject) {
+      const stats = calculateLevelAndProgress(subject.xp);
+      const detail = Math.min(Math.floor(stats.level / 3), 4);
+      coreMesh.geometry.dispose(); coreMesh.geometry = new THREE.IcosahedronGeometry(3, detail);
+      const c = new THREE.Color(subject.color);
+      coreMesh.material.color = c; coreMesh.material.emissive = c; coreMesh.material.emissiveIntensity = 0.4;
+      wireframeMesh.material.color = c; wireframeMesh.material.opacity = 0.6;
+    }
+  } else {
+    coreMesh.geometry.dispose(); coreMesh.geometry = new THREE.IcosahedronGeometry(3, 0);
+    coreMesh.material.color.setHex(0x3f3f46); coreMesh.material.emissive.setHex(0x000000);
+    wireframeMesh.material.color.setHex(0x3f3f46); wireframeMesh.material.opacity = 0.3;
+  }
+}
+
+window.addEventListener('resize', () => {
+  const container = document.getElementById('canvas-container');
+  if(!camera || !renderer || !container || container.clientWidth === 0) return;
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
 });
 
-document.querySelectorAll('.controls button[data-filter]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.controls button[data-filter]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.getAttribute('data-filter');
-    render();
-  });
+/* =========================================
+   CLEANUP
+   ========================================= */
+window.addEventListener('beforeunload', () => {
+  if (appData.activeSubjectId && currentUser) {
+    commitSessionTime(Date.now());
+    appData.lastSessionStart = Date.now();
+    
+    // Quick synchronous save workaround for unload
+    appData.totalXp = appData.subjects.reduce((sum, s) => sum + s.xp, 0);
+    setDoc(doc(db, "users", currentUser.uid), appData);
+  }
 });
-
-document.getElementById('startDate').addEventListener('change', async e => {
-  if(!currentUser) return;
-  state.startDate = e.target.value;
-  await saveState();
-  render();
-});
-
 </script>
 </body>
 </html>
