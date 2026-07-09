@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <!-- Three.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- Firebase Compat (Works universally, even on file:// protocol) -->
+<!-- Firebase Compat -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -257,7 +257,8 @@
       <div class="skill-list" id="skillContainer"></div>
       <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
         <div class="input-row">
-          <input type="text" id="newSubjectInput" placeholder="Initialize New Subject..." onkeypress="if(event.key === 'Enter') addSubject()">
+          <!-- Bulletproof Fix: Prevent default form submission on enter key -->
+          <input type="text" id="newSubjectInput" placeholder="Initialize New Subject..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addSubject(); }">
           <button class="action-btn" onclick="addSubject()">Add</button>
         </div>
       </div>
@@ -276,7 +277,8 @@
     <div class="panel right-panel">
       <div class="section-title">Quest Log</div>
       <div class="quest-input-group">
-        <input type="text" id="taskInput" placeholder="Define objective..." onkeypress="if(event.key === 'Enter') addTask()">
+        <!-- Bulletproof Fix: Prevent default form submission on enter key -->
+        <input type="text" id="taskInput" placeholder="Define objective..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addTask(); }">
         <div class="input-row">
           <select id="taskSubjectSelect" style="flex:1;"></select>
           <button class="action-btn" onclick="addTask()">Deploy</button>
@@ -410,6 +412,13 @@ async function loadState() {
     const docSnap = await docRef.get();
     if (docSnap.exists) {
       appData = docSnap.data();
+      
+      // BULLETPROOF HYDRATION: Firestore sometimes drops empty arrays instead of persisting them.
+      // This guarantees the arrays are initialized so .push() and .forEach() never fail silently.
+      appData.subjects = appData.subjects || [];
+      appData.tasks = appData.tasks || [];
+      appData.dailyLogs = appData.dailyLogs || {};
+
       if (appData.activeSubjectId && appData.lastSessionStart) startLiveTimer();
     } else {
       appData = {
@@ -705,8 +714,11 @@ window.deleteSubject = async function(subjectId) {
 window.addSubject = async function() {
   const input = document.getElementById('newSubjectInput');
   if (!input.value.trim()) return;
+  // Push natively knowing hydration guaranteed appData.subjects exists
   appData.subjects.push({ id: 's_' + Date.now(), name: input.value.trim(), xp: 0, color: PALETTE[appData.subjects.length % PALETTE.length] });
-  input.value = ''; renderUI(); await saveState();
+  input.value = ''; 
+  renderUI(); 
+  await saveState();
 }
 
 window.resetBoard = async function() {
