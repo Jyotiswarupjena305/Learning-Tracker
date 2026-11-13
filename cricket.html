@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>CRICKET BLITZ FPP — First-Person Real-Bat Stadium</title>
+  <title>CRICKET 360° FPP — Full Shot Arsenal & Live Field Radar</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -92,7 +92,6 @@
       animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    /* Portrait Orientation Advisory Banner for Tablets */
     #portraitWarning {
       display: none;
     }
@@ -112,7 +111,7 @@
     <div class="text-6xl mb-4 animate-bounce">📱🔄</div>
     <h2 class="font-arcade text-3xl font-bold text-[#00FF88] mb-2">ROTATE TABLET TO LANDSCAPE</h2>
     <p class="text-slate-300 text-base max-w-sm">
-      Cricket Blitz FPP is engineered for wide landscape stadium view so you have a full view of the pitch and wide bat swings.
+      Cricket 360° FPP uses wide landscape view for unobstructed pitch tracking and the live 360° field radar.
     </p>
   </div>
 
@@ -122,13 +121,13 @@
   <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-[#050A14]/95 backdrop-blur-md">
     <div class="max-w-lg w-full glass-panel rounded-3xl p-8 text-center border border-emerald-400/30">
       <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold tracking-widest uppercase mb-4">
-        <span>First-Person Real-Bat Stadium</span>
+        <span>360° Real-Bat Stadium</span>
       </div>
       <h1 class="font-arcade text-4xl sm:text-5xl font-bold tracking-wider text-white mb-2">
-        CRICKET <span class="neon-text-green">BLITZ FPP</span>
+        CRICKET <span class="neon-text-green">360° FPP</span>
       </h1>
       <p id="loadingStatusText" class="text-slate-300 text-base sm:text-lg mb-6">
-        Initializing High-Speed Bat Swing Tracker...
+        Initializing Hand-Locked Bat Tracker &amp; Field Radar...
       </p>
 
       <div id="loadingSpinner" class="flex justify-center mb-6">
@@ -148,16 +147,16 @@
       </div>
 
       <p class="text-xs text-slate-400">
-        Place tablet in Landscape mode 5–7 feet away, grip your real bat, and take your guard!
+        Hold your cricket bat in your hands—the virtual bat locks directly to your hands!
       </p>
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 2. MATCH SETUP & BAT GUARD CALIBRATION OVERLAY                        -->
+  <!-- 2. MATCH SETUP & HAND-LOCKED BAT CALIBRATION OVERLAY                  -->
   <!-- ===================================================================== -->
   <div id="calibrationOverlay" class="hidden fixed inset-0 z-30 flex flex-col justify-between p-4 sm:p-5 pointer-events-none">
-    <!-- Top Header + Upper-Body Bat Tracking Status -->
+    <!-- Top Header + Hand Tracking Status -->
     <div class="w-full max-w-7xl mx-auto flex flex-row items-center justify-between gap-3 pointer-events-auto">
       <div class="glass-panel rounded-2xl px-4 py-2.5 flex items-center gap-3">
         <button type="button" onclick="window.location.href='index.html'" class="px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-bold uppercase tracking-wider transition cursor-pointer">
@@ -165,17 +164,16 @@
         </button>
         <div>
           <h1 class="font-arcade text-xl sm:text-2xl font-bold tracking-wider leading-none">
-            CRICKET <span class="neon-text-green">BLITZ FPP</span>
+            CRICKET <span class="neon-text-green">360° FPP</span>
           </h1>
-          <p class="text-[11px] text-slate-400 mt-0.5">First-Person Real-Bat Simulator</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">26-Shot Engine • Live Fielder Radar • 1P &amp; 2P</p>
         </div>
       </div>
 
       <div class="glass-panel rounded-2xl px-4 py-2 flex flex-wrap items-center justify-center gap-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Tracker:</span>
-        <span id="badgeShoulders" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">SHOULDERS</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Hand Lock:</span>
         <span id="badgeWrists" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">BAT HANDS</span>
-        <span id="badgeHips" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">STANCE</span>
+        <span id="badgeShoulders" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">SHOULDERS</span>
         <span id="delegateBadge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-cyan-500/15 border border-cyan-400/40 text-cyan-300">GPU READY</span>
       </div>
     </div>
@@ -184,7 +182,7 @@
     <div class="my-auto flex flex-col items-center text-center pointer-events-none px-4">
       <div id="calibrationPromptPill" class="glass-panel rounded-full px-6 py-2.5 border-2 border-cyan-400/60 transition-all duration-300">
         <p id="calibrationPromptText" class="font-arcade text-base sm:text-xl font-bold tracking-wide text-cyan-300">
-          TEST SWING YOUR BAT — WATCH THE FPP BAT MIRROR YOUR HANDS!
+          MOVE YOUR HANDS — THE BAT HANDLE LOCKS DIRECTLY TO YOUR GRIP!
         </p>
       </div>
     </div>
@@ -257,7 +255,6 @@
   <div id="gameHudOverlay" class="hidden fixed inset-0 z-20 flex flex-col justify-between p-3 sm:p-4 pointer-events-none">
     <!-- Top Compact Scoreboard Strip -->
     <div class="w-full max-w-7xl mx-auto grid grid-cols-5 gap-2 pointer-events-auto">
-      <!-- Score -->
       <div class="glass-panel rounded-xl px-3.5 py-2 border-emerald-400/50 flex flex-col justify-center">
         <span id="hudPlayerLabel" class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-300">PLAYER 1 BATTING</span>
         <div class="flex items-baseline gap-1">
@@ -266,7 +263,6 @@
         </div>
       </div>
 
-      <!-- Overs -->
       <div class="glass-panel rounded-xl px-3.5 py-2 border-cyan-400/40 flex flex-col justify-center">
         <span class="text-[10px] font-extrabold uppercase tracking-widest text-cyan-300">OVERS</span>
         <div class="flex items-baseline gap-1">
@@ -275,7 +271,6 @@
         </div>
       </div>
 
-      <!-- Target / Status -->
       <div class="glass-panel rounded-xl px-3.5 py-2 border-amber-400/40 flex flex-col justify-center">
         <span id="hudTargetTitle" class="text-[10px] font-extrabold uppercase tracking-widest text-amber-300">1ST INNINGS</span>
         <div id="hudTargetValue" class="font-arcade text-lg sm:text-xl font-bold neon-text-gold leading-tight truncate">
@@ -283,7 +278,6 @@
         </div>
       </div>
 
-      <!-- Boundaries -->
       <div class="glass-panel rounded-xl px-3.5 py-2 border-indigo-400/40 flex flex-col justify-center">
         <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-300">4s &amp; 6s</span>
         <div class="font-arcade text-xl sm:text-2xl font-bold text-white leading-none" id="hudBoundaries">
@@ -291,7 +285,6 @@
         </div>
       </div>
 
-      <!-- Ball-by-Ball -->
       <div class="glass-panel rounded-xl px-3.5 py-2 border-purple-400/40 flex flex-col justify-center">
         <span class="text-[10px] font-extrabold uppercase tracking-widest text-purple-300">THIS OVER</span>
         <div id="hudRecentBalls" class="flex items-center gap-1 mt-0.5 min-h-[24px]">
@@ -300,7 +293,7 @@
       </div>
     </div>
 
-    <!-- Side-Docked Delivery & Shot Callout (Top-Left below Scoreboard — NEVER blocks center pitch!) -->
+    <!-- Top-Left Shot & Delivery Callout (Leaves center pitch + right radar 100% open!) -->
     <div class="w-full max-w-7xl mx-auto flex justify-between items-start mt-2">
       <div id="deliveryBanner" class="glass-panel rounded-2xl px-4 py-2.5 border-l-4 border-cyan-400 max-w-xs transition-all duration-150">
         <div id="deliveryTitle" class="font-arcade text-lg sm:text-xl font-bold tracking-wider uppercase text-white leading-tight">
@@ -310,30 +303,17 @@
           Bowler preparing run-up...
         </div>
       </div>
-
-      <!-- Top-Right Live Swing Power & Shot Direction Indicator -->
-      <div class="glass-panel rounded-2xl px-4 py-2.5 border border-white/15 flex flex-col items-end">
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">SWING POWER</span>
-          <div class="w-24 h-2.5 rounded-full bg-slate-800 overflow-hidden">
-            <div id="batSpeedBar" class="h-full bg-[#00FF88] transition-all duration-75" style="width: 0%"></div>
-          </div>
-        </div>
-        <div id="stanceLabel" class="font-arcade text-sm font-bold text-emerald-300 mt-1">
-          GUARD: MIDDLE
-        </div>
-      </div>
     </div>
 
-    <!-- Bottom-Right Compact Controls (Bottom-Left is reserved for PiP Camera, Center is FPP Bat!) -->
-    <div class="w-full max-w-7xl mx-auto flex items-end justify-end gap-2.5 pointer-events-auto">
-      <button type="button" id="pauseBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-4 py-2.5 rounded-xl font-arcade text-sm sm:text-base font-bold text-white border border-cyan-400/50 transition cursor-pointer">
+    <!-- Bottom-Center Controls (Bottom-Left = Camera PiP, Bottom-Right = 360° Field Radar) -->
+    <div class="w-full max-w-7xl mx-auto flex items-end justify-center gap-2.5 pointer-events-auto">
+      <button type="button" id="pauseBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-4 py-2 rounded-xl font-arcade text-xs sm:text-sm font-bold text-white border border-cyan-400/50 transition cursor-pointer">
         ⏸ PAUSE
       </button>
-      <button type="button" id="hudVoiceToggleBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-4 py-2.5 rounded-xl font-arcade text-sm sm:text-base font-bold text-[#00FF88] border border-emerald-400/50 transition cursor-pointer">
+      <button type="button" id="hudVoiceToggleBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-4 py-2 rounded-xl font-arcade text-xs sm:text-sm font-bold text-[#00FF88] border border-emerald-400/50 transition cursor-pointer">
         🔊 AUDIO
       </button>
-      <button type="button" id="endInningsBtn" class="glass-panel hover:bg-rose-950/90 active:scale-95 px-4 py-2.5 rounded-xl font-arcade text-sm sm:text-base font-bold text-rose-400 border border-rose-500/50 transition cursor-pointer">
+      <button type="button" id="endInningsBtn" class="glass-panel hover:bg-rose-950/90 active:scale-95 px-4 py-2 rounded-xl font-arcade text-xs sm:text-sm font-bold text-rose-400 border border-rose-500/50 transition cursor-pointer">
         ⏹ DECLARE
       </button>
     </div>
@@ -345,7 +325,7 @@
   <div id="pauseOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
     <div class="glass-panel max-w-md w-full rounded-3xl p-8 text-center border-2 border-cyan-400/60 animate-pop">
       <h2 class="font-arcade text-4xl font-bold text-white mb-2">DRINKS BREAK</h2>
-      <p class="text-slate-300 mb-6">Take your guard with your bat before resuming.</p>
+      <p class="text-slate-300 mb-6">Hold your bat in front of the camera before resuming.</p>
       <div class="flex flex-col gap-3">
         <button type="button" id="resumeWorkoutBtn" class="w-full py-4 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl font-bold tracking-wider uppercase transition cursor-pointer">
           ▶ RESUME MATCH
@@ -416,50 +396,91 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- ES MODULE FPP CRICKET ENGINE + HIGH-SPEED BAT TRACKER                 -->
+  <!-- ES MODULE 360° CRICKET ENGINE + HAND-LOCKED BAT TRACKER               -->
   <!-- ===================================================================== -->
   <script type="module">
     const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
     const WASM_BASE_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/wasm";
 
+    // Delivery archetypes including Pace, Spin, Bouncers, Yorkers & Wides
     const DELIVERY_TYPES = {
       GOOD_LENGTH: {
         id: "GOOD_LENGTH",
         name: "GOOD LENGTH",
-        cue: "Watch bounce & swing!",
+        cue: "Drive, defend, or loft!",
         color: "#00FF88",
         speedMult: 1.0,
         bounceZ: 0.64,
-        bouncePeak: 115
+        bouncePeak: 110,
+        isWide: false
       },
       FULL_TOSS: {
         id: "FULL_TOSS",
         name: "FULL TOSS",
-        cue: "Waist-high — smash for 6!",
+        cue: "Helicopter, Slog, or Straight Drive!",
         color: "#FFD60A",
         speedMult: 0.94,
         bounceZ: 0.98,
-        bouncePeak: 95
+        bouncePeak: 95,
+        isWide: false
+      },
+      SHORT_BALL: {
+        id: "SHORT_BALL",
+        name: "SHORT BOUNCER",
+        cue: "Pull, Hook, Cut, Upper Cut, or Ramp!",
+        color: "#FF3366",
+        speedMult: 1.04,
+        bounceZ: 0.56,
+        bouncePeak: 145,
+        isWide: false
       },
       YORKER: {
         id: "YORKER",
-        name: "FAST YORKER",
-        cue: "Low & fast at the toes!",
+        name: "TOE YORKER",
+        cue: "Helicopter whip, Scoop, or Block!",
         color: "#00D4FF",
-        speedMult: 1.12,
+        speedMult: 1.10,
         bounceZ: 0.89,
-        bouncePeak: 40
+        bouncePeak: 42,
+        isWide: false
       },
-      INSWINGER: {
-        id: "INSWINGER",
-        name: "SWING DELIVERY",
-        cue: "Curves late — watch line!",
-        color: "#FF3366",
-        speedMult: 1.04,
-        bounceZ: 0.60,
-        bouncePeak: 125
+      FLIGHTED_SPIN: {
+        id: "FLIGHTED_SPIN",
+        name: "FLIGHTED SPIN",
+        cue: "Sweep, Slog Sweep, Reverse, or Inside-Out!",
+        color: "#C084FC",
+        speedMult: 0.88,
+        bounceZ: 0.72,
+        bouncePeak: 105,
+        isWide: false
+      },
+      WIDE_DELIVERY: {
+        id: "WIDE_DELIVERY",
+        name: "WIDE LINE",
+        cue: "Leave it for +1 Wide — or reach & Cut!",
+        color: "#FB923C",
+        speedMult: 0.98,
+        bounceZ: 0.68,
+        bouncePeak: 100,
+        isWide: true
       }
     };
+
+    // 11 Fielders positioned in 360° normalized stadium coordinates (-1..1 around pitch center)
+    // Angle 0° = Straight down the ground (Bowler), +90° = Off-side (Cover/Point), -90° = Leg-side (Mid-wicket/Square), 180° = Behind Keeper
+    const BASE_FIELDERS = [
+      { id: "WK",   name: "Wicketkeeper",   x: 0.00,  y: 0.22 },
+      { id: "SLIP", name: "First Slip",     x: 0.16,  y: 0.24 },
+      { id: "3MAN", name: "Third Man",      x: 0.56,  y: 0.68 },
+      { id: "PNT",  name: "Backward Point", x: 0.66,  y: 0.08 },
+      { id: "COV",  name: "Extra Cover",    x: 0.62,  y: -0.34 },
+      { id: "MOFF", name: "Mid-Off",        x: 0.26,  y: -0.52 },
+      { id: "MON",  name: "Mid-On",         x: -0.26, y: -0.52 },
+      { id: "MWKT", name: "Deep Mid-Wicket",x: -0.74, y: -0.38 },
+      { id: "SQLG", name: "Square Leg",     x: -0.64, y: 0.06 },
+      { id: "FLEG", name: "Fine Leg",       x: -0.54, y: 0.66 },
+      { id: "BWL",  name: "Bowler",         x: -0.05, y: -0.42 }
+    ];
 
     const SKELETON_CONNECTIONS = [
       [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
@@ -577,20 +598,22 @@
       smoothedLandmarks: null,
       lastVideoTime: -1,
       lastTimestamp: 0,
-      emaAlpha: 0.62, // High responsiveness for real bat swings
+      emaAlpha: 0.65, // Crisp hand-locked tracking
 
-      // Batter Position & Swing Engine (with 220ms Peak-Swing Buffer!)
-      batterLane: 1,          // 0 = Off-side (left), 1 = Middle, 2 = Leg-side (right)
+      // Hand-Locked Bat State
+      batterLane: 1,
       batterVisualLane: 1,
-      batPos: { x: 0.5, y: 0.6 },
-      prevBatPos: { x: 0.5, y: 0.6 },
+      isCrouchingSweep: false,
+      isSwitchHitStance: false,
+      batPos: { x: 0.5, y: 0.65 },      // Exact normalized hand coordinates (0..1)
+      prevBatPos: { x: 0.5, y: 0.65 },
       batAngleRad: 0,
       batVel: { vx: 0, vy: 0, speed: 0 },
       peakSwingSpeed: 0,
       peakSwingVx: 0,
       peakSwingVy: 0,
-      swingBufferTimer: 0,    // Keeps peak swing active for 220ms so fast swings never miss a frame!
-      swingTrail: [],         // Visual FPP bat motion trail
+      swingBufferTimer: 0,
+      swingTrail: [],
       swingCooldown: 0,
 
       // Match & 2-Player Innings State
@@ -601,11 +624,15 @@
         2: { runs: 0, wickets: 0, balls: 0, fours: 0, sixes: 0, recentBalls: [] }
       },
 
-      // Animated Bowler & Ball State
+      // Bowler & Ball State
       bowlerPhase: "IDLE",
       bowlerProgress: 0,
       ball: null,
       nextDeliveryTimer: 1.2,
+
+      // 360° Field Radar & Ball Trajectory Tracking
+      fielders: BASE_FIELDERS.map(f => ({ ...f, curX: f.x, curY: f.y })),
+      radarBall: null, // { active, x, y, vx, vy, zHeight, vz, path: [], outcomeText, outcomeColor, timer }
 
       // FX
       particles: [],
@@ -622,7 +649,7 @@
     const summaryOverlay = document.getElementById("summaryOverlay");
 
     // =========================================================================
-    // ROBUST REAL-BAT SWING & ANGLE TRACKING
+    // HAND-LOCKED BAT TRACKING & 26-SHOT 360° CLASSIFIER
     // =========================================================================
     function smoothLandmarks(newLandmarks) {
       if (!newLandmarks || newLandmarks.length === 0) return state.smoothedLandmarks;
@@ -660,7 +687,6 @@
 
       const shouldersOk = lShoulder.visibility > 0.45 && rShoulder.visibility > 0.45;
       const wristsOk = lWrist.visibility > 0.4 || rWrist.visibility > 0.4;
-      const hipsOk = lHip.visibility > 0.4 && rHip.visibility > 0.4;
 
       if (state.screen === "CALIBRATION") {
         const setBadge = (id, ok) => {
@@ -670,56 +696,53 @@
             ? "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500/25 text-[#00FF88] border border-[#00FF88] transition-colors"
             : "px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors";
         };
-        setBadge("badgeShoulders", shouldersOk);
         setBadge("badgeWrists", wristsOk);
-        setBadge("badgeHips", hipsOk);
+        setBadge("badgeShoulders", shouldersOk);
 
         const pill = document.getElementById("calibrationPromptPill");
         const txt = document.getElementById("calibrationPromptText");
-        if (shouldersOk && wristsOk) {
+        if (wristsOk) {
           pill.className = "glass-panel rounded-full px-6 py-2.5 border-2 neon-border-green transition-all duration-300";
           txt.className = "font-arcade text-base sm:text-xl font-bold tracking-wide neon-text-green";
-          txt.textContent = "BAT LOCKED IN! SWING YOUR BAT TO SEE IT MOVE ON PITCH";
+          txt.textContent = "BAT LOCKED TO YOUR HANDS — SWING IN ANY 360° DIRECTION!";
         }
       }
 
-      // 1. Footwork Lane Alignment across the Crease (Mirrored X)
-      const bodyCenterX = hipsOk
+      // 1. Lateral Stance Position
+      const bodyCenterX = (lHip.visibility > 0.4 && rHip.visibility > 0.4)
         ? (lHip.x + rHip.x) * 0.5
         : (lShoulder.x + rShoulder.x) * 0.5;
       const mirroredX = 1 - bodyCenterX;
 
-      if (mirroredX < 0.39) {
-        state.batterLane = 0; // Off-side (left)
-      } else if (mirroredX > 0.61) {
-        state.batterLane = 2; // Leg-side (right)
-      } else {
-        state.batterLane = 1; // Middle stump
-      }
+      if (mirroredX < 0.39) state.batterLane = 0;
+      else if (mirroredX > 0.61) state.batterLane = 2;
+      else state.batterLane = 1;
       state.batterVisualLane += (state.batterLane - state.batterVisualLane) * Math.min(1, dt * 14);
 
-      // 2. Occlusion-Proof Active Bat Grip & Forearm Vector Tracking
-      // Uses weighted average favoring whichever wrist has higher tracking confidence
+      // Detect low crouch (for Sweeps / Dilscoop) and Switch-Hit stance flip
+      const shoulderY = (lShoulder.y + rShoulder.y) * 0.5;
+      state.isCrouchingSweep = shoulderY > 0.52;
+      state.isSwitchHitStance = (state.battingHand === "RIGHT" && lWrist.x < rWrist.x - 0.06) ||
+                                (state.battingHand === "LEFT" && rWrist.x < lWrist.x - 0.06);
+
+      // 2. EXACT HAND-ANCHORED BAT POSITION (No waist offset!)
       const wL = Math.max(0.05, lWrist.visibility || 0);
       const wR = Math.max(0.05, rWrist.visibility || 0);
       const wSum = wL + wR;
 
-      const rawWristX = (lWrist.x * wL + rWrist.x * wR) / wSum;
-      const rawWristY = (lWrist.y * wL + rWrist.y * wR) / wSum;
+      const handX = 1 - ((lWrist.x * wL + rWrist.x * wR) / wSum);
+      const handY = (lWrist.y * wL + rWrist.y * wR) / wSum;
 
-      // Dominant forearm angle gives natural bat tilt even before swinging
+      // Forearm tilt angle so the bat rotates naturally with your wrists
       const domElbow = wR >= wL ? rElbow : lElbow;
       const domWrist = wR >= wL ? rWrist : lWrist;
       const forearmDx = (1 - domWrist.x) - (1 - domElbow.x);
       const forearmDy = domWrist.y - domElbow.y;
-      const targetAngle = Math.atan2(forearmDx, -forearmDy) * 0.75;
-      state.batAngleRad += (targetAngle - state.batAngleRad) * Math.min(1, dt * 18);
-
-      const wristX = 1 - rawWristX;
-      const wristY = rawWristY;
+      const targetAngle = Math.atan2(forearmDx, -forearmDy) * 0.85;
+      state.batAngleRad += (targetAngle - state.batAngleRad) * Math.min(1, dt * 20);
 
       state.prevBatPos = { ...state.batPos };
-      state.batPos = { x: wristX, y: wristY };
+      state.batPos = { x: handX, y: handY };
 
       const vx = (state.batPos.x - state.prevBatPos.x) / dt;
       const vy = (state.batPos.y - state.prevBatPos.y) / dt;
@@ -728,11 +751,11 @@
       state.batVel = {
         vx,
         vy,
-        speed: state.batVel.speed * 0.25 + instSpeed * 0.75
+        speed: state.batVel.speed * 0.22 + instSpeed * 0.78
       };
 
-      // Latch Peak Swing for 220ms so swinging slightly early or fast always registers cleanly!
-      if (state.batVel.speed > 0.95) {
+      // Latch Peak Swing for 220ms so fast 360° swings always register cleanly
+      if (state.batVel.speed > 0.85) {
         if (state.batVel.speed >= state.peakSwingSpeed || state.swingBufferTimer <= 0) {
           state.peakSwingSpeed = state.batVel.speed;
           state.peakSwingVx = vx;
@@ -741,35 +764,254 @@
         state.swingBufferTimer = 0.22;
       } else if (state.swingBufferTimer > 0) {
         state.swingBufferTimer = Math.max(0, state.swingBufferTimer - dt);
-        if (state.swingBufferTimer === 0) {
-          state.peakSwingSpeed = 0;
-        }
+        if (state.swingBufferTimer === 0) state.peakSwingSpeed = 0;
       }
 
       if (state.swingCooldown > 0) {
         state.swingCooldown = Math.max(0, state.swingCooldown - dt);
       }
 
-      if (state.batVel.speed > 1.55 && state.swingCooldown <= 0 && !state.ball) {
-        state.swingCooldown = 0.38;
+      if (state.screen === "PLAYING" && state.batVel.speed > 1.5 && state.swingCooldown <= 0 && !state.ball) {
+        state.swingCooldown = 0.35;
         sound.playWhoosh();
       }
+    }
 
-      // Update Swing Power Bar & Guard Label
-      const displaySpeed = Math.max(state.batVel.speed, state.peakSwingSpeed);
-      const speedPct = Math.min(100, Math.round((displaySpeed / 2.2) * 100));
-      const bar = document.getElementById("batSpeedBar");
-      const stanceEl = document.getElementById("stanceLabel");
-      if (bar) {
-        bar.style.width = `${speedPct}%`;
-        bar.style.backgroundColor = speedPct > 65 ? "#FFD60A" : "#00FF88";
+    /**
+     * Classifies any swing into one of the 26 authentic cricket shots across 360°
+     * and computes the exact 360° ground/aerial trajectory vector (radX, radY, loft, speed).
+     */
+    function classifyCricketShot(deliveryType, swingVx, swingVy, swingSpeed, ballLane) {
+      const isRightHand = state.battingHand === "RIGHT";
+      // Normalize horizontal swing: positive = Off-side (Right on screen for RHB), negative = Leg-side (Left on screen for RHB)
+      const dirX = isRightHand ? swingVx : -swingVx;
+      const dirY = swingVy; // negative = upward swing, positive = downward/ground stroke
+      const isAerial = dirY < -0.45 && swingSpeed > 1.25;
+      const isDefensive = swingSpeed < 1.12;
+
+      // Switch Hit Check
+      if (state.isSwitchHitStance && swingSpeed >= 1.15) {
+        return {
+          name: "SWITCH HIT",
+          radX: isRightHand ? -0.78 : 0.78,
+          radY: -0.62,
+          loft: isAerial ? 0.85 : 0.35,
+          power: swingSpeed * 1.15
+        };
       }
-      if (stanceEl) {
-        const guardNames = ["GUARD: OFF-SIDE", "GUARD: MIDDLE", "GUARD: LEG-SIDE"];
-        stanceEl.textContent = speedPct > 60 ? "POWER SWING!" : guardNames[state.batterLane];
-        stanceEl.className = speedPct > 60
-          ? "font-arcade text-sm font-bold text-amber-300 mt-1"
-          : "font-arcade text-sm font-bold text-emerald-300 mt-1";
+
+      // 1. DEFENSIVE SHOTS (Low bat speed block)
+      if (isDefensive) {
+        if (deliveryType === "SHORT_BALL") {
+          return { name: "BACK-FOOT DEFENSE", radX: dirX * 0.15, radY: -0.25, loft: 0.05, power: 0.35 };
+        }
+        return { name: "FORWARD DEFENSE", radX: dirX * 0.15, radY: -0.32, loft: 0.05, power: 0.38 };
+      }
+
+      // 2. SCOOP / DILSCOOP & RAMP SHOT (Upward/backward deflection behind wicketkeeper, 150°..210°)
+      if (dirY < -0.85 && Math.abs(dirX) < 0.55 && (deliveryType === "YORKER" || deliveryType === "FULL_TOSS" || state.isCrouchingSweep)) {
+        return { name: "SCOOP / DILSCOOP", radX: 0.05, radY: 0.92, loft: 0.90, power: swingSpeed * 1.05 };
+      }
+      if (dirY < -0.65 && dirX > 0.35 && deliveryType === "SHORT_BALL") {
+        return { name: "RAMP SHOT", radX: 0.52, radY: 0.85, loft: 0.82, power: swingSpeed * 1.02 };
+      }
+
+      // 3. SWEEP SHOTS (Crouching low or against spin)
+      if (state.isCrouchingSweep || deliveryType === "FLIGHTED_SPIN") {
+        if (dirX > 0.45) {
+          return { name: "REVERSE SWEEP", radX: 0.85, radY: 0.32, loft: isAerial ? 0.72 : 0.25, power: swingSpeed * 1.05 };
+        }
+        if (dirX < -0.35) {
+          if (isAerial && swingSpeed > 1.55) {
+            return { name: "SLOG SWEEP", radX: -0.82, radY: -0.58, loft: 0.95, power: swingSpeed * 1.18 };
+          }
+          if (dirY > 0.2) {
+            return { name: "PADDLE SWEEP", radX: -0.55, radY: 0.78, loft: 0.18, power: swingSpeed * 0.92 };
+          }
+          return { name: "ORTHODOX SWEEP", radX: -0.88, radY: 0.15, loft: 0.22, power: swingSpeed * 1.02 };
+        }
+      }
+
+      // 4. HELICOPTER SHOT (High-power wrist whip against Yorkers / Full Tosses)
+      if ((deliveryType === "YORKER" || deliveryType === "FULL_TOSS") && swingSpeed > 1.65 && dirX <= 0.15) {
+        return { name: "HELICOPTER SHOT", radX: -0.68, radY: -0.74, loft: 0.96, power: swingSpeed * 1.22 };
+      }
+
+      // 5. OFF-SIDE SHOTS (dirX > 0.25 -> 15° to 165° on radar)
+      if (dirX > 0.25) {
+        if (deliveryType === "SHORT_BALL" || deliveryType === "WIDE_DELIVERY") {
+          if (dirY < -0.5) {
+            return { name: "UPPER CUT", radX: 0.65, radY: 0.75, loft: 0.88, power: swingSpeed * 1.08 };
+          }
+          if (dirY > 0.35) {
+            return { name: "LATE CUT", radX: 0.68, radY: 0.68, loft: 0.12, power: swingSpeed * 0.95 };
+          }
+          return { name: "SQUARE CUT", radX: 0.96, radY: 0.12, loft: isAerial ? 0.65 : 0.15, power: swingSpeed * 1.10 };
+        }
+
+        if (state.batterLane === 2 && isAerial) {
+          return { name: "INSIDE-OUT SHOT", radX: 0.68, radY: -0.72, loft: 0.92, power: swingSpeed * 1.16 };
+        }
+        if (dirX > 0.85) {
+          return { name: "SQUARE DRIVE", radX: 0.94, radY: -0.22, loft: isAerial ? 0.68 : 0.15, power: swingSpeed * 1.06 };
+        }
+        if (dirX > 0.45) {
+          return { name: "COVER DRIVE", radX: 0.76, radY: -0.64, loft: isAerial ? 0.72 : 0.16, power: swingSpeed * 1.08 };
+        }
+        return { name: "OFF DRIVE", radX: 0.42, radY: -0.90, loft: isAerial ? 0.75 : 0.15, power: swingSpeed * 1.06 };
+      }
+
+      // 6. LEG-SIDE SHOTS (dirX < -0.25 -> 195° to 345° on radar)
+      if (dirX < -0.25) {
+        if (deliveryType === "SHORT_BALL") {
+          if (dirY < -0.45 && swingSpeed > 1.5) {
+            return { name: "HOOK SHOT", radX: -0.72, radY: 0.68, loft: 0.85, power: swingSpeed * 1.14 };
+          }
+          return { name: "PULL SHOT", radX: -0.92, radY: -0.35, loft: isAerial ? 0.78 : 0.22, power: swingSpeed * 1.14 };
+        }
+        if (swingSpeed > 1.75 && isAerial) {
+          return { name: "SLOG", radX: -0.78, radY: -0.62, loft: 0.95, power: swingSpeed * 1.20 };
+        }
+        if (dirX < -0.75) {
+          return { name: "FLICK / LEG GLANCE", radX: -0.82, radY: 0.55, loft: isAerial ? 0.62 : 0.14, power: swingSpeed * 1.02 };
+        }
+        return { name: "ON DRIVE", radX: -0.38, radY: -0.92, loft: isAerial ? 0.72 : 0.15, power: swingSpeed * 1.06 };
+      }
+
+      // 7. STRAIGHT SHOTS (|dirX| <= 0.25 -> 345° to 15° straight down the ground)
+      if (deliveryType === "SHORT_BALL") {
+        return { name: "BACK-FOOT PUNCH", radX: dirX * 0.4, radY: -0.95, loft: 0.18, power: swingSpeed * 1.02 };
+      }
+      if (isAerial) {
+        return { name: "LOFTED DRIVE", radX: dirX * 0.5, radY: -0.96, loft: 0.92, power: swingSpeed * 1.16 };
+      }
+      return { name: "STRAIGHT DRIVE", radX: dirX * 0.35, radY: -0.98, loft: 0.14, power: swingSpeed * 1.08 };
+    }
+
+    // =========================================================================
+    // 360° LIVE FIELDER SIMULATION & BALL TRACKING
+    // =========================================================================
+    function resetFielders() {
+      state.fielders = BASE_FIELDERS.map(f => ({ ...f, curX: f.x, curY: f.y }));
+    }
+
+    function launchRadarBall(shot) {
+      resetFielders();
+      // Normalize direction vector
+      const mag = Math.max(0.01, Math.hypot(shot.radX, shot.radY));
+      const nx = shot.radX / mag;
+      const ny = shot.radY / mag;
+
+      // Speed determines if it reaches the boundary rope (radius = 1.0)
+      const baseSpeed = Math.min(1.55, Math.max(0.32, shot.power * 0.72));
+
+      state.radarBall = {
+        active: true,
+        x: 0,
+        y: 0.15, // Batter crease position on radar
+        vx: nx * baseSpeed,
+        vy: ny * baseSpeed,
+        loft: shot.loft,
+        shotName: shot.name,
+        path: [{ x: 0, y: 0.15 }],
+        resolved: false,
+        displayTimer: 2.2
+      };
+    }
+
+    function updateRadarAndFielders(dt) {
+      const rb = state.radarBall;
+      if (!rb) return;
+
+      if (rb.resolved) {
+        rb.displayTimer -= dt;
+        if (rb.displayTimer <= 0) {
+          state.radarBall = null;
+          resetFielders();
+        }
+        return;
+      }
+
+      // Move ball across 360° stadium radar
+      rb.x += rb.vx * dt;
+      rb.y += rb.vy * dt;
+      rb.path.push({ x: rb.x, y: rb.y });
+
+      // Ground friction slows down non-lofted shots
+      const drag = rb.loft > 0.75 ? 0.992 : 0.972;
+      rb.vx *= Math.pow(drag, dt * 60);
+      rb.vy *= Math.pow(drag, dt * 60);
+
+      const distFromCenter = Math.hypot(rb.x, rb.y);
+      const ballSpeed = Math.hypot(rb.vx, rb.vy);
+
+      // All 11 fielders sprint toward the ball's path!
+      let closestDist = Infinity;
+      let closestFielder = null;
+
+      for (const f of state.fielders) {
+        const dx = rb.x - f.curX;
+        const dy = rb.y - f.curY;
+        const d = Math.hypot(dx, dy);
+        if (d < closestDist) {
+          closestDist = d;
+          closestFielder = f;
+        }
+        if (d > 0.01) {
+          const chaseSpeed = 0.56; // Fielder sprint speed on radar
+          f.curX += (dx / d) * chaseSpeed * dt;
+          f.curY += (dy / d) * chaseSpeed * dt;
+        }
+      }
+
+      // 1. Check Boundary Rope (dist >= 1.0)
+      if (distFromCenter >= 1.0) {
+        rb.resolved = true;
+        if (rb.loft >= 0.76 && ballSpeed > 0.45) {
+          // SIX!
+          sound.playBatCrack(true);
+          triggerFlash("#00FF88", 0.32);
+          spawnParticles("#FFD60A", 55);
+          recordBallResult("6", 6, false, `SIX! ${rb.shotName}`, "Sails over the boundary rope!", "#00FF88");
+          commentator.say(`Massive six! ${rb.shotName} over the rope!`, true);
+        } else {
+          // FOUR!
+          sound.playBatCrack(true);
+          triggerFlash("#00D4FF", 0.25);
+          spawnParticles("#00D4FF", 38);
+          recordBallResult("4", 4, false, `FOUR! ${rb.shotName}`, "Races past the chasing fielder to the rope!", "#00D4FF");
+          commentator.say(`Four runs! ${rb.shotName} to the boundary!`, true);
+        }
+        return;
+      }
+
+      // 2. Check Fielder Interception / Catch (closestDist < 0.085)
+      if (closestFielder && closestDist < 0.085) {
+        rb.resolved = true;
+        // High lofted shot that didn't clear the infield/outfield fielder = CAUGHT OUT!
+        if (rb.loft >= 0.74 && distFromCenter > 0.24) {
+          sound.playWicketShatter();
+          triggerFlash("#FF3366", 0.45);
+          state.screenShakeTime = 0.35;
+          recordBallResult("W", 0, true, `CAUGHT BY ${closestFielder.name.toUpperCase()}!`, `${rb.shotName} taken cleanly in the air!`, "#FF3366");
+          commentator.say(`Caught out by ${closestFielder.name}!`, true);
+        } else {
+          // Grounded shot fielded! Calculate 0, 1, 2, or 3 runs based on how far the ball traveled
+          const runs = distFromCenter > 0.74 ? 3 : distFromCenter > 0.46 ? 2 : distFromCenter > 0.24 ? 1 : 0;
+          sound.playBatCrack(false);
+          const title = runs === 0 ? `${rb.shotName} (DOT)` : `${runs} RUN${runs > 1 ? "S" : ""}! ${rb.shotName}`;
+          const sub = `Fielded by ${closestFielder.name}`;
+          recordBallResult(runs === 0 ? "•" : String(runs), runs, false, title, sub, runs > 0 ? "#FFD60A" : "#94A3B8");
+          if (runs > 0) commentator.say(`${runs} run${runs > 1 ? "s" : ""}!`, true);
+        }
+        return;
+      }
+
+      // 3. Ball stops rolling in the outfield gap before a fielder arrives
+      if (ballSpeed < 0.08) {
+        rb.resolved = true;
+        const runs = distFromCenter > 0.72 ? 3 : distFromCenter > 0.45 ? 2 : distFromCenter > 0.22 ? 1 : 0;
+        recordBallResult(runs === 0 ? "•" : String(runs), runs, false, `${runs} RUN${runs > 1 ? "S" : ""}! ${rb.shotName}`, "Placed into the open gap", runs > 0 ? "#FFD60A" : "#94A3B8");
       }
     }
 
@@ -797,7 +1039,7 @@
           videoEl.onloadedmetadata = () => videoEl.play().then(resolve).catch(resolve);
         });
 
-        document.getElementById("loadingStatusText").textContent = "Loading MediaPipe Bat Tracker...";
+        document.getElementById("loadingStatusText").textContent = "Loading Hand-Locked Bat Tracker...";
 
         let visionModule;
         try {
@@ -879,6 +1121,8 @@
       state.bowlerPhase = "IDLE";
       state.bowlerProgress = 0;
       state.ball = null;
+      state.radarBall = null;
+      resetFielders();
       state.nextDeliveryTimer = 1.1;
       state.particles = [];
       state.swingTrail = [];
@@ -911,15 +1155,18 @@
 
       const inn = state.inningsData[state.currentInnings];
       const progressionMult = 1 + Math.min(0.25, inn.balls * 0.014);
-      const lane = Math.floor(Math.random() * 3); // 0 = Off, 1 = Middle, 2 = Leg
-      const curve = chosenKey === "INSWINGER" ? (lane === 0 ? 0.52 : -0.52) : 0;
+
+      // Wide deliveries pitch way outside off-stump (-0.45) or down leg (2.45)
+      let lane = Math.floor(Math.random() * 3);
+      if (def.isWide) {
+        lane = Math.random() < 0.5 ? -0.45 : 2.45;
+      }
 
       state.ball = {
         type: chosenKey,
         lane,
-        curve,
         z: 0.0,
-        speed: 0.54 * def.speedMult * progressionMult,
+        speed: 0.53 * def.speedMult * progressionMult,
         bounced: false,
         hitState: "approaching",
         hitVx: 0,
@@ -933,13 +1180,16 @@
       setDeliveryBanner(def.name, def.cue, def.color);
     }
 
-    function recordBallResult(badgeLabel, runsScored, isWicket, title, sub, color) {
+    function recordBallResult(badgeLabel, runsScored, isWicket, title, sub, color, isExtraWide = false) {
       const inn = state.inningsData[state.currentInnings];
-      inn.balls++;
+      // Wide balls add 1 run and do NOT count as a legal delivery!
+      if (!isExtraWide) {
+        inn.balls++;
+      }
       inn.runs += runsScored;
       if (isWicket) inn.wickets++;
-      if (runsScored === 4) inn.fours++;
-      if (runsScored === 6) inn.sixes++;
+      if (runsScored === 4 && !isExtraWide) inn.fours++;
+      if (runsScored === 6 && !isExtraWide) inn.sixes++;
 
       inn.recentBalls.push({ label: badgeLabel, color });
       if (inn.recentBalls.length > 6) inn.recentBalls.shift();
@@ -953,7 +1203,7 @@
       if (state.numPlayers === 2 && state.currentInnings === 2 && inn.runs >= state.targetScore) {
         setTimeout(() => {
           if (state.screen === "PLAYING") finishMatch();
-        }, 1200);
+        }, 1400);
         return;
       }
 
@@ -965,16 +1215,18 @@
           } else {
             finishMatch();
           }
-        }, 1300);
+        }, 1500);
       } else {
-        state.nextDeliveryTimer = 1.5;
+        state.nextDeliveryTimer = 1.8;
         state.bowlerPhase = "IDLE";
       }
     }
 
     function updatePlayingState(dt) {
+      updateRadarAndFielders(dt);
+
       if (!state.ball) {
-        if (state.bowlerPhase === "IDLE") {
+        if (state.bowlerPhase === "IDLE" && (!state.radarBall || state.radarBall.resolved)) {
           state.nextDeliveryTimer -= dt;
           if (state.nextDeliveryTimer <= 0) {
             startBowlerRunUp();
@@ -1004,73 +1256,49 @@
       }
 
       b.z += b.speed * dt;
-      if (b.curve !== 0 && b.z > 0.42) {
-        b.lane = Math.max(0, Math.min(2, b.lane + b.curve * dt));
-      }
-
       const def = DELIVERY_TYPES[b.type];
       if (!b.bounced && b.z >= def.bounceZ) {
         b.bounced = true;
         sound.playPitchBounce();
       }
 
-      // Expanded, forgiving First-Person Hitting Zone (z: 0.76 .. 0.99) using Peak-Swing Buffer
+      // Check Bat Contact inside Crease Hitting Zone (z: 0.76 .. 0.99)
       if (b.hitState === "approaching" && b.z >= 0.76 && b.z <= 0.99) {
-        const laneDiff = Math.abs(state.batterLane - Math.round(b.lane));
         const activeSwingSpeed = Math.max(state.batVel.speed, state.peakSwingSpeed);
-        const isSwinging = activeSwingSpeed > 0.95;
+        const isSwinging = activeSwingSpeed > 0.75; // Includes gentle forward/back-foot defensive blocks!
 
-        if (isSwinging && laneDiff <= 1) {
-          const timingDelta = Math.abs(b.z - 0.89); // 0.89 is ideal sweet spot
+        // Can hit normal deliveries or reach out to cut/slog a Wide ball!
+        const canReach = !def.isWide || activeSwingSpeed > 1.15;
+
+        if (isSwinging && canReach) {
           const swingVx = state.peakSwingSpeed >= state.batVel.speed ? state.peakSwingVx : state.batVel.vx;
-          const shotDir = Math.max(-1.6, Math.min(1.6, swingVx * 0.52));
-          const shotName = shotDir < -0.32 ? "COVER DRIVE" : shotDir > 0.32 ? "ON-SIDE PULL" : "STRAIGHT LOFT";
+          const swingVy = state.peakSwingSpeed >= state.batVel.speed ? state.peakSwingVy : state.batVel.vy;
 
-          // Consume swing buffer on contact
+          const shot = classifyCricketShot(b.type, swingVx, swingVy, activeSwingSpeed, b.lane);
+
           state.swingBufferTimer = 0;
           state.peakSwingSpeed = 0;
 
           b.hitState = "hit";
           b.hitZ = b.z;
           b.hitY = 0.55;
-          b.hitVx = shotDir;
-          b.hitVz = 1.6;
-          b.hitVy = 1.15;
+          b.hitVx = shot.radX * 1.4;
+          b.hitVz = Math.max(0.5, -shot.radY * 1.5);
+          b.hitVy = shot.loft * 1.25;
 
-          if (timingDelta <= 0.06 && activeSwingSpeed > 1.45) {
-            sound.playBatCrack(true);
-            triggerFlash("#00FF88", 0.32);
-            spawnParticles("#FFD60A", 55);
-            recordBallResult("6", 6, false, `MASSIVE SIX! (${shotName})`, "Clean out of the stadium!", "#00FF88");
-            commentator.say("Massive six! Clean out of the ground!", true);
-          } else if (timingDelta <= 0.095 && activeSwingSpeed > 1.15) {
-            sound.playBatCrack(true);
-            triggerFlash("#00D4FF", 0.25);
-            spawnParticles("#00D4FF", 38);
-            recordBallResult("4", 4, false, `CRACKING FOUR! (${shotName})`, "Bullets across the outfield to the rope!", "#00D4FF");
-            commentator.say("Four runs! Cracked through the gap!", true);
-          } else if (timingDelta <= 0.125) {
-            const runs = timingDelta < 0.11 ? 2 : 1;
-            sound.playBatCrack(false);
-            spawnParticles("#FFFFFF", 18);
-            recordBallResult(String(runs), runs, false, `${runs} RUN${runs > 1 ? "S" : ""}! (${shotName})`, "Placed into the gap", "#FFD60A");
-            commentator.say(`${runs} run${runs > 1 ? "s" : ""}!`, true);
-          } else {
-            sound.playWicketShatter();
-            triggerFlash("#FF3366", 0.45);
-            state.screenShakeTime = 0.35;
-            recordBallResult("W", 0, true, "OUT! CAUGHT IN THE DEEP!", "Swung too early — wait for the ball to reach the crease!", "#FF3366");
-            commentator.say("Caught out! Skied straight to the fielder!", true);
-            state.ball = null;
-          }
+          sound.playBatCrack(false);
+          setDeliveryBanner(shot.name, "Tracking ball on 360° radar...", "#00FF88");
+          launchRadarBall(shot);
           return;
         }
       }
 
-      // Ball reaches stumps without bat contact
+      // Ball passes the batter without contact
       if (b.hitState === "approaching" && b.z >= 1.0) {
-        const ballLane = Math.round(b.lane);
-        if (ballLane === 1) {
+        if (def.isWide) {
+          recordBallResult("WD", 1, false, "WIDE BALL (+1 RUN)", "Left outside the tramline — extra run!", "#FB923C", true);
+          commentator.say("Wide ball! Extra run.", true);
+        } else if (Math.round(b.lane) === 1) {
           sound.playWicketShatter();
           triggerFlash("#FF3366", 0.48);
           state.screenShakeTime = 0.42;
@@ -1078,7 +1306,7 @@
           recordBallResult("W", 0, true, "BOWLED HIM! WICKET!", "Middle stump shattered!", "#FF3366");
           commentator.say("Bowled him! Timber!", true);
         } else {
-          recordBallResult("•", 0, false, "DOT BALL", "Passes outside the stumps to the keeper", "#94A3B8");
+          recordBallResult("•", 0, false, "LEAVE / DOT BALL", "Shouldered arms — passes safely to keeper", "#94A3B8");
         }
         state.ball = null;
       }
@@ -1202,7 +1430,7 @@
       const recentEl = document.getElementById("hudRecentBalls");
       if (inn.recentBalls.length > 0) {
         recentEl.innerHTML = inn.recentBalls.map(b => `
-          <span class="w-6 h-6 rounded-full flex items-center justify-center font-arcade text-xs font-bold border" style="color:${b.color}; border-color:${b.color}; background:${b.color}22;">
+          <span class="px-1.5 h-6 min-w-[24px] rounded-full flex items-center justify-center font-arcade text-[11px] font-bold border" style="color:${b.color}; border-color:${b.color}; background:${b.color}22;">
             ${b.label}
           </span>
         `).join("");
@@ -1245,7 +1473,7 @@
     }
 
     // =========================================================================
-    // FIRST-PERSON PERSPECTIVE (FPP) LANDSCAPE STADIUM + WILLOW BAT RENDERER
+    // FPP STADIUM + HAND-LOCKED BAT + 360° FIELDER RADAR RENDERING
     // =========================================================================
     function resizeCanvas() {
       if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
@@ -1282,17 +1510,18 @@
 
       if (state.screen === "CALIBRATION" || state.screen === "LOADING") {
         drawMirroredCamera(0, 0, cw, ch, true);
-        // Render FPP bat overlay even on calibration so player sees live bat tracking immediately!
-        drawFirstPersonBat(cw, ch, dt);
+        drawHandLockedBat(cw, ch, dt);
       } else {
         drawStadiumWorld(cw, ch, dt);
 
-        // Live PiP Bat & Wrist Camera Feed in bottom-left corner
-        const pipW = Math.min(240, cw * 0.22);
+        // Bottom-Left: Live PiP Camera Feed
+        const pipW = Math.min(230, cw * 0.21);
         const pipH = pipW * 0.68;
-        const pipX = 16;
-        const pipY = ch - pipH - 16;
-        drawMirroredCamera(pipX, pipY, pipW, pipH, false);
+        drawMirroredCamera(16, ch - pipH - 16, pipW, pipH, false);
+
+        // Bottom-Right: Live 360° Field Setup & Ball-Tracking Radar!
+        const radarR = Math.min(115, ch * 0.19, cw * 0.14);
+        drawFielderRadar(cw - radarR - 22, ch - radarR - 22, radarR);
       }
 
       // Particles
@@ -1327,14 +1556,14 @@
     function drawStadiumWorld(cw, ch, dt) {
       const horizonY = ch * 0.30;
 
-      // Floodlit Night Stadium Sky
+      // Night Floodlit Stadium Sky
       const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
       skyGrad.addColorStop(0, "#040812");
       skyGrad.addColorStop(1, "#0E2240");
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, cw, horizonY);
 
-      // Stadium Floodlight Towers
+      // Stadium Floodlights
       [0.14, 0.86].forEach(rx => {
         const lx = cw * rx;
         const ly = horizonY * 0.36;
@@ -1348,7 +1577,7 @@
         ctx.fill();
       });
 
-      // Wide Landscape Outfield Turf
+      // Stadium Outfield Turf
       const turfGrad = ctx.createLinearGradient(0, horizonY, 0, ch);
       turfGrad.addColorStop(0, "#083523");
       turfGrad.addColorStop(1, "#041C12");
@@ -1362,7 +1591,7 @@
       ctx.ellipse(cw * 0.5, horizonY + 10, cw * 0.48, 24, 0, 0, Math.PI);
       ctx.stroke();
 
-      // 22-Yard Cricket Pitch Strip (100% Unobstructed Center Line-of-Sight)
+      // 22-Yard Cricket Pitch Strip
       const topL = projectPitch(-0.5, 0, cw, ch);
       const topR = projectPitch(2.5, 0, cw, ch);
       const botL = projectPitch(-0.5, 1.06, cw, ch);
@@ -1395,7 +1624,7 @@
       ctx.closePath();
       ctx.fill();
 
-      // Popping Crease White Line
+      // Popping Crease White Line & Wide Tramlines
       ctx.strokeStyle = "#FFFFFF";
       ctx.lineWidth = 4;
       ctx.beginPath();
@@ -1406,7 +1635,7 @@
       // Bowler-End Stumps
       drawStumps(cw * 0.5, horizonY + 14, 0.36);
 
-      // Animated Bowler Running In & Releasing Ball
+      // Animated Bowler
       drawAnimatedBowler(cw, horizonY);
 
       // Active Cricket Ball
@@ -1414,8 +1643,8 @@
         drawCricketBall(state.ball, cw, ch);
       }
 
-      // First-Person Perspective (FPP) Willow Cricket Bat at bottom of screen!
-      drawFirstPersonBat(cw, ch, dt);
+      // Hand-Locked FPP Willow Bat!
+      drawHandLockedBat(cw, ch, dt);
     }
 
     function drawAnimatedBowler(cw, horizonY) {
@@ -1552,38 +1781,31 @@
     }
 
     /**
-     * Renders a First-Person Perspective (FPP) Willow Cricket Bat in the foreground
-     * that mirrors your real-time wrist position, forearm angle, and swing arc!
+     * Renders the Willow Cricket Bat anchored directly to the player's detected hand/wrist position!
      */
-    function drawFirstPersonBat(cw, ch, dt) {
-      const proj = projectPitch(state.batterVisualLane, 0.92, cw, ch);
-      const guardOffset = state.battingHand === "RIGHT" ? -38 : 38;
-      const swingShiftX = (state.batPos.x - 0.5) * (cw * 0.36);
-      const swingShiftY = (state.batPos.y - 0.55) * (ch * 0.24);
+    function drawHandLockedBat(cw, ch, dt) {
+      // Direct 1:1 mapping from detected hand position to screen coordinates
+      const handleX = Math.max(80, Math.min(cw - 80, state.batPos.x * cw));
+      const handleY = Math.max(120, Math.min(ch - 30, state.batPos.y * ch));
 
-      const handleX = proj.x + guardOffset + swingShiftX;
-      const handleY = ch * 0.86 + swingShiftY;
-
-      // Combine real forearm tilt with dynamic swing velocity angle
       const dynamicAngle = Math.max(
-        -1.55,
-        Math.min(1.55, state.batAngleRad + state.batVel.vx * 0.36)
+        -1.65,
+        Math.min(1.65, state.batAngleRad + state.batVel.vx * 0.35)
       );
 
-      const bladeLen = Math.min(230, ch * 0.34);
-      const bladeW = 42;
+      const bladeLen = Math.min(220, ch * 0.32);
+      const bladeW = 40;
       const tipX = handleX + Math.sin(dynamicAngle) * bladeLen;
       const tipY = handleY - Math.cos(dynamicAngle) * bladeLen;
 
-      // Record motion trail during active swings
       const activeSpeed = Math.max(state.batVel.speed, state.peakSwingSpeed);
-      if (activeSpeed > 0.9) {
+      if (activeSpeed > 0.85) {
         state.swingTrail.push({ hx: handleX, hy: handleY, tx: tipX, ty: tipY, life: 0.18 });
       }
 
       ctx.save();
 
-      // Draw glowing FPP swing arc trail
+      // Swing motion arc trail
       for (let i = state.swingTrail.length - 1; i >= 0; i--) {
         const tr = state.swingTrail[i];
         tr.life -= dt;
@@ -1600,20 +1822,25 @@
         ctx.stroke();
       }
 
-      // Position & Rotate FPP Bat
       ctx.translate(handleX, handleY);
       ctx.rotate(dynamicAngle);
 
-      // Rubber Grip Handle (bottom)
+      // Rubber Grip Handle right at your hands
       ctx.fillStyle = "#1E293B";
       ctx.strokeStyle = "#00FF88";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.roundRect(-8, -22, 16, 68, 6);
+      ctx.roundRect(-8, -16, 16, 62, 6);
       ctx.fill();
       ctx.stroke();
 
-      // English Willow Blade (extending upward into FPP field of view)
+      // Hand Grip Ring Indicator
+      ctx.fillStyle = "#00FF88";
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // English Willow Blade
       const woodGrad = ctx.createLinearGradient(-bladeW * 0.5, 0, bladeW * 0.5, 0);
       woodGrad.addColorStop(0, "#D97706");
       woodGrad.addColorStop(0.5, "#FBBF24");
@@ -1623,16 +1850,97 @@
       ctx.shadowColor = activeSpeed > 1.1 ? "#00FF88" : "rgba(0,0,0,0.6)";
       ctx.shadowBlur = activeSpeed > 1.1 ? 26 : 12;
       ctx.beginPath();
-      ctx.roundRect(-bladeW * 0.5, -bladeLen, bladeW, bladeLen - 18, 8);
+      ctx.roundRect(-bladeW * 0.5, -bladeLen, bladeW, bladeLen - 12, 8);
       ctx.fill();
 
-      // Center Bat Spine Ridge
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+      // Center Spine
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(0, -24);
+      ctx.moveTo(0, -18);
       ctx.lineTo(0, -bladeLen + 10);
       ctx.stroke();
+
+      ctx.restore();
+    }
+
+    /**
+     * Renders the 360° Stadium Field Radar in the bottom-right corner, showing all 11 fielders,
+     * the 30-yard inner circle, boundary rope, and real-time ball tracking trace!
+     */
+    function drawFielderRadar(cx, cy, radius) {
+      ctx.save();
+
+      // Outer Stadium Backdrop
+      ctx.fillStyle = "rgba(5, 12, 24, 0.88)";
+      ctx.strokeStyle = "#00FF88";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Outfield Grass Fill
+      ctx.fillStyle = "rgba(8, 53, 35, 0.75)";
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius - 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 30-Yard Inner Ring
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.52, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Center Pitch Strip on Radar
+      ctx.fillStyle = "#C9AA7E";
+      ctx.fillRect(cx - 4, cy - radius * 0.16, 8, radius * 0.32);
+
+      // Off / Leg Side Labels
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.font = '700 9px "Chakra Petch", sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText("STRAIGHT", cx, cy - radius + 12);
+      ctx.fillText("OFF", cx + radius - 16, cy + 3);
+      ctx.fillText("LEG", cx - radius + 16, cy + 3);
+      ctx.fillText("FINE", cx, cy + radius - 6);
+
+      // Draw all 11 Fielders (chasing live when ball is hit!)
+      for (const f of state.fielders) {
+        const fx = cx + f.curX * (radius * 0.88);
+        const fy = cy + f.curY * (radius * 0.88);
+        ctx.fillStyle = "#00D4FF";
+        ctx.beginPath();
+        ctx.arc(fx, fy, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw 360° Ball Trajectory Trace & Live Ball Dot
+      const rb = state.radarBall;
+      if (rb && rb.path.length > 0) {
+        ctx.strokeStyle = "#FFD60A";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        rb.path.forEach((pt, idx) => {
+          const px = cx + pt.x * (radius * 0.88);
+          const py = cy + pt.y * (radius * 0.88);
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+
+        const bx = cx + rb.x * (radius * 0.88);
+        const by = cy + rb.y * (radius * 0.88);
+        ctx.fillStyle = "#FF3366";
+        ctx.shadowColor = "#FFD60A";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(bx, by, rb.loft > 0.7 ? 6.5 : 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       ctx.restore();
     }
