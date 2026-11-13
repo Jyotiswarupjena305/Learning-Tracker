@@ -76,7 +76,7 @@
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand h1 { font-weight: 800; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
-  .hud-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .hud-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .btn-hud {
     background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); 
     font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
@@ -187,6 +187,10 @@
   .floating-text { position: fixed; pointer-events: none; font-family: var(--font-mono); font-weight: 800; font-size: 24px; color: var(--xp-color); text-shadow: 0 0 10px var(--xp-color); z-index: 9999; animation: floatUp 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
   @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
 
+  /* Cast Guide List Styling */
+  .cast-steps { text-align: left; background: rgba(0,0,0,0.45); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; font-size: 13px; line-height: 1.5; color: var(--text-main); }
+  .cast-steps strong { color: #38bdf8; font-family: var(--font-mono); }
+
   /* =========================================
      BULLETPROOF MOBILE FIXES (< 1024px)
      ========================================= */
@@ -199,7 +203,6 @@
     
     .layout { display: flex; flex-direction: column; height: auto; overflow: visible; }
     
-    /* Strict stacking for 3D engine safety */
     .center-stage { order: 1; min-height: 400px; height: 400px; padding: 20px; border-bottom: 1px solid var(--border); }
     .left-panel { order: 2; border-right: none; border-bottom: 1px solid var(--border); background: var(--bg-base); height: auto; overflow: visible; }
     .right-panel { order: 3; border-left: none; background: var(--bg-base); height: auto; overflow: visible; padding-bottom: 60px; }
@@ -245,8 +248,9 @@
     <div class="brand"><h1>NEXUS</h1></div>
     <div class="hud-actions">
       <button class="btn-hud" style="border-color: #00ff88; color: #00ff88;" onclick="openPoseWall()">⚡ Pose Arena</button>
-      <button class="btn-hud" style="border-color: #fbbf22; color: #fbbf24;" onclick="openCricket()"> Cricket</button>
+      <button class="btn-hud" style="border-color: #38bdf8; color: #38bdf8;" onclick="openCricket()">🏏 Cricket</button>
       <button class="btn-hud" style="border-color: #fbbf24; color: #fbbf24;" onclick="openTempleRun()">🏃 Temple Run</button>
+      <button class="btn-hud" id="castTvBtn" style="border-color: #a78bfa; color: #a78bfa;" onclick="castToTV()">📺 Cast TV</button>
       <button class="btn-hud accent" onclick="toggleModal('leaderboardOverlay')">🏆 Global Ranks</button>
       <button class="btn-hud" onclick="toggleModal('trackerOverlay')">▤ Player Archive</button>
       <div class="player-level">Total Level <span id="totalPlayerLevel">1</span></div>
@@ -260,7 +264,6 @@
       <div class="skill-list" id="skillContainer"></div>
       <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
         <div class="input-row">
-          <!-- Bulletproof Fix: Prevent default form submission on enter key -->
           <input type="text" id="newSubjectInput" placeholder="Initialize New Subject..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addSubject(); }">
           <button class="action-btn" onclick="addSubject()">Add</button>
         </div>
@@ -280,7 +283,6 @@
     <div class="panel right-panel">
       <div class="section-title">Quest Log</div>
       <div class="quest-input-group">
-        <!-- Bulletproof Fix: Prevent default form submission on enter key -->
         <input type="text" id="taskInput" placeholder="Define objective..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addTask(); }">
         <div class="input-row">
           <select id="taskSubjectSelect" style="flex:1;"></select>
@@ -322,6 +324,29 @@
   </div>
 </div>
 
+<!-- CAST TO TV MODAL (FALLBACK / MULTI-GAME LAUNCHER) -->
+<div class="modal-overlay" id="castOverlay">
+  <div class="modal-content" style="max-width: 560px;">
+    <div class="modal-header">
+      <h2>📺 Cast Arena to TV</h2>
+      <button class="btn-icon" style="font-size: 24px;" onclick="toggleModal('castOverlay')">✕</button>
+    </div>
+    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+      Keep your tablet or laptop in front of you as the <strong>camera sensor</strong>, and mirror your screen to your TV for big-screen gameplay:
+    </p>
+    <div class="cast-steps">
+      <div><strong>1. Chrome (Laptop / Android Tablet):</strong><br>Tap the top-right <strong>⋮</strong> menu → <strong>Cast, save, and share</strong> → <strong>Cast...</strong> → Choose <strong>Sources: Cast tab</strong> (or Cast screen) → Select your <strong>Google TV / Chromecast</strong>.</div>
+      <div><strong>2. iPad / iPhone (Safari):</strong><br>Swipe down from the top-right corner → Tap <strong>Screen Mirroring</strong> → Select your <strong>AirPlay TV</strong>.</div>
+      <div><strong>3. Zero-Lag HDMI (Best for Fast Cricket Swings):</strong><br>Connect your laptop/tablet to the TV via USB-C/HDMI cable and prop the camera below the TV screen.</div>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+      <button class="action-btn" style="flex:1; padding: 14px; background: #38bdf8; color: #000;" onclick="openCricket()">🏏 Launch Cricket</button>
+      <button class="action-btn" style="flex:1; padding: 14px; background: #fbbf24; color: #000;" onclick="openTempleRun()">🏃 Launch Temple Run</button>
+      <button class="action-btn" style="flex:1; padding: 14px; background: #00ff88; color: #000;" onclick="openPoseWall()">⚡ Launch Pose Arena</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================================
    FIREBASE INIT (COMPAT MODE)
@@ -335,7 +360,6 @@ const firebaseConfig = {
   appId: "1:673033401957:web:61012d453a3f4c4a2c788c"
 };
 
-// Initialize Firebase using the robust compat library
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -377,7 +401,7 @@ auth.onAuthStateChanged(async (user) => {
   currentUser = user;
   if (user) {
     authScreen.style.display = 'none';
-    document.getElementById('appContent').style.display = 'flex'; // Use flex directly here
+    document.getElementById('appContent').style.display = 'flex';
     await loadState();
     if(!sceneInitialized) { init3D(); sceneInitialized = true; }
     update3DCore();
@@ -415,9 +439,6 @@ async function loadState() {
     const docSnap = await docRef.get();
     if (docSnap.exists) {
       appData = docSnap.data();
-      
-      // BULLETPROOF HYDRATION: Firestore sometimes drops empty arrays instead of persisting them.
-      // This guarantees the arrays are initialized so .push() and .forEach() never fail silently.
       appData.subjects = appData.subjects || [];
       appData.tasks = appData.tasks || [];
       appData.dailyLogs = appData.dailyLogs || {};
@@ -717,7 +738,6 @@ window.deleteSubject = async function(subjectId) {
 window.addSubject = async function() {
   const input = document.getElementById('newSubjectInput');
   if (!input.value.trim()) return;
-  // Push natively knowing hydration guaranteed appData.subjects exists
   appData.subjects.push({ id: 's_' + Date.now(), name: input.value.trim(), xp: 0, color: PALETTE[appData.subjects.length % PALETTE.length] });
   input.value = ''; 
   renderUI(); 
@@ -752,7 +772,7 @@ function init3D() {
   
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for mobile perf
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   container.appendChild(renderer.domElement);
 
   const coreGroup = new THREE.Group(); scene.add(coreGroup);
@@ -790,7 +810,6 @@ function init3D() {
   }
   animate();
 
-  // Throttled ResizeObserver prevents browser crash on fast mobile scroll/resize
   let resizeTimeout;
   const resizeObserver = new ResizeObserver(() => {
     cancelAnimationFrame(resizeTimeout);
@@ -824,6 +843,62 @@ function update3DCore() {
 }
 
 /* =========================================
+   IN-WEBSITE CAST TO TV + GAME NAVIGATION
+   ========================================= */
+let activeCastSession = null;
+
+window.castToTV = async function() {
+  const btn = document.getElementById('castTvBtn');
+  if ('PresentationRequest' in window) {
+    try {
+      if (activeCastSession) {
+        activeCastSession.terminate();
+        activeCastSession = null;
+        btn.innerHTML = '📺 Cast TV';
+        return;
+      }
+      // Casts your hosted URL directly to any Chromecast / Google TV on the same Wi-Fi
+      const request = new PresentationRequest([window.location.href]);
+      const connection = await request.start();
+      activeCastSession = connection;
+      btn.innerHTML = '🟢 Casting';
+
+      connection.addEventListener('close', () => {
+        activeCastSession = null;
+        btn.innerHTML = '📺 Cast TV';
+      });
+      connection.addEventListener('terminate', () => {
+        activeCastSession = null;
+        btn.innerHTML = '📺 Cast TV';
+      });
+    } catch (err) {
+      // If user dismissed picker, do nothing; otherwise show quick AirPlay/Chrome Mirror guide
+      if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+        toggleModal('castOverlay');
+      }
+    }
+  } else {
+    // Fallback for iPad Safari / browsers without PresentationRequest
+    toggleModal('castOverlay');
+  }
+};
+
+async function flushAndNavigate(targetPage) {
+  if (appData.activeSubjectId && currentUser) {
+    clearInterval(liveTimerInterval);
+    commitSessionTime(Date.now());
+    appData.activeSubjectId = null;
+    appData.lastSessionStart = null;
+    await saveState();
+  }
+  window.location.href = targetPage;
+}
+
+window.openPoseWall = () => flushAndNavigate('posewala.html');
+window.openTempleRun = () => flushAndNavigate('templerun.html');
+window.openCricket = () => flushAndNavigate('cricket.html');
+
+/* =========================================
    CLEANUP
    ========================================= */
 window.addEventListener('beforeunload', () => {
@@ -831,42 +906,9 @@ window.addEventListener('beforeunload', () => {
     commitSessionTime(Date.now());
     appData.lastSessionStart = Date.now();
     appData.totalXp = appData.subjects.reduce((sum, s) => sum + s.xp, 0);
-    db.collection("users").doc(currentUser.uid).set(appData); // Fire-and-forget save
+    db.collection("users").doc(currentUser.uid).set(appData);
   }
 });
-
-  window.openPoseWall = async function() {
-  if (appData.activeSubjectId && currentUser) {
-    clearInterval(liveTimerInterval);
-    commitSessionTime(Date.now());
-    appData.activeSubjectId = null;
-    appData.lastSessionStart = null;
-    await saveState();
-  }
-  window.location.href = 'posewala.html';
-};
-
-  window.openTempleRun = async function() {
-  if (appData.activeSubjectId && currentUser) {
-    clearInterval(liveTimerInterval);
-    commitSessionTime(Date.now());
-    appData.activeSubjectId = null;
-    appData.lastSessionStart = null;
-    await saveState();
-  }
-  window.location.href = 'templerun.html';
-};
-
-  window.openCricket = async function() {
-  if (appData.activeSubjectId && currentUser) {
-    clearInterval(liveTimerInterval);
-    commitSessionTime(Date.now());
-    appData.activeSubjectId = null;
-    appData.lastSessionStart = null;
-    await saveState();
-  }
-  window.location.href = 'cricket.html';
-};
 </script>
 </body>
 </html>
