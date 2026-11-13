@@ -245,6 +245,7 @@
     <div class="brand"><h1>NEXUS</h1></div>
     <div class="hud-actions">
       <button class="btn-hud" style="border-color: #00ff88; color: #00ff88;" onclick="openPoseWall()">⚡ Pose Arena</button>
+      <button class="btn-hud" style="border-color: #fbbf24; color: #fbbf24;" onclick="openTempleRun()">🏃 Temple Run</button>
       <button class="btn-hud accent" onclick="toggleModal('leaderboardOverlay')">🏆 Global Ranks</button>
       <button class="btn-hud" onclick="toggleModal('trackerOverlay')">▤ Player Archive</button>
       <div class="player-level">Total Level <span id="totalPlayerLevel">1</span></div>
@@ -843,6 +844,17 @@ window.addEventListener('beforeunload', () => {
   }
   window.location.href = 'posewala.html';
 }
+
+  window.openTempleRun = async function() {
+  if (appData.activeSubjectId && currentUser) {
+    clearInterval(liveTimerInterval);
+    commitSessionTime(Date.now());
+    appData.activeSubjectId = null;
+    appData.lastSessionStart = null;
+    await saveState();
+  }
+  window.location.href = 'templerun.html';
+};
 </script>
 </body>
 </html>
