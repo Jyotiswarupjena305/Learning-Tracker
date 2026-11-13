@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CRICKET BLITZ — Full-Body Motion Batting Arcade</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #060B14;
+      --neon-green: #00FF88;
+      --neon-pink: #FF3366;
+      --neon-cyan: #00D4FF;
+      --neon-gold: #FFD60A;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: #F8FAFC;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .font-arcade {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    #gameCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 1;
+      background: #060B14;
+    }
+
+    #webcamVideo {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .glass-panel {
+      background: rgba(6, 11, 20, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    .neon-border-green {
+      border-color: #00FF88 !important;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.35), inset 0 0 15px rgba(0, 255, 136, 0.15);
+    }
+
+    .neon-text-green { color: #00FF88; text-shadow: 0 0 16px rgba(0, 255, 136, 0.55); }
+    .neon-text-cyan { color: #00D4FF; text-shadow: 0 0 16px rgba(0, 212, 255, 0.55); }
+    .neon-text-pink { color: #FF3366; text-shadow: 0 0 18px rgba(255, 51, 102, 0.6); }
+    .neon-text-gold { color: #FFD60A; text-shadow: 0 0 18px rgba(255, 214, 10, 0.55); }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 24px rgba(0, 255, 136, 0.45); }
+      50% { transform: scale(1.02); box-shadow: 0 0 38px rgba(0, 255, 136, 0.75); }
+    }
+
+    .btn-ready-pulse {
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .animate-pop {
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+  <video id="webcamVideo" playsinline autoplay muted></video>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- ===================================================================== -->
+  <!-- 1. LOADING & DIAGNOSTICS OVERLAY                                      -->
+  <!-- ===================================================================== -->
+  <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-[#060B14]/95 backdrop-blur-md">
+    <div class="max-w-lg w-full glass-panel rounded-3xl p-8 text-center border border-emerald-400/30">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold tracking-widest uppercase mb-4">
+        <span>Full-Body Motion Stadium</span>
+      </div>
+      <h1 class="font-arcade text-4xl sm:text-5xl font-bold tracking-wider text-white mb-2">
+        CRICKET <span class="neon-text-green">BLITZ</span>
+      </h1>
+      <p id="loadingStatusText" class="text-slate-300 text-base sm:text-lg mb-6">
+        Initializing AI Vision &amp; Camera...
+      </p>
+
+      <div id="loadingSpinner" class="flex justify-center mb-6">
+        <div class="w-14 h-14 rounded-full border-4 border-emerald-500/20 border-t-[#00FF88] animate-spin"></div>
+      </div>
+
+      <div id="errorDiagnosticBox" class="hidden text-left bg-rose-950/60 border border-rose-500/50 rounded-2xl p-5 mb-6">
+        <div class="flex items-center gap-2 text-rose-400 font-bold text-lg mb-1">
+          <span id="errorTitle">Camera or AI Engine Unavailable</span>
+        </div>
+        <p id="errorDetail" class="text-rose-200 text-sm leading-relaxed mb-4">
+          Ensure camera access is allowed and you are running over HTTPS or localhost.
+        </p>
+        <button id="retryInitBtn" class="w-full py-3.5 px-5 rounded-xl bg-rose-500 hover:bg-rose-400 active:scale-95 text-white font-bold text-base transition cursor-pointer">
+          Retry Camera &amp; AI Setup
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400">
+        Stand 6–8 feet back in your batting stance so your full body is visible.
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. HANDS-FREE CALIBRATION & MATCH SETUP OVERLAY                       -->
+  <!-- ===================================================================== -->
+  <div id="calibrationOverlay" class="hidden fixed inset-0 z-30 flex flex-col justify-between p-4 sm:p-6 pointer-events-none">
+    <!-- Top Header + Body Badges -->
+    <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 pointer-events-auto">
+      <div class="glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 w-full lg:w-auto justify-between">
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="window.location.href='index.html'" class="px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-bold uppercase tracking-wider transition cursor-pointer">
+            ← NEXUS
+          </button>
+          <div>
+            <h1 class="font-arcade text-2xl sm:text-3xl font-bold tracking-wider leading-none">
+              CRICKET <span class="neon-text-green">BLITZ</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">Motion-Controlled Stadium Batting</p>
+          </div>
+        </div>
+        <div id="delegateBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/15 border border-cyan-400/40 text-cyan-300">
+          GPU AI READY
+        </div>
+      </div>
+
+      <div class="glass-panel rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full lg:w-auto">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Crease Check:</span>
+        <span id="badgeHead" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">HEAD</span>
+        <span id="badgeShoulders" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">SHOULDERS</span>
+        <span id="badgeHips" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">HIPS</span>
+        <span id="badgeKnees" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">KNEES</span>
+        <span id="badgeAnkles" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">ANKLES</span>
+      </div>
+    </div>
+
+    <!-- Center Framing Prompt -->
+    <div class="my-auto flex flex-col items-center text-center pointer-events-none px-4">
+      <div id="calibrationPromptPill" class="glass-panel rounded-full px-6 py-3 border-2 border-cyan-400/60 transition-all duration-300">
+        <p id="calibrationPromptText" class="font-arcade text-lg sm:text-2xl font-bold tracking-wide text-cyan-300">
+          STEP BACK 6–8 FT INTO BATTING STANCE
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom Setup Deck -->
+    <div class="w-full max-w-6xl mx-auto glass-panel rounded-3xl p-4 sm:p-6 pointer-events-auto">
+      <!-- Shot Guide Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-center">
+        <div class="bg-slate-900/80 border border-emerald-500/30 rounded-xl p-2">
+          <div class="font-arcade text-xs sm:text-sm font-bold text-emerald-300">SWING THROUGH BALL</div>
+          <div class="text-[11px] text-slate-400">Hold hands together &amp; swing</div>
+        </div>
+        <div class="bg-slate-900/80 border border-amber-500/30 rounded-xl p-2">
+          <div class="font-arcade text-xs sm:text-sm font-bold text-amber-300">PERFECT TIMING = 6</div>
+          <div class="text-[11px] text-slate-400">Swing as ball hits crease zone</div>
+        </div>
+        <div class="bg-slate-900/80 border border-cyan-500/30 rounded-xl p-2">
+          <div class="font-arcade text-xs sm:text-sm font-bold text-cyan-300">STEP LEFT / RIGHT</div>
+          <div class="text-[11px] text-slate-400">Align with wide deliveries</div>
+        </div>
+        <div class="bg-slate-900/80 border border-rose-500/30 rounded-xl p-2">
+          <div class="font-arcade text-xs sm:text-sm font-bold text-rose-400">SQUAT FOR BOUNCERS</div>
+          <div class="text-[11px] text-slate-400">Duck low under head-high balls</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+        <!-- Match Format Selector -->
+        <div class="lg:col-span-7">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            Select Match Format
+          </label>
+          <div class="grid grid-cols-3 gap-2.5" id="modeSelectorGroup">
+            <button type="button" data-mode="superover" class="mode-btn rounded-2xl p-3 text-left border-2 border-slate-700/80 bg-slate-900/70 hover:border-cyan-400/60 transition cursor-pointer">
+              <div class="font-arcade text-base sm:text-lg font-bold text-white">SUPER OVER</div>
+              <div class="text-xs text-cyan-300 font-semibold">6 Balls • Blitz</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Quick Cardio Burst</div>
+            </button>
+
+            <button type="button" data-mode="t20" class="mode-btn rounded-2xl p-3 text-left border-2 border-[#00FF88] bg-emerald-950/40 transition cursor-pointer">
+              <div class="font-arcade text-base sm:text-lg font-bold neon-text-green">T20 CHASE</div>
+              <div class="text-xs text-emerald-300 font-semibold">18 Balls • 3 Overs</div>
+              <div class="text-[11px] text-slate-300 mt-0.5">Pace + Spin Mix</div>
+            </button>
+
+            <button type="button" data-mode="survival" class="mode-btn rounded-2xl p-3 text-left border-2 border-slate-700/80 bg-slate-900/70 hover:border-rose-400/60 transition cursor-pointer">
+              <div class="font-arcade text-base sm:text-lg font-bold text-rose-400">SURVIVAL</div>
+              <div class="text-xs text-rose-300 font-semibold">3 Wickets • Endless</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Max Calorie Burn</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Weight & Voice Coach -->
+        <div class="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-3">
+          <div class="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-700/80 rounded-2xl px-4 py-2.5 flex-1">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Body Weight (kcal)</div>
+              <div class="font-arcade text-xl font-bold text-white"><span id="weightDisplay">70</span> kg</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="weightMinusBtn" class="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold text-xl flex items-center justify-center border border-slate-600 cursor-pointer">−</button>
+              <button type="button" id="weightPlusBtn" class="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold text-xl flex items-center justify-center border border-slate-600 cursor-pointer">+</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 bg-slate-900/80 border border-slate-700/80 rounded-2xl px-4 py-2.5 flex-1">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Commentary</div>
+              <div id="voiceStatusLabel" class="text-sm font-bold text-[#00FF88]">ON (Audio Cues)</div>
+            </div>
+            <button type="button" id="toggleVoiceCalibBtn" class="px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-[#00FF88] text-[#00FF88] font-bold text-xs uppercase tracking-wider active:scale-95 transition cursor-pointer">
+              Enabled
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start CTA -->
+      <div class="mt-4 flex flex-col sm:flex-row items-center gap-3">
+        <button type="button" id="startWorkoutBtn" disabled class="w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-slate-800 text-slate-500 border-2 border-slate-700 cursor-not-allowed">
+          STEP INTO CREASE TO AUTO-START
+        </button>
+        <button type="button" id="manualOverrideBtn" class="shrink-0 py-3 sm:py-4 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white bg-slate-900/90 border border-slate-700 hover:border-slate-500 transition cursor-pointer">
+          Bat Anyway
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 3. IN-GAME STADIUM SCOREBOARD HUD                                      -->
+  <!-- ===================================================================== -->
+  <div id="gameHudOverlay" class="hidden fixed inset-0 z-20 flex flex-col justify-between p-4 sm:p-5 pointer-events-none">
+    <!-- Top Scoreboard -->
+    <div class="w-full max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-2.5 pointer-events-auto">
+      <!-- Runs / Wickets -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 border-emerald-400/40 flex flex-col justify-center">
+        <span class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-300">SCORE</span>
+        <div class="flex items-baseline gap-1 mt-0.5">
+          <span id="hudRuns" class="font-arcade text-3xl sm:text-4xl font-bold neon-text-green leading-none">0</span>
+          <span class="font-arcade text-xl sm:text-2xl font-bold text-slate-400">/<span id="hudWickets">0</span></span>
+        </div>
+      </div>
+
+      <!-- Balls / Overs -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 border-cyan-400/40 flex flex-col justify-center">
+        <span class="text-[11px] font-extrabold uppercase tracking-widest text-cyan-300">BALLS</span>
+        <div class="flex items-baseline gap-1.5 mt-0.5">
+          <span id="hudBalls" class="font-arcade text-3xl sm:text-4xl font-bold text-white leading-none">0/18</span>
+        </div>
+      </div>
+
+      <!-- Strike Rate & Boundaries -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 border-amber-400/40 flex flex-col justify-center">
+        <span class="text-[11px] font-extrabold uppercase tracking-widest text-amber-300">STRIKE RATE</span>
+        <div class="flex items-baseline gap-2 mt-0.5">
+          <span id="hudStrikeRate" class="font-arcade text-3xl sm:text-4xl font-bold neon-text-gold leading-none">0</span>
+          <span id="hudBoundaries" class="text-xs font-extrabold text-amber-200">0x4 • 0x6</span>
+        </div>
+      </div>
+
+      <!-- Last 6 Balls Strip -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 border-purple-400/40 flex flex-col justify-center">
+        <span class="text-[11px] font-extrabold uppercase tracking-widest text-purple-300">THIS OVER</span>
+        <div id="hudRecentBalls" class="flex items-center gap-1.5 mt-1 min-h-[28px]">
+          <span class="text-xs text-slate-500 font-bold">Ready...</span>
+        </div>
+      </div>
+
+      <!-- Calories Burned -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 border-rose-400/40 flex flex-col justify-center col-span-2 sm:col-span-1">
+        <span class="text-[11px] font-extrabold uppercase tracking-widest text-rose-300">CALORIES</span>
+        <div class="flex items-baseline gap-1.5 mt-0.5">
+          <span id="hudCalories" class="font-arcade text-3xl sm:text-4xl font-bold neon-text-pink leading-none">0.0</span>
+          <span class="text-xs font-bold text-rose-200">kcal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Delivery & Shot Callout Banner -->
+    <div class="w-full max-w-3xl mx-auto flex flex-col items-center gap-2 mt-2">
+      <div id="deliveryBanner" class="glass-panel rounded-2xl px-6 py-3 border-2 border-cyan-400/60 text-center transition-all duration-150">
+        <div id="deliveryTitle" class="font-arcade text-2xl sm:text-4xl font-bold tracking-wider uppercase text-white">
+          TAKE YOUR GUARD!
+        </div>
+        <div id="deliverySub" class="text-xs sm:text-sm font-bold text-cyan-300 mt-0.5">
+          Bowler running in...
+        </div>
+      </div>
+
+      <!-- Bat Swing Power Meter -->
+      <div class="flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/75 border border-white/15">
+        <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">BAT SPEED</span>
+        <div class="w-28 h-2.5 rounded-full bg-slate-800 overflow-hidden">
+          <div id="batSpeedBar" class="h-full bg-[#00FF88] transition-all duration-75" style="width: 0%"></div>
+        </div>
+        <span id="stanceLabel" class="font-arcade text-xs font-bold text-emerald-300">READY</span>
+      </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="w-full max-w-xl mx-auto flex items-center justify-center gap-3 pointer-events-auto">
+      <button type="button" id="pauseBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-5 py-3 rounded-2xl font-arcade text-base sm:text-lg font-bold text-white border border-cyan-400/50 transition cursor-pointer">
+        ⏸ PAUSE
+      </button>
+      <button type="button" id="hudVoiceToggleBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-5 py-3 rounded-2xl font-arcade text-base sm:text-lg font-bold text-[#00FF88] border border-emerald-400/50 transition cursor-pointer">
+        🔊 AUDIO ON
+      </button>
+      <button type="button" id="endWorkoutBtn" class="glass-panel hover:bg-rose-950/90 active:scale-95 px-5 py-3 rounded-2xl font-arcade text-base sm:text-lg font-bold text-rose-400 border border-rose-500/50 transition cursor-pointer">
+        ⏹ DECLARE
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. PAUSE OVERLAY                                                      -->
+  <!-- ===================================================================== -->
+  <div id="pauseOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
+    <div class="glass-panel max-w-md w-full rounded-3xl p-8 text-center border-2 border-cyan-400/60 animate-pop">
+      <h2 class="font-arcade text-4xl font-bold text-white mb-2">DRINKS BREAK</h2>
+      <p class="text-slate-300 mb-6">Catch your breath! Step back onto the crease when ready.</p>
+      <div class="flex flex-col gap-3">
+        <button type="button" id="resumeWorkoutBtn" class="w-full py-4 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl font-bold tracking-wider uppercase transition cursor-pointer">
+          ▶ RESUME INNINGS
+        </button>
+        <button type="button" id="quitToSummaryBtn" class="w-full py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-rose-400 border border-rose-500/40 font-arcade text-xl font-bold uppercase transition cursor-pointer">
+          DECLARE &amp; VIEW SCORECARD
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 5. INNINGS SCORECARD SUMMARY                                          -->
+  <!-- ===================================================================== -->
+  <div id="summaryOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-[#060B14]/92 backdrop-blur-lg overflow-y-auto">
+    <div class="glass-panel max-w-3xl w-full rounded-3xl p-6 sm:p-8 border-2 border-[#00FF88]/60 animate-pop my-auto">
+      <div class="text-center mb-6">
+        <div id="summaryBadge" class="inline-block px-4 py-1 rounded-full bg-emerald-500/20 border border-[#00FF88]/50 text-[#00FF88] text-xs font-extrabold uppercase tracking-widest mb-2">
+          INNINGS COMPLETE
+        </div>
+        <h2 class="font-arcade text-4xl sm:text-6xl font-bold text-white">
+          MATCH <span class="neon-text-green">SCORECARD</span>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Runs</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-green mt-1">
+            <span id="sumRuns">0</span><span class="text-xl text-slate-400">/<span id="sumWickets">0</span></span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Strike Rate</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-gold mt-1" id="sumStrikeRate">0.0</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Calories Burned</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-pink mt-1">
+            <span id="sumCalories">0.0</span> <span class="text-lg">kcal</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Fours (4s)</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-cyan mt-1" id="sumFours">0</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Sixes (6s)</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-green mt-1" id="sumSixes">0</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Balls Faced</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold text-white mt-1" id="sumBalls">0</div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button type="button" id="playAgainBtn" class="flex-1 py-4 px-6 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase shadow-lg shadow-emerald-500/30 transition cursor-pointer">
+          ↻ BAT AGAIN
+        </button>
+        <button type="button" onclick="window.location.href='index.html'" class="py-4 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-slate-600 font-arcade text-xl sm:text-2xl font-bold tracking-wider uppercase transition cursor-pointer">
+          ← NEXUS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ES MODULE CRICKET ENGINE + MEDIAPIPE POSE TRACKING                    -->
+  <!-- ===================================================================== -->
+  <script type="module">
+    const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+    const WASM_BASE_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/wasm";
+
+    const MATCH_MODES = {
+      superover: { name: "Super Over", maxBalls: 6, maxWickets: 2, baseSpeed: 0.56, met: 7.5 },
+      t20:       { name: "T20 Chase",  maxBalls: 18, maxWickets: 3, baseSpeed: 0.62, met: 8.2 },
+      survival:  { name: "Survival",   maxBalls: Infinity, maxWickets: 3, baseSpeed: 0.60, met: 8.8 }
+    };
+
+    const DELIVERY_TYPES = {
+      GOOD_LENGTH: {
+        id: "GOOD_LENGTH",
+        name: "GOOD LENGTH PACE",
+        cue: "Step into line & swing through!",
+        color: "#00FF88",
+        speedMult: 1.0,
+        bounceZ: 0.68,
+        heightFactor: 0.45
+      },
+      FULL_TOSS: {
+        id: "FULL_TOSS",
+        name: "JUICY FULL TOSS",
+        cue: "Smash it straight for SIX!",
+        color: "#FFD60A",
+        speedMult: 0.94,
+        bounceZ: 0.98,
+        heightFactor: 0.52
+      },
+      YORKER: {
+        id: "YORKER",
+        name: "FAST YORKER",
+        cue: "Quick bat speed low to the pitch!",
+        color: "#00D4FF",
+        speedMult: 1.15,
+        bounceZ: 0.88,
+        heightFactor: 0.22
+      },
+      BOUNCER: {
+        id: "BOUNCER",
+        name: "HEAD-HIGH BOUNCER",
+        cue: "SQUAT LOW to duck — or Hook hard!",
+        color: "#FF3366",
+        speedMult: 1.08,
+        bounceZ: 0.55,
+        heightFactor: 0.86
+      }
+    };
+
+    const SKELETON_CONNECTIONS = [
+      [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
+      [11, 23], [12, 24], [23, 24],
+      [23, 25], [25, 27], [27, 31],
+      [24, 26], [26, 28], [28, 32]
+    ];
+
+    // =========================================================================
+    // WEB AUDIO SYNTHESIZER (BAT CRACK, CROWD ROAR, STUMP SHATTER)
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      unlock() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume().catch(() => {});
+        }
+      }
+
+      playTone(freq, type = "sine", duration = 0.15, gainVal = 0.2, delay = 0) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      playBatCrack(isBoundary = false) {
+        this.unlock();
+        if (!this.ctx || this.muted) return;
+        // Willow bat wood impact thwack
+        this.playTone(isBoundary ? 280 : 210, "triangle", 0.12, 0.35, 0);
+        this.playTone(isBoundary ? 620 : 420, "sine", 0.14, 0.25, 0.01);
+
+        if (isBoundary) {
+          // Stadium celebration fanfare
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+            this.playTone(f, "triangle", 0.35, 0.2, 0.08 + i * 0.08);
+          });
+        }
+      }
+
+      playWicketShatter() {
+        this.unlock();
+        if (!this.ctx || this.muted) return;
+        // Stump rattle + low impact
+        this.playTone(130, "sawtooth", 0.35, 0.32, 0);
+        this.playTone(95, "square", 0.3, 0.25, 0.06);
+        this.playTone(310, "triangle", 0.15, 0.22, 0.04);
+      }
+
+      playWhoosh() {
+        this.playTone(190, "sine", 0.12, 0.08, 0);
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // =========================================================================
+    // COMMENTARY VOICE ENGINE
+    // =========================================================================
+    class Commentator {
+      constructor() {
+        this.enabled = true;
+        this.lastSpokenAt = 0;
+      }
+
+      say(text, force = false) {
+        if (!this.enabled || !("speechSynthesis" in window)) return;
+        const now = performance.now();
+        if (!force && now - this.lastSpokenAt < 1200) return;
+        this.lastSpokenAt = now;
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text);
+          u.rate = 1.18;
+          u.pitch = 1.06;
+          window.speechSynthesis.speak(u);
+        } catch (e) {}
+      }
+    }
+
+    const commentator = new Commentator();
+
+    // =========================================================================
+    // GAME STATE
+    // =========================================================================
+    const videoEl = document.getElementById("webcamVideo");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const state = {
+      screen: "LOADING",
+      selectedMode: "t20",
+      weightKg: 70,
+      delegateUsed: "GPU",
+
+      poseLandmarker: null,
+      smoothedLandmarks: null,
+      lastVideoTime: -1,
+      lastTimestamp: 0,
+      emaAlpha: 0.52, // Fast response for bat swings
+
+      // Calibration
+      bodyPartsReady: { head: false, shoulders: false, hips: false, knees: false, ankles: false },
+      fullBodyReady: false,
+      calibrationUnlockedLatch: false,
+      autoStartHoldSec: 0,
+
+      // Batter Kinematics
+      batterLane: 1,          // 0 = Off-side (left), 1 = Middle, 2 = Leg-side (right)
+      batterVisualLane: 1,
+      batterDucking: false,
+      batPos: { x: 0.5, y: 0.55 },
+      prevBatPos: { x: 0.5, y: 0.55 },
+      batVel: { vx: 0, vy: 0, speed: 0 },
+      swingCooldown: 0,
+
+      // Match Scoreboard
+      runs: 0,
+      wickets: 0,
+      ballsBowled: 0,
+      fours: 0,
+      sixes: 0,
+      recentBalls: [],
+      caloriesBurned: 0,
+      activeElapsedSec: 0,
+
+      // Active Ball State
+      ball: null,             // { type, lane, z (0=bowler .. 1=stumps), hitState: 'approaching'|'hit'|'missed', hitVx, hitVy, hitVz, hitZ, hitY }
+      nextBallTimer: 1.4,
+      shotBannerTimer: 0,
+
+      // FX
+      particles: [],
+      screenFlashColor: null,
+      screenFlashAlpha: 0,
+      screenShakeTime: 0
+    };
+
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const calibrationOverlay = document.getElementById("calibrationOverlay");
+    const gameHudOverlay = document.getElementById("gameHudOverlay");
+    const pauseOverlay = document.getElementById("pauseOverlay");
+    const summaryOverlay = document.getElementById("summaryOverlay");
+    const startWorkoutBtn = document.getElementById("startWorkoutBtn");
+
+    // =========================================================================
+    // BATTER KINEMATICS & SWING DETECTION
+    // =========================================================================
+    function calculateAngle2D(a, b, c) {
+      const abx = a.x - b.x, aby = a.y - b.y;
+      const cbx = c.x - b.x, cby = c.y - b.y;
+      const dot = abx * cbx + aby * cby;
+      const mag = Math.hypot(abx, aby) * Math.hypot(cbx, cby);
+      if (mag < 1e-6) return 180;
+      return (Math.acos(Math.max(-1, Math.min(1, dot / mag))) * 180) / Math.PI;
+    }
+
+    function smoothLandmarks(newLandmarks) {
+      if (!newLandmarks || newLandmarks.length === 0) return state.smoothedLandmarks;
+      if (!state.smoothedLandmarks || state.smoothedLandmarks.length !== newLandmarks.length) {
+        state.smoothedLandmarks = newLandmarks.map(lm => ({
+          x: lm.x, y: lm.y, z: lm.z || 0,
+          visibility: lm.visibility !== undefined ? lm.visibility : 1.0
+        }));
+        return state.smoothedLandmarks;
+      }
+      const a = state.emaAlpha;
+      for (let i = 0; i < newLandmarks.length; i++) {
+        const c = newLandmarks[i];
+        const p = state.smoothedLandmarks[i];
+        p.x = a * c.x + (1 - a) * p.x;
+        p.y = a * c.y + (1 - a) * p.y;
+        p.z = a * (c.z || 0) + (1 - a) * p.z;
+        const v = c.visibility !== undefined ? c.visibility : 1.0;
+        p.visibility = a * v + (1 - a) * p.visibility;
+      }
+      return state.smoothedLandmarks;
+    }
+
+    function updateBatterKinematics(landmarks, dt) {
+      if (!landmarks || landmarks.length < 29 || dt <= 0) return;
+
+      const lWrist = landmarks[15];
+      const rWrist = landmarks[16];
+      const lHip = landmarks[23];
+      const rHip = landmarks[24];
+      const lKnee = landmarks[25];
+      const rKnee = landmarks[26];
+      const lAnkle = landmarks[27];
+      const rAnkle = landmarks[28];
+
+      // 1. Footwork Lane Alignment (Mirrored X)
+      const hipCenterX = (lHip.x + rHip.x) * 0.5;
+      const mirroredX = 1 - hipCenterX;
+      if (mirroredX < 0.40) {
+        state.batterLane = 0;
+      } else if (mirroredX > 0.60) {
+        state.batterLane = 2;
+      } else {
+        state.batterLane = 1;
+      }
+      state.batterVisualLane += (state.batterLane - state.batterVisualLane) * Math.min(1, dt * 14);
+
+      // 2. Squat / Duck Check for Bouncers
+      const avgKneeAngle = (calculateAngle2D(lHip, lKnee, lAnkle) + calculateAngle2D(rHip, rKnee, rAnkle)) * 0.5;
+      const hipToKneeDy = ((lKnee.y + rKnee.y) * 0.5) - ((lHip.y + rHip.y) * 0.5);
+      state.batterDucking = avgKneeAngle < 110 && hipToKneeDy < 0.17;
+
+      // 3. Bat Grip Position & Swing Velocity (Midpoint of both wrists)
+      const wristX = 1 - ((lWrist.x + rWrist.x) * 0.5);
+      const wristY = (lWrist.y + rWrist.y) * 0.5;
+
+      state.prevBatPos = { ...state.batPos };
+      state.batPos = { x: wristX, y: wristY };
+
+      const vx = (state.batPos.x - state.prevBatPos.x) / dt;
+      const vy = (state.batPos.y - state.prevBatPos.y) / dt;
+      const rawSpeed = Math.hypot(vx, vy);
+
+      state.batVel = {
+        vx,
+        vy,
+        speed: state.batVel.speed * 0.35 + rawSpeed * 0.65
+      };
+
+      if (state.swingCooldown > 0) {
+        state.swingCooldown = Math.max(0, state.swingCooldown - dt);
+      }
+
+      // Whoosh sound on fast practice swing
+      if (state.batVel.speed > 1.85 && state.swingCooldown <= 0 && !state.ball) {
+        state.swingCooldown = 0.45;
+        sound.playWhoosh();
+        state.caloriesBurned += 0.15 * (state.weightKg / 70);
+      }
+
+      // Update Bat Speed Bar in HUD
+      const speedPct = Math.min(100, Math.round((state.batVel.speed / 2.6) * 100));
+      const bar = document.getElementById("batSpeedBar");
+      if (bar) {
+        bar.style.width = `${speedPct}%`;
+        bar.style.backgroundColor = speedPct > 70 ? "#FFD60A" : "#00FF88";
+      }
+
+      const stanceEl = document.getElementById("stanceLabel");
+      if (stanceEl) {
+        if (state.batterDucking) {
+          stanceEl.textContent = "DUCKING!";
+          stanceEl.className = "font-arcade text-xs font-bold text-rose-400";
+        } else if (speedPct > 65) {
+          stanceEl.textContent = "POWER SWING!";
+          stanceEl.className = "font-arcade text-xs font-bold text-amber-300";
+        } else {
+          stanceEl.textContent = "ON GUARD";
+          stanceEl.className = "font-arcade text-xs font-bold text-emerald-300";
+        }
+      }
+    }
+
+    // =========================================================================
+    // CALIBRATION WITH LATCH + 1.5s HANDS-FREE AUTO-START
+    // =========================================================================
+    function updateCalibrationStatus(landmarks, dt) {
+      if (!landmarks || landmarks.length < 29) {
+        state.fullBodyReady = false;
+        state.autoStartHoldSec = 0;
+        return;
+      }
+
+      const visThreshold = 0.6;
+      const checkVis = (indices) => indices.every(idx => landmarks[idx] && landmarks[idx].visibility > visThreshold);
+
+      const parts = {
+        head: checkVis([0]),
+        shoulders: checkVis([11, 12]),
+        hips: checkVis([23, 24]),
+        knees: checkVis([25, 26]),
+        ankles: checkVis([27, 28])
+      };
+
+      state.bodyPartsReady = parts;
+      const allReady = parts.head && parts.shoulders && parts.hips && parts.knees && parts.ankles;
+      state.fullBodyReady = allReady;
+
+      if (allReady) {
+        state.calibrationUnlockedLatch = true;
+        state.autoStartHoldSec += dt;
+      } else {
+        state.autoStartHoldSec = 0;
+      }
+
+      const updateBadge = (id, ok) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = ok
+          ? "px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/25 text-[#00FF88] border border-[#00FF88] transition-colors"
+          : "px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors";
+      };
+
+      updateBadge("badgeHead", parts.head);
+      updateBadge("badgeShoulders", parts.shoulders);
+      updateBadge("badgeHips", parts.hips);
+      updateBadge("badgeKnees", parts.knees);
+      updateBadge("badgeAnkles", parts.ankles);
+
+      const pill = document.getElementById("calibrationPromptPill");
+      const text = document.getElementById("calibrationPromptText");
+
+      if (state.calibrationUnlockedLatch) {
+        pill.className = "glass-panel rounded-full px-6 py-3 border-2 neon-border-green transition-all duration-300";
+        text.className = "font-arcade text-lg sm:text-2xl font-bold tracking-wide neon-text-green";
+
+        if (allReady) {
+          const rem = Math.max(0, 1.5 - state.autoStartHoldSec).toFixed(1);
+          text.textContent = `GUARD LOCKED — FIRST BALL IN ${rem}s...`;
+        } else {
+          text.textContent = "UNLOCKED — TAP START OR STEP INTO CREASE!";
+        }
+
+        startWorkoutBtn.disabled = false;
+        startWorkoutBtn.textContent = "🏏 START BATTING";
+        startWorkoutBtn.className = "w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 border-2 border-[#00FF88] btn-ready-pulse cursor-pointer";
+
+        if (state.autoStartHoldSec >= 1.5) {
+          startNewMatch();
+        }
+      } else {
+        pill.className = "glass-panel rounded-full px-6 py-3 border-2 border-cyan-400/60 transition-all duration-300";
+        text.className = "font-arcade text-lg sm:text-2xl font-bold tracking-wide text-cyan-300";
+        text.textContent = "STEP BACK 6–8 FT INTO BATTING STANCE";
+
+        startWorkoutBtn.disabled = true;
+        startWorkoutBtn.textContent = "STEP INTO CREASE TO AUTO-START";
+        startWorkoutBtn.className = "w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-slate-800 text-slate-500 border-2 border-slate-700 cursor-not-allowed";
+      }
+    }
+
+    // =========================================================================
+    // MEDIAPIPE & CAMERA INITIALIZATION
+    // =========================================================================
+    async function initMediaPipeAndCamera() {
+      loadingOverlay.classList.remove("hidden");
+      document.getElementById("errorDiagnosticBox").classList.add("hidden");
+      document.getElementById("loadingSpinner").classList.remove("hidden");
+      document.getElementById("loadingStatusText").textContent = "Requesting camera access...";
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera API unavailable. Run over HTTPS or localhost.");
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+
+        videoEl.srcObject = stream;
+        await new Promise((resolve) => {
+          videoEl.onloadedmetadata = () => videoEl.play().then(resolve).catch(resolve);
+        });
+
+        document.getElementById("loadingStatusText").textContent = "Loading MediaPipe Vision AI...";
+
+        let visionModule;
+        try {
+          visionModule = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/+esm");
+        } catch (e) {
+          visionModule = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs");
+        }
+
+        const { FilesetResolver, PoseLandmarker } = visionModule;
+        const vision = await FilesetResolver.forVisionTasks(WASM_BASE_URL);
+
+        try {
+          state.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+            baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+            runningMode: "VIDEO",
+            numPoses: 1,
+            minPoseDetectionConfidence: 0.55,
+            minPosePresenceConfidence: 0.55,
+            minTrackingConfidence: 0.55
+          });
+          state.delegateUsed = "GPU";
+        } catch (gpuErr) {
+          state.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+            baseOptions: { modelAssetPath: MODEL_URL, delegate: "CPU" },
+            runningMode: "VIDEO",
+            numPoses: 1,
+            minPoseDetectionConfidence: 0.55,
+            minPosePresenceConfidence: 0.55,
+            minTrackingConfidence: 0.55
+          });
+          state.delegateUsed = "CPU";
+        }
+
+        document.getElementById("delegateBadge").textContent = `${state.delegateUsed} AI READY`;
+        loadingOverlay.classList.add("hidden");
+        enterCalibrationScreen();
+      } catch (err) {
+        document.getElementById("loadingSpinner").classList.add("hidden");
+        document.getElementById("loadingStatusText").textContent = "Setup paused.";
+        document.getElementById("errorDiagnosticBox").classList.remove("hidden");
+        document.getElementById("errorTitle").textContent = err.name === "NotAllowedError" ? "Camera Permission Denied" : "Camera / AI Error";
+        document.getElementById("errorDetail").textContent = err.message || "Please allow camera permissions and retry.";
+      }
+    }
+
+    // =========================================================================
+    // CRICKET GAMEPLAY LOOP
+    // =========================================================================
+    function hideAllOverlays() {
+      loadingOverlay.classList.add("hidden");
+      calibrationOverlay.classList.add("hidden");
+      gameHudOverlay.classList.add("hidden");
+      pauseOverlay.classList.add("hidden");
+      summaryOverlay.classList.add("hidden");
+    }
+
+    function enterCalibrationScreen() {
+      hideAllOverlays();
+      state.screen = "CALIBRATION";
+      state.calibrationUnlockedLatch = false;
+      state.autoStartHoldSec = 0;
+      calibrationOverlay.classList.remove("hidden");
+    }
+
+    function startNewMatch() {
+      sound.unlock();
+      hideAllOverlays();
+
+      state.screen = "PLAYING";
+      state.runs = 0;
+      state.wickets = 0;
+      state.ballsBowled = 0;
+      state.fours = 0;
+      state.sixes = 0;
+      state.recentBalls = [];
+      state.caloriesBurned = 0;
+      state.activeElapsedSec = 0;
+      state.ball = null;
+      state.nextBallTimer = 1.3;
+      state.particles = [];
+
+      gameHudOverlay.classList.remove("hidden");
+      updateHudUI();
+      setDeliveryBanner("TAKE YOUR GUARD!", "Bowler running in...", "#00D4FF");
+      commentator.say("Play ball! Bowler running in.", true);
+    }
+
+    function bowlNextDelivery() {
+      const mode = MATCH_MODES[state.selectedMode];
+      const keys = Object.keys(DELIVERY_TYPES);
+      const chosenKey = keys[Math.floor(Math.random() * keys.length)];
+      const def = DELIVERY_TYPES[chosenKey];
+
+      // Progressive speed increase as innings progresses
+      const progressionMult = 1 + Math.min(0.42, state.ballsBowled * 0.018);
+      const lane = Math.floor(Math.random() * 3); // 0 = Off, 1 = Stumps, 2 = Leg
+
+      state.ball = {
+        type: chosenKey,
+        lane,
+        z: 0.0,
+        speed: mode.baseSpeed * def.speedMult * progressionMult,
+        hitState: "approaching",
+        hitVx: 0,
+        hitVy: 0,
+        hitVz: 0,
+        hitZ: 0.94,
+        hitY: 0.5
+      };
+
+      setDeliveryBanner(def.name, def.cue, def.color);
+      commentator.say(def.name, true);
+    }
+
+    function recordBallOutcome(label, runsScored, isWicket, bannerTitle, bannerSub, color) {
+      state.ballsBowled++;
+      state.runs += runsScored;
+      if (isWicket) state.wickets++;
+      if (runsScored === 4) state.fours++;
+      if (runsScored === 6) state.sixes++;
+
+      state.recentBalls.push({ label, color, isWicket });
+      if (state.recentBalls.length > 6) state.recentBalls.shift();
+
+      setDeliveryBanner(bannerTitle, bannerSub, color);
+      state.shotBannerTimer = 1.5;
+      updateHudUI();
+
+      // Check Innings End Conditions
+      const mode = MATCH_MODES[state.selectedMode];
+      if (state.wickets >= mode.maxWickets || state.ballsBowled >= mode.maxBalls) {
+        setTimeout(() => {
+          if (state.screen === "PLAYING") finishInnings();
+        }, 1200);
+      } else {
+        state.nextBallTimer = 1.65;
+      }
+    }
+
+    function updatePlayingState(dt) {
+      const mode = MATCH_MODES[state.selectedMode];
+      state.activeElapsedSec += dt;
+
+      // Dynamic MET calorie burn
+      const kcalPerSec = (mode.met * state.weightKg) / 3600;
+      state.caloriesBurned += kcalPerSec * dt;
+
+      if (state.shotBannerTimer > 0) {
+        state.shotBannerTimer = Math.max(0, state.shotBannerTimer - dt);
+      }
+
+      // Wait between deliveries
+      if (!state.ball) {
+        state.nextBallTimer -= dt;
+        if (state.nextBallTimer <= 0) {
+          bowlNextDelivery();
+        }
+        updateHudUI();
+        return;
+      }
+
+      const b = state.ball;
+
+      // Ball flying out toward stadium boundary after being struck!
+      if (b.hitState === "hit") {
+        b.hitZ -= b.hitVz * dt;
+        b.hitY -= b.hitVy * dt;
+        b.hitVy -= 1.2 * dt; // Gravity arc
+        b.lane += b.hitVx * dt;
+
+        if (b.hitZ <= -0.15 || b.hitY > 1.2) {
+          state.ball = null;
+        }
+        return;
+      }
+
+      // Ball approaching batter
+      b.z += b.speed * dt;
+
+      // Check Bat Contact inside Hitting Window (z between 0.82 and 0.99)
+      if (b.hitState === "approaching" && b.z >= 0.82 && b.z <= 0.99) {
+        const laneDiff = Math.abs(state.batterLane - b.lane);
+        const isSwinging = state.batVel.speed > 1.25;
+
+        // If Bouncer and batter squats cleanly, let it pass safely overhead for a dot ball
+        if (b.type === "BOUNCER" && state.batterDucking && !isSwinging) {
+          b.hitState = "ducked";
+          recordBallOutcome("•", 0, false, "GOOD DUCK!", "Bouncer sails safely over your helmet!", "#00D4FF");
+          commentator.say("Well ducked! Bouncer passes safely.", true);
+          state.ball = null;
+          return;
+        }
+
+        if (isSwinging && laneDiff <= 1) {
+          // BAT CONTACT! Evaluate timing & swing power
+          const timingDelta = Math.abs(b.z - 0.91); // 0.91 is sweet spot
+          const power = state.batVel.speed;
+          const shotDir = Math.max(-1.6, Math.min(1.6, state.batVel.vx * 0.45));
+          const shotName = shotDir < -0.35 ? "COVER DRIVE" : shotDir > 0.35 ? "LEG PULL" : "STRAIGHT LOFT";
+
+          b.hitState = "hit";
+          b.hitZ = b.z;
+          b.hitY = 0.55;
+          b.hitVx = shotDir;
+          b.hitVz = 1.45;
+          b.hitVy = 1.1;
+
+          state.caloriesBurned += 0.35 * (state.weightKg / 70);
+
+          if (timingDelta <= 0.045 && power > 1.75) {
+            // HUGE SIX!
+            sound.playBatCrack(true);
+            triggerFlash("#00FF88", 0.32);
+            spawnParticles("#FFD60A", 50);
+            recordBallOutcome("6", 6, false, `MASSIVE SIX! (${shotName})`, "Clean out of the stadium!", "#00FF88");
+            commentator.say("Massive six! Out of the stadium!", true);
+          } else if (timingDelta <= 0.075 && power > 1.45) {
+            // CRACKING FOUR!
+            sound.playBatCrack(true);
+            triggerFlash("#00D4FF", 0.25);
+            spawnParticles("#00D4FF", 35);
+            recordBallOutcome("4", 4, false, `CRACKING FOUR! (${shotName})`, "Races across the turf to the boundary!", "#00D4FF");
+            commentator.say("Four runs! Cracked through the gap!", true);
+          } else if (timingDelta <= 0.095) {
+            // QUICK TWO / SINGLE
+            const r = timingDelta < 0.085 ? 2 : 1;
+            sound.playBatCrack(false);
+            spawnParticles("#FFFFFF", 16);
+            recordBallOutcome(String(r), r, false, `${r} RUN${r > 1 ? "S" : ""}! (${shotName})`, "Placed into the outfield gap", "#FFD60A");
+            commentator.say(`${r} run${r > 1 ? "s" : ""}!`, true);
+          } else {
+            // MISTIMED SKY BALL -> CAUGHT OUT!
+            sound.playWicketShatter();
+            triggerFlash("#FF3366", 0.45);
+            state.screenShakeTime = 0.35;
+            recordBallOutcome("W", 0, true, "OUT! CAUGHT IN THE DEEP!", "Mistimed swing — wait for the ball to reach the crease!", "#FF3366");
+            commentator.say("Caught out! Mistimed in the air!", true);
+            state.ball = null;
+          }
+          return;
+        }
+      }
+
+      // Ball reached stumps without being hit
+      if (b.hitState === "approaching" && b.z >= 1.0) {
+        const hitStumps = b.lane === 1 || state.batterLane === b.lane;
+        if (hitStumps && !(b.type === "BOUNCER" && state.batterDucking)) {
+          // BOWLED / LBW!
+          sound.playWicketShatter();
+          triggerFlash("#FF3366", 0.48);
+          state.screenShakeTime = 0.42;
+          spawnParticles("#FF3366", 45);
+          recordBallOutcome("W", 0, true, "BOWLED HIM! WICKET!", "Stumps shattered! Swing through the line!", "#FF3366");
+          commentator.say("Bowled him! Timber!", true);
+        } else {
+          // Dot ball safely left alone
+          recordBallOutcome("•", 0, false, "DOT BALL", "Ball passes safely to the keeper", "#94A3B8");
+        }
+        state.ball = null;
+      }
+    }
+
+    function finishInnings() {
+      state.screen = "SUMMARY";
+      hideAllOverlays();
+      summaryOverlay.classList.remove("hidden");
+
+      const sr = state.ballsBowled > 0 ? ((state.runs / state.ballsBowled) * 100).toFixed(1) : "0.0";
+      document.getElementById("sumRuns").textContent = state.runs;
+      document.getElementById("sumWickets").textContent = state.wickets;
+      document.getElementById("sumStrikeRate").textContent = sr;
+      document.getElementById("sumCalories").textContent = state.caloriesBurned.toFixed(1);
+      document.getElementById("sumFours").textContent = state.fours;
+      document.getElementById("sumSixes").textContent = state.sixes;
+      document.getElementById("sumBalls").textContent = state.ballsBowled;
+
+      commentator.say(`Innings complete! You scored ${state.runs} runs.`, true);
+    }
+
+    // =========================================================================
+    // HUD & FX HELPERS
+    // =========================================================================
+    function updateHudUI() {
+      const mode = MATCH_MODES[state.selectedMode];
+      document.getElementById("hudRuns").textContent = state.runs;
+      document.getElementById("hudWickets").textContent = state.wickets;
+      document.getElementById("hudBalls").textContent =
+        mode.maxBalls === Infinity ? `${state.ballsBowled}` : `${state.ballsBowled}/${mode.maxBalls}`;
+
+      const sr = state.ballsBowled > 0 ? Math.round((state.runs / state.ballsBowled) * 100) : 0;
+      document.getElementById("hudStrikeRate").textContent = sr;
+      document.getElementById("hudBoundaries").textContent = `${state.fours}x4 • ${state.sixes}x6`;
+      document.getElementById("hudCalories").textContent = state.caloriesBurned.toFixed(1);
+
+      const recentEl = document.getElementById("hudRecentBalls");
+      if (state.recentBalls.length > 0) {
+        recentEl.innerHTML = state.recentBalls.map(b => `
+          <span class="w-7 h-7 rounded-full flex items-center justify-center font-arcade text-xs font-bold border" style="color:${b.color}; border-color:${b.color}; background:${b.color}22;">
+            ${b.label}
+          </span>
+        `).join("");
+      }
+    }
+
+    function setDeliveryBanner(title, sub, color) {
+      const banner = document.getElementById("deliveryBanner");
+      const titleEl = document.getElementById("deliveryTitle");
+      const subEl = document.getElementById("deliverySub");
+      banner.style.borderColor = color;
+      titleEl.textContent = title;
+      titleEl.style.color = color;
+      subEl.textContent = sub;
+    }
+
+    function triggerFlash(color, alpha) {
+      state.screenFlashColor = color;
+      state.screenFlashAlpha = alpha;
+    }
+
+    function spawnParticles(color, count = 25) {
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.65;
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 160 + Math.random() * 560;
+        state.particles.push({
+          x: cx + (Math.random() - 0.5) * 180,
+          y: cy + (Math.random() - 0.5) * 120,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 150,
+          size: 5 + Math.random() * 10,
+          color,
+          life: 0.45 + Math.random() * 0.35
+        });
+      }
+    }
+
+    // =========================================================================
+    // 3D CRICKET STADIUM PITCH + BATTER + PIP CAMERA RENDERING
+    // =========================================================================
+    function resizeCanvas() {
+      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+    }
+
+    function projectPitch(lane, z, cw, ch) {
+      const horizonY = ch * 0.34;
+      const creaseY = ch * 0.90;
+      const persp = Math.pow(Math.max(0, z), 1.55);
+
+      const y = horizonY + (creaseY - horizonY) * persp;
+      const pitchHalfW = (cw * 0.045) + (cw * 0.24) * persp;
+      const laneOffset = (lane - 1) * (pitchHalfW * 0.62);
+      const x = cw * 0.5 + laneOffset;
+
+      return { x, y, persp, pitchHalfW };
+    }
+
+    function renderFrame(dt) {
+      resizeCanvas();
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      ctx.save();
+
+      if (state.screenShakeTime > 0) {
+        state.screenShakeTime = Math.max(0, state.screenShakeTime - dt);
+        const mag = 16 * (state.screenShakeTime / 0.4);
+        ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+      }
+
+      if (state.screen === "CALIBRATION" || state.screen === "LOADING") {
+        drawMirroredCamera(0, 0, cw, ch, true);
+        if (state.screen === "CALIBRATION") drawCalibrationGuide(cw, ch);
+      } else {
+        drawStadiumWorld(cw, ch);
+
+        // PiP Motion Sensor Camera in bottom-right corner
+        const pipW = Math.min(260, cw * 0.28);
+        const pipH = pipW * 0.72;
+        const pipX = cw - pipW - 18;
+        const pipY = ch - pipH - 86;
+        drawMirroredCamera(pipX, pipY, pipW, pipH, false);
+      }
+
+      // Particles
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+          state.particles.splice(i, 1);
+          continue;
+        }
+        p.vy += 650 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        ctx.globalAlpha = 1;
+      }
+
+      // Screen Flash
+      if (state.screenFlashAlpha > 0 && state.screenFlashColor) {
+        ctx.fillStyle = state.screenFlashColor;
+        ctx.globalAlpha = state.screenFlashAlpha;
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.globalAlpha = 1;
+        state.screenFlashAlpha = Math.max(0, state.screenFlashAlpha - dt * 1.5);
+      }
+
+      ctx.restore();
+    }
+
+    function drawStadiumWorld(cw, ch) {
+      const horizonY = ch * 0.34;
+
+      // Night Floodlit Stadium Sky
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+      skyGrad.addColorStop(0, "#050914");
+      skyGrad.addColorStop(1, "#0E1E38");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, cw, horizonY);
+
+      // Stadium Floodlights
+      [0.18, 0.82].forEach(rx => {
+        const lx = cw * rx;
+        const ly = horizonY * 0.38;
+        const glow = ctx.createRadialGradient(lx, ly, 4, lx, ly, cw * 0.16);
+        glow.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+        glow.addColorStop(0.3, "rgba(0, 212, 255, 0.25)");
+        glow.addColorStop(1, "rgba(6, 11, 20, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(lx, ly, cw * 0.16, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Lush Outfield Turf
+      const turfGrad = ctx.createLinearGradient(0, horizonY, 0, ch);
+      turfGrad.addColorStop(0, "#072A1C");
+      turfGrad.addColorStop(1, "#041A11");
+      ctx.fillStyle = turfGrad;
+      ctx.fillRect(0, horizonY, cw, ch - horizonY);
+
+      // Boundary Rope Arc
+      ctx.strokeStyle = "#00FF88";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(cw * 0.5, horizonY + 12, cw * 0.48, 28, 0, 0, Math.PI);
+      ctx.stroke();
+
+      // 22-Yard Cricket Pitch Strip
+      const topL = projectPitch(-0.5, 0, cw, ch);
+      const topR = projectPitch(2.5, 0, cw, ch);
+      const botL = projectPitch(-0.5, 1.06, cw, ch);
+      const botR = projectPitch(2.5, 1.06, cw, ch);
+
+      const pitchGrad = ctx.createLinearGradient(0, horizonY, 0, ch);
+      pitchGrad.addColorStop(0, "#C2A378");
+      pitchGrad.addColorStop(1, "#9E7E53");
+      ctx.fillStyle = pitchGrad;
+      ctx.beginPath();
+      ctx.moveTo(topL.x, topL.y);
+      ctx.lineTo(topR.x, topR.y);
+      ctx.lineTo(botR.x, botR.y);
+      ctx.lineTo(botL.x, botL.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // White Crease Lines & Sweet-Spot Hitting Zone
+      const sweetNear = projectPitch(-0.5, 0.96, cw, ch);
+      const sweetNearR = projectPitch(2.5, 0.96, cw, ch);
+      const sweetFar = projectPitch(-0.5, 0.84, cw, ch);
+      const sweetFarR = projectPitch(2.5, 0.84, cw, ch);
+
+      // Glowing Green Sweet Spot Zone
+      ctx.fillStyle = "rgba(0, 255, 136, 0.25)";
+      ctx.beginPath();
+      ctx.moveTo(sweetFar.x, sweetFar.y);
+      ctx.lineTo(sweetFarR.x, sweetFarR.y);
+      ctx.lineTo(sweetNearR.x, sweetNearR.y);
+      ctx.lineTo(sweetNear.x, sweetNear.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Popping Crease White Line
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(sweetNear.x, sweetNear.y);
+      ctx.lineTo(sweetNearR.x, sweetNearR.y);
+      ctx.stroke();
+
+      // Bowler-End Stumps
+      drawStumps(cw * 0.5, horizonY + 8, 0.25);
+
+      // Cricket Ball (if active)
+      if (state.ball) {
+        drawCricketBall(state.ball, cw, ch);
+      }
+
+      // Batter-End Stumps & Glowing Willow Bat
+      const batterCrease = projectPitch(1, 0.98, cw, ch);
+      drawStumps(batterCrease.x, batterCrease.y, 1.0);
+      drawBatterAndBat(cw, ch);
+    }
+
+    function drawStumps(cx, cy, scale) {
+      const h = 68 * scale;
+      const gap = 14 * scale;
+      ctx.save();
+      ctx.strokeStyle = "#FFD60A";
+      ctx.shadowColor = "#FFD60A";
+      ctx.shadowBlur = 10 * scale;
+      ctx.lineWidth = Math.max(2, 5 * scale);
+
+      [-1, 0, 1].forEach(offset => {
+        const sx = cx + offset * gap;
+        ctx.beginPath();
+        ctx.moveTo(sx, cy);
+        ctx.lineTo(sx, cy - h);
+        ctx.stroke();
+      });
+
+      // Bails
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.moveTo(cx - gap, cy - h);
+      ctx.lineTo(cx + gap, cy - h);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCricketBall(b, cw, ch) {
+      const z = b.hitState === "hit" ? b.hitZ : b.z;
+      const proj = projectPitch(b.lane, Math.max(0, z), cw, ch);
+      const scale = Math.max(0.12, proj.persp);
+      const def = DELIVERY_TYPES[b.type];
+
+      // Realistic pitch bounce trajectory
+      let bounceHeight = 0;
+      if (b.hitState === "hit") {
+        bounceHeight = (1 - b.hitY) * ch * 0.35;
+      } else if (z < b.bounceZ) {
+        const t = z / b.bounceZ;
+        bounceHeight = Math.sin(t * Math.PI) * 55 * scale;
+      } else {
+        const t = (z - b.bounceZ) / (1 - b.bounceZ);
+        bounceHeight = Math.sin(t * Math.PI * 0.7) * (135 * def.heightFactor) * scale;
+      }
+
+      const bx = proj.x;
+      const by = proj.y - bounceHeight;
+      const r = Math.max(5, 20 * scale);
+
+      ctx.save();
+      // Ball ground shadow
+      ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+      ctx.beginPath();
+      ctx.ellipse(bx, proj.y, r * 0.9, r * 0.35, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glowing Cricket Ball
+      ctx.fillStyle = b.hitState === "hit" ? "#FFD60A" : "#FF2A55";
+      ctx.shadowColor = b.hitState === "hit" ? "#FFD60A" : "#FF2A55";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(bx, by, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // White seam highlight
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = Math.max(1.5, 2.5 * scale);
+      ctx.beginPath();
+      ctx.arc(bx, by, r * 0.65, -0.5, 1.8);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawBatterAndBat(cw, ch) {
+      const proj = projectPitch(state.batterVisualLane, 0.93, cw, ch);
+      const bx = proj.x;
+      const by = proj.y;
+
+      ctx.save();
+      // Batter Silhouette
+      const bodyH = state.batterDucking ? 54 : 96;
+      ctx.fillStyle = "rgba(0, 212, 255, 0.35)";
+      ctx.strokeStyle = "#00D4FF";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(bx - 22, by - bodyH, 44, bodyH, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      // Helmet
+      ctx.fillStyle = "#00FF88";
+      ctx.beginPath();
+      ctx.arc(bx, by - bodyH - 16, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dynamic Cricket Bat driven by real wrist position & swing velocity!
+      const batAngle = Math.max(-1.2, Math.min(1.2, state.batVel.vx * 0.38));
+      const batOffsetX = (state.batPos.x - 0.5) * 140;
+      const batOffsetY = (state.batPos.y - 0.5) * 90;
+
+      ctx.translate(bx + batOffsetX, by - bodyH * 0.5 + batOffsetY);
+      ctx.rotate(batAngle);
+
+      // Handle
+      ctx.fillStyle = "#334155";
+      ctx.fillRect(-4, -48, 8, 24);
+
+      // Willow Blade
+      ctx.fillStyle = "#F59E0B";
+      ctx.shadowColor = "#FFD60A";
+      ctx.shadowBlur = state.batVel.speed > 1.3 ? 22 : 6;
+      ctx.beginPath();
+      ctx.roundRect(-10, -24, 20, 68, 4);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawMirroredCamera(dx, dy, dw, dh, isFullscreen) {
+      const vw = videoEl.videoWidth || 1280;
+      const vh = videoEl.videoHeight || 720;
+      const videoAspect = vw / vh;
+      const destAspect = dw / dh;
+
+      let sx = 0, sy = 0, sw = vw, sh = vh;
+      if (destAspect > videoAspect) {
+        sh = vw / destAspect;
+        sy = (vh - sh) * 0.5;
+      } else {
+        sw = vh * destAspect;
+        sx = (vw - sw) * 0.5;
+      }
+
+      ctx.save();
+      if (!isFullscreen) {
+        ctx.beginPath();
+        ctx.roundRect(dx, dy, dw, dh, 18);
+        ctx.clip();
+      }
+
+      if (videoEl.readyState >= 2) {
+        ctx.save();
+        ctx.translate(dx + dw, dy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(videoEl, sx, sy, sw, sh, 0, 0, dw, dh);
+        ctx.restore();
+
+        ctx.fillStyle = isFullscreen ? "rgba(6, 11, 20, 0.38)" : "rgba(6, 11, 20, 0.25)";
+        ctx.fillRect(dx, dy, dw, dh);
+      } else {
+        ctx.fillStyle = "#0B1021";
+        ctx.fillRect(dx, dy, dw, dh);
+      }
+
+      if (state.smoothedLandmarks) {
+        const lms = state.smoothedLandmarks;
+        const mapPt = (lm) => {
+          const normX = (lm.x * vw - sx) / sw;
+          const normY = (lm.y * vh - sy) / sh;
+          return { x: dx + (1 - normX) * dw, y: dy + normY * dh };
+        };
+
+        ctx.strokeStyle = "#00FF88";
+        ctx.lineWidth = isFullscreen ? 5 : 3;
+        ctx.lineCap = "round";
+        for (const [i, j] of SKELETON_CONNECTIONS) {
+          const a = lms[i], b = lms[j];
+          if (!a || !b || a.visibility < 0.45 || b.visibility < 0.45) continue;
+          const pa = mapPt(a), pb = mapPt(b);
+          ctx.beginPath();
+          ctx.moveTo(pa.x, pa.y);
+          ctx.lineTo(pb.x, pb.y);
+          ctx.stroke();
+        }
+      }
+
+      if (!isFullscreen) {
+        ctx.strokeStyle = "rgba(0, 255, 136, 0.65)";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(dx, dy, dw, dh);
+      }
+      ctx.restore();
+    }
+
+    function drawCalibrationGuide(cw, ch) {
+      const boxW = Math.min(cw * 0.68, ch * 0.56);
+      const boxH = ch * 0.76;
+      const bx = (cw - boxW) * 0.5;
+      const by = (ch - boxH) * 0.5;
+      const color = (state.fullBodyReady || state.calibrationUnlockedLatch) ? "#00FF88" : "#00D4FF";
+
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 4;
+      ctx.setLineDash([18, 12]);
+      ctx.strokeRect(bx, by, boxW, boxH);
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // MAIN LOOP
+    // =========================================================================
+    let previousFrameTime = performance.now();
+
+    function mainLoop(now) {
+      requestAnimationFrame(mainLoop);
+      const dt = Math.min(0.1, (now - previousFrameTime) / 1000);
+      previousFrameTime = now;
+
+      if (state.poseLandmarker && videoEl.readyState >= 2) {
+        if (videoEl.currentTime !== state.lastVideoTime) {
+          state.lastVideoTime = videoEl.currentTime;
+          const ts = Math.max(now, state.lastTimestamp + 1);
+          state.lastTimestamp = ts;
+          try {
+            const res = state.poseLandmarker.detectForVideo(videoEl, ts);
+            if (res && res.landmarks && res.landmarks.length > 0) {
+              smoothLandmarks(res.landmarks[0]);
+            }
+          } catch (e) {}
+        }
+      }
+
+      if (state.screen === "CALIBRATION") {
+        updateCalibrationStatus(state.smoothedLandmarks, dt);
+      } else if (state.screen === "PLAYING") {
+        updateBatterKinematics(state.smoothedLandmarks, dt);
+        updatePlayingState(dt);
+      }
+
+      renderFrame(dt);
+    }
+
+    // =========================================================================
+    // UI EVENT LISTENERS
+    // =========================================================================
+    document.getElementById("retryInitBtn").addEventListener("click", () => {
+      sound.unlock();
+      initMediaPipeAndCamera();
+    });
+
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        sound.unlock();
+        state.selectedMode = btn.dataset.mode;
+        document.querySelectorAll(".mode-btn").forEach(b => {
+          b.className = "mode-btn rounded-2xl p-3 text-left border-2 border-slate-700/80 bg-slate-900/70 hover:border-cyan-400/60 transition cursor-pointer";
+        });
+        btn.className = "mode-btn rounded-2xl p-3 text-left border-2 border-[#00FF88] bg-emerald-950/40 transition cursor-pointer";
+      });
+    });
+
+    document.getElementById("weightMinusBtn").addEventListener("click", () => {
+      state.weightKg = Math.max(40, state.weightKg - 2);
+      document.getElementById("weightDisplay").textContent = state.weightKg;
+    });
+
+    document.getElementById("weightPlusBtn").addEventListener("click", () => {
+      state.weightKg = Math.min(150, state.weightKg + 2);
+      document.getElementById("weightDisplay").textContent = state.weightKg;
+    });
+
+    function toggleCommentary() {
+      sound.unlock();
+      commentator.enabled = !commentator.enabled;
+      const calibLabel = document.getElementById("voiceStatusLabel");
+      const calibBtn = document.getElementById("toggleVoiceCalibBtn");
+      const hudBtn = document.getElementById("hudVoiceToggleBtn");
+
+      if (commentator.enabled) {
+        calibLabel.textContent = "ON (Audio Cues)";
+        calibLabel.className = "text-sm font-bold text-[#00FF88]";
+        calibBtn.textContent = "Enabled";
+        calibBtn.className = "px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-[#00FF88] text-[#00FF88] font-bold text-xs uppercase tracking-wider active:scale-95 transition cursor-pointer";
+        hudBtn.textContent = "🔊 AUDIO ON";
+        commentator.say("Commentary on", true);
+      } else {
+        calibLabel.textContent = "MUTED";
+        calibLabel.className = "text-sm font-bold text-slate-400";
+        calibBtn.textContent = "Muted";
+        calibBtn.className = "px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-600 text-slate-400 font-bold text-xs uppercase tracking-wider active:scale-95 transition cursor-pointer";
+        hudBtn.textContent = "🔇 AUDIO OFF";
+      }
+    }
+
+    document.getElementById("toggleVoiceCalibBtn").addEventListener("click", toggleCommentary);
+    document.getElementById("hudVoiceToggleBtn").addEventListener("click", toggleCommentary);
+
+    startWorkoutBtn.addEventListener("click", () => {
+      if (!startWorkoutBtn.disabled) startNewMatch();
+    });
+
+    document.getElementById("manualOverrideBtn").addEventListener("click", () => startNewMatch());
+
+    document.getElementById("pauseBtn").addEventListener("click", () => {
+      if (state.screen === "PLAYING") {
+        state.screen = "PAUSED";
+        pauseOverlay.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("resumeWorkoutBtn").addEventListener("click", () => {
+      sound.unlock();
+      pauseOverlay.classList.add("hidden");
+      state.screen = "PLAYING";
+      previousFrameTime = performance.now();
+    });
+
+    document.getElementById("endWorkoutBtn").addEventListener("click", () => finishInnings());
+    document.getElementById("quitToSummaryBtn").addEventListener("click", () => finishInnings());
+    document.getElementById("playAgainBtn").addEventListener("click", () => enterCalibrationScreen());
+
+    window.addEventListener("load", () => {
+      resizeCanvas();
+      requestAnimationFrame(mainLoop);
+      initMediaPipeAndCamera();
+    });
+  </script>
+</body>
+</html>
