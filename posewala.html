@@ -97,7 +97,6 @@
       text-shadow: 0 0 18px rgba(255, 214, 10, 0.55);
     }
 
-    /* Custom scrollbar for small screens if needed */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -184,11 +183,16 @@
     <!-- Top Header + Body Detection Badges -->
     <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 pointer-events-auto">
       <div class="glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 w-full lg:w-auto justify-between">
-        <div>
-          <h1 class="font-arcade text-2xl sm:text-3xl font-bold tracking-wider leading-none">
-            POSE <span class="neon-text-cyan">WALL</span>
-          </h1>
-          <p class="text-xs text-slate-400 mt-0.5">Full-Body Cardio Arcade</p>
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="window.location.href='index.html'" class="px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-bold uppercase tracking-wider transition cursor-pointer">
+            ← NEXUS
+          </button>
+          <div>
+            <h1 class="font-arcade text-2xl sm:text-3xl font-bold tracking-wider leading-none">
+              POSE <span class="neon-text-cyan">WALL</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">Full-Body Cardio Arcade</p>
+          </div>
         </div>
         <div id="delegateBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/15 border border-cyan-400/40 text-cyan-300">
           GPU AI READY
@@ -456,10 +460,15 @@
         </div>
       </div>
 
-      <!-- Play Again CTA -->
-      <button type="button" id="playAgainBtn" class="w-full py-4 px-6 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase shadow-lg shadow-emerald-500/30 transition cursor-pointer">
-        ↻ PLAY AGAIN
-      </button>
+      <!-- Play Again & Back to NEXUS CTAs -->
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button type="button" id="playAgainBtn" class="flex-1 py-4 px-6 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase shadow-lg shadow-emerald-500/30 transition cursor-pointer">
+          ↻ PLAY AGAIN
+        </button>
+        <button type="button" onclick="window.location.href='index.html'" class="py-4 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-slate-600 font-arcade text-xl sm:text-2xl font-bold tracking-wider uppercase transition cursor-pointer">
+          ← NEXUS
+        </button>
+      </div>
     </div>
   </div>
 
@@ -482,8 +491,8 @@
       warmup: {
         id: "warmup",
         name: "Warm-Up",
-        durationSec: 180, // 3 min
-        baseWallTimeSec: 5.2, // Time for a wall to travel from spawn to strike zone
+        durationSec: 180,
+        baseWallTimeSec: 5.2,
         spawnIntervalSec: 5.8,
         met: 4.5,
         intensityMult: 1.0
@@ -491,7 +500,7 @@
       fatburn: {
         id: "fatburn",
         name: "Fat Burn",
-        durationSec: 300, // 5 min
+        durationSec: 300,
         baseWallTimeSec: 4.1,
         spawnIntervalSec: 4.6,
         met: 6.5,
@@ -500,7 +509,7 @@
       hiit: {
         id: "hiit",
         name: "HIIT Beast",
-        durationSec: 480, // 8 min
+        durationSec: 480,
         baseWallTimeSec: 3.3,
         spawnIntervalSec: 3.7,
         met: 8.5,
@@ -562,7 +571,7 @@
         voiceLabel: "Overhead Press!",
         cue: "Lock both arms straight up",
         color: "#00FF88",
-        lockDurationSec: 0.60, // Required 0.6s hold-in bar
+        lockDurationSec: 0.60,
         svg: `<svg viewBox="0 0 80 80" class="w-14 h-14 stroke-[#00FF88]" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="40" cy="24" r="7" />
           <path d="M40 32 L40 52" />
@@ -577,15 +586,14 @@
 
     const POSE_KEYS = Object.keys(POSE_TYPES);
 
-    // MediaPipe Pose Landmark Connection Pairs for Neon Skeleton Rendering
     const SKELETON_CONNECTIONS = [
-      [11, 12], // Shoulders
-      [11, 13], [13, 15], // Left arm
-      [12, 14], [14, 16], // Right arm
-      [11, 23], [12, 24], // Torso sides
-      [23, 24], // Hips
-      [23, 25], [25, 27], [27, 31], // Left leg
-      [24, 26], [26, 28], [28, 32]  // Right leg
+      [11, 12],
+      [11, 13], [13, 15],
+      [12, 14], [14, 16],
+      [11, 23], [12, 24],
+      [23, 24],
+      [23, 25], [25, 27], [27, 31],
+      [24, 26], [26, 28], [28, 32]
     ];
 
     // =========================================================================
@@ -638,21 +646,18 @@
       }
 
       playFormLockTick(progress) {
-        // Rising pitch subtle tick as form lock progresses
         const freq = 320 + progress * 480;
         this.playTone(freq, "sine", 0.06, 0.07, 0);
       }
 
       playWallBreak(combo = 1) {
         this.unlock();
-        // Harmonic major chord burst + noise shatter
         const base = 440 * Math.pow(1.06, Math.min(combo, 10));
         this.playTone(base, "triangle", 0.35, 0.26, 0);
         this.playTone(base * 1.25, "sine", 0.38, 0.22, 0.03);
         this.playTone(base * 1.5, "sine", 0.45, 0.24, 0.06);
         this.playTone(base * 2.0, "triangle", 0.5, 0.18, 0.09);
 
-        // Filtered white noise burst for glass/energy wall shatter
         if (this.ctx && !this.muted) {
           const bufferSize = this.ctx.sampleRate * 0.25;
           const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -680,7 +685,6 @@
 
       playObstacleImpact() {
         this.unlock();
-        // Low sawtooth thud
         if (!this.ctx || this.muted) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -760,7 +764,7 @@
       lastTimestamp: 0,
       emaAlpha: 0.45,
 
-      // Calibration status
+      // Calibration status (with latch + hands-free auto-start)
       bodyPartsReady: {
         head: false,
         shoulders: false,
@@ -769,6 +773,8 @@
         ankles: false
       },
       fullBodyReady: false,
+      calibrationUnlockedLatch: false,
+      autoStartHoldSec: 0,
 
       // Gameplay metrics
       timeRemainingSec: 300,
@@ -787,7 +793,7 @@
       },
 
       // Active wall & particles
-      currentWall: null, // { type, progress (0..1), status: 'approaching'|'broken'|'missed' }
+      currentWall: null,
       spawnCooldownSec: 0.8,
       poseHoldTimerSec: 0,
       lastTickThreshold: 0,
@@ -823,10 +829,6 @@
     // =========================================================================
     // 5. GEOMETRY & JOINT-ANGLE MATH UTILITIES
     // =========================================================================
-
-    /**
-     * Computes the interior 2D angle in degrees at vertex B given points A, B, C.
-     */
     function calculateAngle2D(a, b, c) {
       const abx = a.x - b.x;
       const aby = a.y - b.y;
@@ -842,10 +844,6 @@
       return (Math.acos(cosTheta) * 180) / Math.PI;
     }
 
-    /**
-     * Applies Exponential Moving Average (EMA) smoothing to MediaPipe landmarks
-     * to eliminate camera jitter while keeping fast cardio movements responsive.
-     */
     function smoothLandmarks(newLandmarks) {
       if (!newLandmarks || newLandmarks.length === 0) {
         return state.smoothedLandmarks;
@@ -875,10 +873,6 @@
       return state.smoothedLandmarks;
     }
 
-    /**
-     * Evaluates the player's current smoothed skeleton against the target pose.
-     * Returns { matched: boolean, coaching: string, closeness: number (0..1) }
-     */
     function evaluatePose(landmarks, poseId) {
       if (!landmarks || landmarks.length < 29) {
         return { matched: false, coaching: "STEP INTO CAMERA VIEW!", closeness: 0 };
@@ -906,7 +900,7 @@
 
         const avgHipY = (lHip.y + rHip.y) * 0.5;
         const avgKneeY = (lKnee.y + rKnee.y) * 0.5;
-        const hipToKneeDy = avgKneeY - avgHipY; // Smaller means hips dropped closer to knees
+        const hipToKneeDy = avgKneeY - avgHipY;
 
         const angleMatched = avgKneeAngle < 95;
         const depthMatched = hipToKneeDy < 0.16;
@@ -915,7 +909,6 @@
           return { matched: true, coaching: "HOLD SQUAT!", closeness: 1 };
         }
 
-        // Progressive closeness meter between 145 deg (standing) and 95 deg (squat)
         const angleProgress = Math.max(0, Math.min(0.95, (145 - avgKneeAngle) / (145 - 95)));
         if (avgKneeAngle < 135) {
           return { matched: false, coaching: "SQUAT LOWER!", closeness: angleProgress };
@@ -958,7 +951,6 @@
           return { matched: true, coaching: "KNEE UP! HOLD!", closeness: 1 };
         }
 
-        // Standing diff is roughly ~0.24; target is <= 0.08
         const closeness = Math.max(0, Math.min(0.95, (0.24 - minDiff) / (0.24 - 0.08)));
         return { matched: false, coaching: "DRIVE KNEES HIGHER!", closeness };
       }
@@ -990,11 +982,12 @@
     }
 
     // =========================================================================
-    // 6. CALIBRATION BODY CHECK
+    // 6. CALIBRATION BODY CHECK (LATCHED + HANDS-FREE AUTO-START)
     // =========================================================================
-    function updateCalibrationStatus(landmarks) {
+    function updateCalibrationStatus(landmarks, dt = 0.016) {
       if (!landmarks || landmarks.length < 29) {
         state.fullBodyReady = false;
+        state.autoStartHoldSec = 0;
         return;
       }
 
@@ -1013,6 +1006,14 @@
       const allReady = parts.head && parts.shoulders && parts.hips && parts.knees && parts.ankles;
       state.fullBodyReady = allReady;
 
+      // Latch unlock so walking closer to tablet never disables the button
+      if (allReady) {
+        state.calibrationUnlockedLatch = true;
+        state.autoStartHoldSec += dt;
+      } else {
+        state.autoStartHoldSec = 0;
+      }
+
       // Update UI badges
       const updateBadge = (id, ok) => {
         const el = document.getElementById(id);
@@ -1030,14 +1031,25 @@
       updateBadge("badgeKnees", parts.knees);
       updateBadge("badgeAnkles", parts.ankles);
 
-      if (allReady) {
+      if (state.calibrationUnlockedLatch) {
         calibrationPromptPill.className = "glass-panel rounded-full px-6 py-3 border-2 neon-border-green transition-all duration-300";
         calibrationPromptText.className = "font-arcade text-lg sm:text-2xl font-bold tracking-wide neon-text-green";
-        calibrationPromptText.textContent = "FULL BODY LOCKED IN — READY TO WORKOUT!";
+
+        if (allReady) {
+          const remaining = Math.max(0, 1.5 - state.autoStartHoldSec).toFixed(1);
+          calibrationPromptText.textContent = `FULL BODY LOCKED — STARTING IN ${remaining}s...`;
+        } else {
+          calibrationPromptText.textContent = "UNLOCKED — TAP START OR STEP BACK INTO FRAME!";
+        }
 
         startWorkoutBtn.disabled = false;
         startWorkoutBtn.textContent = "⚡ START WORKOUT";
         startWorkoutBtn.className = "w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 border-2 border-[#00FF88] btn-ready-pulse cursor-pointer";
+
+        // Hands-free auto-start after holding full-body pose for 1.5 seconds
+        if (state.autoStartHoldSec >= 1.5) {
+          startNewWorkout();
+        }
       } else {
         calibrationPromptPill.className = "glass-panel rounded-full px-6 py-3 border-2 border-cyan-400/60 transition-all duration-300";
         calibrationPromptText.className = "font-arcade text-lg sm:text-2xl font-bold tracking-wide text-cyan-300";
@@ -1063,7 +1075,6 @@
           throw new Error("Camera API (getUserMedia) is not supported in this browser or context. Ensure you are using HTTPS or localhost.");
         }
 
-        // Request 16:9 or tablet-friendly webcam stream
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "user",
@@ -1082,7 +1093,6 @@
 
         loadingStatusText.textContent = "Loading MediaPipe Vision AI model...";
 
-        // Dynamic ESM import with fallback CDN
         let visionModule;
         try {
           visionModule = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/+esm");
@@ -1093,7 +1103,6 @@
         const { FilesetResolver, PoseLandmarker } = visionModule;
         const vision = await FilesetResolver.forVisionTasks(WASM_BASE_URL);
 
-        // Try GPU delegate first, fallback cleanly to CPU
         try {
           state.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
             baseOptions: {
@@ -1125,7 +1134,6 @@
 
         document.getElementById("delegateBadge").textContent = `${state.delegateUsed} AI READY`;
 
-        // Transition to Calibration Screen
         loadingOverlay.classList.add("hidden");
         enterCalibrationScreen();
       } catch (err) {
@@ -1161,6 +1169,8 @@
     function enterCalibrationScreen() {
       hideAllOverlays();
       state.screen = "CALIBRATION";
+      state.calibrationUnlockedLatch = false;
+      state.autoStartHoldSec = 0;
       calibrationOverlay.classList.remove("hidden");
     }
 
@@ -1199,7 +1209,6 @@
     }
 
     function spawnNextWall() {
-      // Avoid repeating the same pose 3 times in a row
       let chosenKey = POSE_KEYS[Math.floor(Math.random() * POSE_KEYS.length)];
       if (chosenKey === state.lastPoseKey && Math.random() < 0.7) {
         const others = POSE_KEYS.filter(k => k !== state.lastPoseKey);
@@ -1210,7 +1219,7 @@
       const poseDef = POSE_TYPES[chosenKey];
       state.currentWall = {
         type: chosenKey,
-        progress: 0, // 0 = far horizon, 1.0 = player strike zone
+        progress: 0,
         status: "approaching"
       };
 
@@ -1219,7 +1228,6 @@
       state.wallsSpawned++;
       state.poseStats[chosenKey].total++;
 
-      // Update incoming pose banner card
       const card = document.getElementById("targetPoseCard");
       const iconBox = document.getElementById("targetPoseIconBox");
       const nameEl = document.getElementById("targetPoseName");
@@ -1250,10 +1258,8 @@
       const pointsEarned = 100 * multiplier;
       state.score += pointsEarned;
 
-      // Instant burst calorie bonus for explosive movement
       state.caloriesBurned += 0.35 * (state.weightKg / 70);
 
-      // Visual & Audio feedback
       sound.playWallBreak(state.streak);
       triggerScreenFlash("#00FF88", 0.35);
       spawnShatterParticles(POSE_TYPES[wallType].color, 55);
@@ -1307,7 +1313,6 @@
       document.getElementById("sumDuration").textContent =
         `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 
-      // Render per-exercise breakdown cards
       const breakdownEl = document.getElementById("sumBreakdownGrid");
       breakdownEl.innerHTML = POSE_KEYS.map(key => {
         const p = POSE_TYPES[key];
@@ -1392,10 +1397,6 @@
       }
     }
 
-    /**
-     * Computes object-fit: cover source/dest rectangles so the webcam video
-     * fills portrait or landscape tablet viewports without distortion.
-     */
     function getVideoCoverTransform() {
       const vw = videoEl.videoWidth || 1280;
       const vh = videoEl.videoHeight || 720;
@@ -1407,11 +1408,9 @@
 
       let sx = 0, sy = 0, sw = vw, sh = vh;
       if (canvasAspect > videoAspect) {
-        // Canvas is wider than video -> crop top/bottom
         sh = vw / canvasAspect;
         sy = (vh - sh) * 0.5;
       } else {
-        // Canvas is taller than video (e.g., portrait iPad) -> crop sides
         sw = vh * canvasAspect;
         sx = (vw - sw) * 0.5;
       }
@@ -1419,16 +1418,12 @@
       return { sx, sy, sw, sh, vw, vh, cw, ch };
     }
 
-    /**
-     * Maps normalized MediaPipe landmark (0..1) to mirrored screen pixel coords.
-     */
     function landmarkToCanvas(lm, transform) {
       const { sx, sy, sw, sh, vw, vh, cw, ch } = transform;
       const px = lm.x * vw;
       const py = lm.y * vh;
       const normX = (px - sx) / sw;
       const normY = (py - sy) / sh;
-      // Mirror horizontally because camera feed is mirrored
       return {
         x: (1 - normX) * cw,
         y: normY * ch
@@ -1442,14 +1437,12 @@
 
       ctx.save();
 
-      // Screen shake on wall impact
       if (state.screenShakeTime > 0) {
         state.screenShakeTime = Math.max(0, state.screenShakeTime - dt);
         const mag = 16 * (state.screenShakeTime / 0.35);
         ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
       }
 
-      // 1. Draw Mirrored Webcam Feed with Aspect-Ratio Cover
       const transform = getVideoCoverTransform();
       if (videoEl.readyState >= 2) {
         ctx.save();
@@ -1462,7 +1455,6 @@
         );
         ctx.restore();
 
-        // Dark cyber vignette tint so neon HUD & walls pop cleanly
         ctx.fillStyle = "rgba(6, 9, 19, 0.42)";
         ctx.fillRect(0, 0, cw, ch);
       } else {
@@ -1470,28 +1462,22 @@
         ctx.fillRect(0, 0, cw, ch);
       }
 
-      // 2. Draw 3D Perspective Cyber-Fitness Corridor Grid
       drawPerspectiveCorridor(cw, ch);
 
-      // 3. Draw Calibration Framing Guide if on Calibration Screen
       if (state.screen === "CALIBRATION") {
         drawCalibrationGuide(cw, ch);
       }
 
-      // 4. Draw Incoming 3D Energy Wall if Playing
       if (state.currentWall && (state.screen === "PLAYING" || state.screen === "PAUSED")) {
         drawIncomingWall(cw, ch, state.currentWall);
       }
 
-      // 5. Draw Glowing Neon Skeleton Overlay
       if (state.smoothedLandmarks) {
         drawNeonSkeleton(state.smoothedLandmarks, transform);
       }
 
-      // 6. Draw Shatter Particles
       updateAndDrawParticles(dt);
 
-      // 7. Draw Screen Flash Overlay (Green break / Red hit)
       if (state.screenFlashAlpha > 0 && state.screenFlashColor) {
         ctx.fillStyle = state.screenFlashColor;
         ctx.globalAlpha = state.screenFlashAlpha;
@@ -1511,7 +1497,6 @@
       ctx.strokeStyle = "rgba(0, 212, 255, 0.22)";
       ctx.lineWidth = 2;
 
-      // 4 Corner perspective rails
       const corners = [
         [0, 0],
         [cw, 0],
@@ -1525,7 +1510,6 @@
         ctx.stroke();
       });
 
-      // Floor lane guidelines
       ctx.strokeStyle = "rgba(0, 255, 136, 0.28)";
       ctx.beginPath();
       ctx.moveTo(vx - cw * 0.08, vy + ch * 0.08);
@@ -1543,7 +1527,7 @@
       const bx = (cw - boxW) * 0.5;
       const by = (ch - boxH) * 0.5;
 
-      const color = state.fullBodyReady ? "#00FF88" : "#00D4FF";
+      const color = (state.fullBodyReady || state.calibrationUnlockedLatch) ? "#00FF88" : "#00D4FF";
 
       ctx.save();
       ctx.strokeStyle = color;
@@ -1552,17 +1536,12 @@
       ctx.strokeRect(bx, by, boxW, boxH);
       ctx.setLineDash([]);
 
-      // Corner brackets
       const bracket = 34;
       ctx.lineWidth = 7;
       ctx.beginPath();
-      // Top-left
       ctx.moveTo(bx, by + bracket); ctx.lineTo(bx, by); ctx.lineTo(bx + bracket, by);
-      // Top-right
       ctx.moveTo(bx + boxW - bracket, by); ctx.lineTo(bx + boxW, by); ctx.lineTo(bx + boxW, by + bracket);
-      // Bottom-left
       ctx.moveTo(bx, by + boxH - bracket); ctx.lineTo(bx, by + boxH); ctx.lineTo(bx + bracket, by + boxH);
-      // Bottom-right
       ctx.moveTo(bx + boxW - bracket, by + boxH); ctx.lineTo(bx + boxW, by + boxH); ctx.lineTo(bx + boxW, by + boxH - bracket);
       ctx.stroke();
       ctx.restore();
@@ -1570,7 +1549,6 @@
 
     function drawIncomingWall(cw, ch, wall) {
       const poseDef = POSE_TYPES[wall.type];
-      // Cubic ease-in perspective scaling so wall accelerates naturally toward viewer
       const t = Math.max(0, Math.min(1, wall.progress));
       const persp = 0.14 + Math.pow(t, 1.85) * 0.86;
 
@@ -1589,16 +1567,13 @@
       ctx.shadowColor = wallColor;
       ctx.shadowBlur = 24 * persp;
 
-      // Outer Energy Frame
       ctx.strokeStyle = wallColor;
       ctx.lineWidth = Math.max(3, 10 * persp);
       ctx.strokeRect(wx, wy, wallW, wallH);
 
-      // Pose-specific obstacle geometry inside the wall frame
-      ctx.fillStyle = wallColor + "33"; // Translucent fill
+      ctx.fillStyle = wallColor + "33";
 
       if (wall.type === "SQUAT") {
-        // High Laser Beam across upper 52% — player must squat underneath!
         const beamH = wallH * 0.52;
         ctx.fillRect(wx, wy, wallW, beamH);
         ctx.strokeStyle = "#FFFFFF";
@@ -1608,7 +1583,6 @@
         ctx.lineTo(wx + wallW, wy + beamH);
         ctx.stroke();
       } else if (wall.type === "HIGH_KNEES") {
-        // Low Hurdle Bar across bottom 35% — player must drive knees above!
         const hurdleH = wallH * 0.35;
         ctx.fillRect(wx, wy + wallH - hurdleH, wallW, hurdleH);
         ctx.strokeStyle = "#FFFFFF";
@@ -1618,7 +1592,6 @@
         ctx.lineTo(wx + wallW, wy + wallH - hurdleH);
         ctx.stroke();
       } else if (wall.type === "STAR_JUMP") {
-        // Full X-Forcefield Barrier to shatter
         ctx.fillRect(wx, wy, wallW, wallH);
         ctx.strokeStyle = wallColor;
         ctx.lineWidth = Math.max(2, 5 * persp);
@@ -1627,14 +1600,12 @@
         ctx.moveTo(wx + wallW, wy); ctx.lineTo(wx, wy + wallH);
         ctx.stroke();
       } else if (wall.type === "OVERHEAD_PRESS") {
-        // Overhead Power Core Ring
         ctx.fillRect(wx, wy, wallW, wallH * 0.25);
         ctx.beginPath();
         ctx.arc(vx, wy + wallH * 0.28, wallW * 0.16, 0, Math.PI * 2);
         ctx.stroke();
       }
 
-      // Wall Label Header
       if (persp > 0.22) {
         ctx.fillStyle = "#FFFFFF";
         ctx.font = `800 ${Math.round(44 * persp)}px "Chakra Petch", sans-serif`;
@@ -1653,7 +1624,6 @@
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
-      // Draw glowing bones
       ctx.strokeStyle = limbColor;
       ctx.shadowColor = limbColor;
       ctx.shadowBlur = 14;
@@ -1673,7 +1643,6 @@
         ctx.stroke();
       }
 
-      // Draw head ring
       const nose = landmarks[0];
       if (nose && nose.visibility > 0.5) {
         const pn = landmarkToCanvas(nose, transform);
@@ -1682,7 +1651,6 @@
         ctx.stroke();
       }
 
-      // Draw joint nodes
       const keyJoints = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
       for (const idx of keyJoints) {
         const lm = landmarks[idx];
@@ -1710,7 +1678,7 @@
           continue;
         }
 
-        p.vy += 680 * dt; // Gravity
+        p.vy += 680 * dt;
         p.x += p.vx * dt;
         p.y += p.vy * dt;
         p.rot += p.vRot * dt;
@@ -1739,7 +1707,6 @@
       const dt = Math.min(0.1, (now - previousFrameTime) / 1000);
       previousFrameTime = now;
 
-      // 1. Run MediaPipe PoseLandmarker on video frame using monotonic timestamp
       if (state.poseLandmarker && videoEl.readyState >= 2) {
         if (videoEl.currentTime !== state.lastVideoTime) {
           state.lastVideoTime = videoEl.currentTime;
@@ -1758,9 +1725,8 @@
         }
       }
 
-      // 2. State-specific game logic
       if (state.screen === "CALIBRATION") {
-        updateCalibrationStatus(state.smoothedLandmarks);
+        updateCalibrationStatus(state.smoothedLandmarks, dt);
       } else if (state.screen === "COUNTDOWN") {
         state.countdownTimer -= dt;
         if (state.countdownTimer <= 0) {
@@ -1782,14 +1748,12 @@
         updatePlayingState(dt);
       }
 
-      // 3. Render Canvas
       renderFrame(dt);
     }
 
     function updatePlayingState(dt) {
       const mode = WORKOUT_MODES[state.selectedMode];
 
-      // Update timers & MET-based calorie burn
       state.timeRemainingSec -= dt;
       state.activeElapsedSec += dt;
 
@@ -1804,7 +1768,6 @@
         return;
       }
 
-      // Spawn cooldown between walls
       if (!state.currentWall) {
         state.spawnCooldownSec -= dt;
         if (state.spawnCooldownSec <= 0) {
@@ -1814,12 +1777,10 @@
         return;
       }
 
-      // Advance incoming wall toward player (speed scales +4% per streak step, capped at 1.65x)
       const speedMult = Math.min(1.65, 1 + state.streak * 0.04);
       const wallTravelDuration = mode.baseWallTimeSec / speedMult;
       state.currentWall.progress += dt / wallTravelDuration;
 
-      // Evaluate player form against current target pose
       const poseDef = POSE_TYPES[state.currentWall.type];
       const evalRes = evaluatePose(state.smoothedLandmarks, state.currentWall.type);
 
@@ -1829,7 +1790,6 @@
         setLockRingProgress(lockRatio);
         setCoachingBanner(evalRes.coaching, "#00FF88");
 
-        // Audio tick feedback at 33% and 66%
         const tickStep = Math.floor(lockRatio * 3);
         if (tickStep > state.lastTickThreshold && lockRatio < 1) {
           state.lastTickThreshold = tickStep;
@@ -1841,7 +1801,6 @@
           return;
         }
       } else {
-        // Decay hold timer smoothly if form slips slightly
         state.poseHoldTimerSec = Math.max(0, state.poseHoldTimerSec - dt * 1.8);
         state.lastTickThreshold = 0;
 
@@ -1853,13 +1812,11 @@
         setCoachingBanner(evalRes.coaching, state.currentWall.progress > 0.72 ? "#FFD60A" : "#FFFFFF");
       }
 
-      // Check if wall reached strike zone without breaking
       if (state.currentWall && state.currentWall.progress >= 1.0) {
         handleWallMiss();
         return;
       }
 
-      // Periodic HUD refresh
       state.frameCounter++;
       if (state.frameCounter % 6 === 0) {
         updateHudUI();
@@ -1874,7 +1831,6 @@
       initMediaPipeAndCamera();
     });
 
-    // Mode Selection Cards
     document.querySelectorAll(".mode-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         sound.unlock();
@@ -1888,7 +1844,6 @@
       });
     });
 
-    // Weight Stepper
     document.getElementById("weightMinusBtn").addEventListener("click", () => {
       sound.unlock();
       state.weightKg = Math.max(40, state.weightKg - 2);
@@ -1901,7 +1856,6 @@
       document.getElementById("weightDisplay").textContent = state.weightKg;
     });
 
-    // Voice Coach Toggles (Calibration + In-Game HUD synced)
     function toggleVoiceCoach() {
       sound.unlock();
       voiceCoach.enabled = !voiceCoach.enabled;
@@ -1931,7 +1885,6 @@
     document.getElementById("toggleVoiceCalibBtn").addEventListener("click", toggleVoiceCoach);
     document.getElementById("hudVoiceToggleBtn").addEventListener("click", toggleVoiceCoach);
 
-    // Start Workout Buttons
     startWorkoutBtn.addEventListener("click", () => {
       if (!startWorkoutBtn.disabled) {
         startNewWorkout();
@@ -1942,7 +1895,6 @@
       startNewWorkout();
     });
 
-    // Pause / Resume / Finish Controls
     document.getElementById("pauseBtn").addEventListener("click", () => {
       if (state.screen === "PLAYING" || state.screen === "COUNTDOWN") {
         state.previousActiveScreen = state.screen;
