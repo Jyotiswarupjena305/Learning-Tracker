@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>POSE WALL — Full-Body Fitness Arcade</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #060913;
+      --neon-green: #00FF88;
+      --neon-pink: #FF3366;
+      --neon-cyan: #00D4FF;
+      --neon-gold: #FFD60A;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: #F8FAFC;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .font-arcade {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    /* Fullscreen canvas container */
+    #gameCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 1;
+      background: #060913;
+    }
+
+    /* Hidden raw video element for MediaPipe processing */
+    #webcamVideo {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Glassmorphism panels over live camera */
+    .glass-panel {
+      background: rgba(6, 9, 19, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    .neon-border-green {
+      border-color: #00FF88 !important;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.35), inset 0 0 15px rgba(0, 255, 136, 0.15);
+    }
+
+    .neon-border-cyan {
+      border-color: #00D4FF !important;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .neon-text-green {
+      color: #00FF88;
+      text-shadow: 0 0 16px rgba(0, 255, 136, 0.55);
+    }
+
+    .neon-text-cyan {
+      color: #00D4FF;
+      text-shadow: 0 0 16px rgba(0, 212, 255, 0.55);
+    }
+
+    .neon-text-pink {
+      color: #FF3366;
+      text-shadow: 0 0 18px rgba(255, 51, 102, 0.6);
+    }
+
+    .neon-text-gold {
+      color: #FFD60A;
+      text-shadow: 0 0 18px rgba(255, 214, 10, 0.55);
+    }
+
+    /* Custom scrollbar for small screens if needed */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 212, 255, 0.4);
+      border-radius: 9999px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 24px rgba(0, 255, 136, 0.45); }
+      50% { transform: scale(1.02); box-shadow: 0 0 38px rgba(0, 255, 136, 0.75); }
+    }
+
+    .btn-ready-pulse {
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .animate-pop {
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hidden Video Stream Source -->
+  <video id="webcamVideo" playsinline autoplay muted></video>
+
+  <!-- Main Full-Screen Arcade & Camera Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- ===================================================================== -->
+  <!-- 1. INITIALIZATION & DIAGNOSTIC ERROR OVERLAY                          -->
+  <!-- ===================================================================== -->
+  <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-[#060913]/95 backdrop-blur-md">
+    <div class="max-w-lg w-full glass-panel rounded-3xl p-8 text-center border border-cyan-400/30">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-bold tracking-widest uppercase mb-4">
+        <span>AI Vision Fitness Engine</span>
+      </div>
+      <h1 class="font-arcade text-4xl sm:text-5xl font-bold tracking-wider text-white mb-2">
+        POSE <span class="neon-text-cyan">WALL</span>
+      </h1>
+      <p id="loadingStatusText" class="text-slate-300 text-base sm:text-lg mb-6">
+        Initializing MediaPipe Pose Landmarker &amp; Camera...
+      </p>
+
+      <!-- Spinner -->
+      <div id="loadingSpinner" class="flex justify-center mb-6">
+        <div class="w-14 h-14 rounded-full border-4 border-cyan-500/20 border-t-[#00FF88] animate-spin"></div>
+      </div>
+
+      <!-- Permission / Hardware Error Diagnostic Card (Hidden by default) -->
+      <div id="errorDiagnosticBox" class="hidden text-left bg-rose-950/60 border border-rose-500/50 rounded-2xl p-5 mb-6">
+        <div class="flex items-center gap-2 text-rose-400 font-bold text-lg mb-1">
+          <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <span id="errorTitle">Camera or AI Engine Unavailable</span>
+        </div>
+        <p id="errorDetail" class="text-rose-200 text-sm leading-relaxed mb-4">
+          Please ensure camera access is permitted and you are running over HTTPS or localhost.
+        </p>
+        <button id="retryInitBtn" class="w-full py-3.5 px-5 rounded-xl bg-rose-500 hover:bg-rose-400 active:scale-95 text-white font-bold text-base transition cursor-pointer">
+          Retry Camera &amp; AI Setup
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400">
+        Tip: Prop your tablet upright at waist-to-chest height and stand 6–8 feet (2 meters) back.
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. PRE-GAME CALIBRATION & WORKOUT SETUP OVERLAY                       -->
+  <!-- ===================================================================== -->
+  <div id="calibrationOverlay" class="hidden fixed inset-0 z-30 flex flex-col justify-between p-4 sm:p-6 pointer-events-none">
+    <!-- Top Header + Body Detection Badges -->
+    <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 pointer-events-auto">
+      <div class="glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 w-full lg:w-auto justify-between">
+        <div>
+          <h1 class="font-arcade text-2xl sm:text-3xl font-bold tracking-wider leading-none">
+            POSE <span class="neon-text-cyan">WALL</span>
+          </h1>
+          <p class="text-xs text-slate-400 mt-0.5">Full-Body Cardio Arcade</p>
+        </div>
+        <div id="delegateBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/15 border border-cyan-400/40 text-cyan-300">
+          GPU AI READY
+        </div>
+      </div>
+
+      <!-- Real-Time Body Part Visibility Checklist -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full lg:w-auto">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Body Check:</span>
+        <span id="badgeHead" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">HEAD</span>
+        <span id="badgeShoulders" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">SHOULDERS</span>
+        <span id="badgeHips" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">HIPS</span>
+        <span id="badgeKnees" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">KNEES</span>
+        <span id="badgeAnkles" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">ANKLES</span>
+      </div>
+    </div>
+
+    <!-- Center Framing Banner -->
+    <div class="my-auto flex flex-col items-center text-center pointer-events-none px-4">
+      <div id="calibrationPromptPill" class="glass-panel rounded-full px-6 py-3 border-2 border-cyan-400/60 transition-all duration-300">
+        <p id="calibrationPromptText" class="font-arcade text-lg sm:text-2xl font-bold tracking-wide text-cyan-300">
+          STEP BACK 6–8 FT UNTIL FULL BODY IS GREEN
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom Control Deck: Mode Selection, Weight, Voice, Start Button -->
+    <div class="w-full max-w-6xl mx-auto glass-panel rounded-3xl p-4 sm:p-6 pointer-events-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+        <!-- Intensity Mode Selector (7 cols) -->
+        <div class="lg:col-span-7">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            1. Select Workout Intensity
+          </label>
+          <div class="grid grid-cols-3 gap-2.5" id="modeSelectorGroup">
+            <button type="button" data-mode="warmup" class="mode-btn rounded-2xl p-3 text-left border-2 border-slate-700/80 bg-slate-900/70 hover:border-cyan-400/60 transition cursor-pointer">
+              <div class="font-arcade text-base sm:text-lg font-bold text-white">WARM-UP</div>
+              <div class="text-xs text-cyan-300 font-semibold">3 Min • Slow Pace</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">4.5 MET • Mobility</div>
+            </button>
+
+            <button type="button" data-mode="fatburn" class="mode-btn rounded-2xl p-3 text-left border-2 border-[#00FF88] bg-emerald-950/40 transition cursor-pointer">
+              <div class="font-arcade text-base sm:text-lg font-bold neon-text-green">FAT BURN</div>
+              <div class="text-xs text-emerald-300 font-semibold">5 Min • Medium</div>
+              <div class="text-[11px] text-slate-300 mt-0.5">6.5 MET • Cardio</div>
+            </button>
+
+            <button type="button" data-mode="hiit" class="mode-btn rounded-2xl p-3 text-left border-2 border-slate-700/80 bg-slate-900/70 hover:border-rose-400/60 transition cursor-pointer">
+              <div class="font-arcade text-base sm:text-lg font-bold text-rose-400">HIIT BEAST</div>
+              <div class="text-xs text-rose-300 font-semibold">8 Min • Fast</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">8.5 MET • Max Burn</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Body Weight & Voice Coach Settings (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-3">
+          <div class="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-700/80 rounded-2xl px-4 py-2.5 flex-1">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Body Weight (kcal)</div>
+              <div class="font-arcade text-xl font-bold text-white"><span id="weightDisplay">70</span> kg</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="weightMinusBtn" class="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold text-xl flex items-center justify-center border border-slate-600 cursor-pointer" aria-label="Decrease weight">−</button>
+              <button type="button" id="weightPlusBtn" class="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold text-xl flex items-center justify-center border border-slate-600 cursor-pointer" aria-label="Increase weight">+</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 bg-slate-900/80 border border-slate-700/80 rounded-2xl px-4 py-2.5 flex-1">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Voice Coach</div>
+              <div id="voiceStatusLabel" class="text-sm font-bold text-[#00FF88]">ON (Audio Cues)</div>
+            </div>
+            <button type="button" id="toggleVoiceCalibBtn" class="px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-[#00FF88] text-[#00FF88] font-bold text-xs uppercase tracking-wider active:scale-95 transition cursor-pointer">
+              Enabled
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primary Start CTA Row -->
+      <div class="mt-4 flex flex-col sm:flex-row items-center gap-3">
+        <button type="button" id="startWorkoutBtn" disabled class="w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-slate-800 text-slate-500 border-2 border-slate-700 cursor-not-allowed">
+          STEP INTO FRAME TO UNLOCK
+        </button>
+        <button type="button" id="manualOverrideBtn" class="shrink-0 py-3 sm:py-4 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white bg-slate-900/90 border border-slate-700 hover:border-slate-500 transition cursor-pointer">
+          Start Anyway
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 3. IN-GAME HUD OVERLAY (HIGH CONTRAST, READABLE FROM 8 FEET AWAY)     -->
+  <!-- ===================================================================== -->
+  <div id="gameHudOverlay" class="hidden fixed inset-0 z-20 flex flex-col justify-between p-4 sm:p-6 pointer-events-none">
+    <!-- Top Telemetry Bar -->
+    <div class="w-full max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3 pointer-events-auto">
+      <!-- Timer -->
+      <div class="glass-panel rounded-2xl px-4 py-3 border-cyan-400/40 flex flex-col justify-center">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-cyan-300">TIME LEFT</span>
+        <span id="hudTimer" class="font-arcade text-3xl sm:text-5xl font-bold text-white leading-none mt-1">05:00</span>
+      </div>
+
+      <!-- Score -->
+      <div class="glass-panel rounded-2xl px-4 py-3 border-emerald-400/40 flex flex-col justify-center">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-300">SCORE</span>
+        <span id="hudScore" class="font-arcade text-3xl sm:text-5xl font-bold neon-text-green leading-none mt-1">0</span>
+      </div>
+
+      <!-- Combo Multiplier -->
+      <div class="glass-panel rounded-2xl px-4 py-3 border-amber-400/40 flex flex-col justify-center">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">COMBO STREAK</span>
+        <div class="flex items-baseline gap-2 mt-1">
+          <span id="hudCombo" class="font-arcade text-3xl sm:text-5xl font-bold neon-text-gold leading-none">x1</span>
+          <span id="hudStreakCount" class="text-sm font-bold text-slate-300">0 streak</span>
+        </div>
+      </div>
+
+      <!-- Calories Burned -->
+      <div class="glass-panel rounded-2xl px-4 py-3 border-rose-400/40 flex flex-col justify-center">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-rose-300">CALORIES</span>
+        <div class="flex items-baseline gap-1.5 mt-1">
+          <span id="hudCalories" class="font-arcade text-3xl sm:text-5xl font-bold neon-text-pink leading-none">0.0</span>
+          <span class="text-sm font-bold text-rose-200">kcal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Target Pose Banner & Live Form Lock Ring -->
+    <div class="w-full max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 my-auto px-2">
+      <!-- Incoming Pose Card (Left) -->
+      <div id="targetPoseCard" class="glass-panel rounded-3xl p-4 sm:p-5 border-2 border-cyan-400/60 flex items-center gap-4 max-w-md w-full sm:w-auto transition-all duration-200">
+        <div id="targetPoseIconBox" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-cyan-500/15 border border-cyan-400/50 flex items-center justify-center shrink-0">
+          <!-- Dynamic SVG Silhouette injected here -->
+        </div>
+        <div>
+          <div class="text-xs font-extrabold uppercase tracking-widest text-cyan-300">INCOMING WALL</div>
+          <div id="targetPoseName" class="font-arcade text-2xl sm:text-4xl font-bold text-white leading-tight">
+            DEEP SQUAT
+          </div>
+          <div id="targetPoseCue" class="text-sm sm:text-base font-bold text-slate-300 mt-0.5">
+            Drop hips below 95°
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Coaching Callout Banner -->
+      <div id="coachingBanner" class="text-center px-4 py-2 rounded-2xl bg-black/55 backdrop-blur-sm border border-white/15">
+        <div id="coachingText" class="font-arcade text-3xl sm:text-5xl font-bold tracking-wider uppercase text-white">
+          GET READY!
+        </div>
+      </div>
+
+      <!-- Radial Lock-In Progress Ring (Right) -->
+      <div class="glass-panel rounded-3xl p-4 flex flex-col items-center justify-center border border-slate-700/80 shrink-0">
+        <div class="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.12)" stroke-width="10" fill="none" />
+            <circle id="lockProgressCircle" cx="50" cy="50" r="42" stroke="#00FF88" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="263.89" />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="lockPercentText" class="font-arcade text-2xl sm:text-3xl font-bold text-white">0%</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">FORM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Touch Controls (Pause, Voice, End) -->
+    <div class="w-full max-w-4xl mx-auto flex items-center justify-center gap-3 sm:gap-4 pointer-events-auto">
+      <button type="button" id="pauseBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-6 py-3.5 rounded-2xl font-arcade text-lg sm:text-xl font-bold text-white border border-cyan-400/50 flex items-center gap-2 transition cursor-pointer">
+        <span id="pauseBtnIcon">⏸</span>
+        <span id="pauseBtnLabel">PAUSE</span>
+      </button>
+
+      <button type="button" id="hudVoiceToggleBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-5 py-3.5 rounded-2xl font-arcade text-lg sm:text-xl font-bold text-[#00FF88] border border-emerald-400/50 transition cursor-pointer">
+        🔊 VOICE ON
+      </button>
+
+      <button type="button" id="endWorkoutBtn" class="glass-panel hover:bg-rose-950/90 active:scale-95 px-6 py-3.5 rounded-2xl font-arcade text-lg sm:text-xl font-bold text-rose-400 border border-rose-500/50 transition cursor-pointer">
+        ⏹ FINISH
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. PAUSE MODAL OVERLAY                                                -->
+  <!-- ===================================================================== -->
+  <div id="pauseOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
+    <div class="glass-panel max-w-md w-full rounded-3xl p-8 text-center border-2 border-cyan-400/60 animate-pop">
+      <h2 class="font-arcade text-4xl font-bold text-white mb-2">WORKOUT PAUSED</h2>
+      <p class="text-slate-300 mb-6">Catch your breath! Step back into frame when ready.</p>
+      <div class="flex flex-col gap-3">
+        <button type="button" id="resumeWorkoutBtn" class="w-full py-4 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl font-bold tracking-wider uppercase transition cursor-pointer">
+          ▶ RESUME WORKOUT
+        </button>
+        <button type="button" id="quitToSummaryBtn" class="w-full py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-rose-400 border border-rose-500/40 font-arcade text-xl font-bold uppercase transition cursor-pointer">
+          END &amp; VIEW STATS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 5. POST-WORKOUT SUMMARY SCREEN                                        -->
+  <!-- ===================================================================== -->
+  <div id="summaryOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-[#060913]/90 backdrop-blur-lg overflow-y-auto">
+    <div class="glass-panel max-w-3xl w-full rounded-3xl p-6 sm:p-8 border-2 border-[#00FF88]/60 animate-pop my-auto">
+      <div class="text-center mb-6">
+        <div class="inline-block px-4 py-1 rounded-full bg-emerald-500/20 border border-[#00FF88]/50 text-[#00FF88] text-xs font-extrabold uppercase tracking-widest mb-2">
+          SESSION COMPLETE
+        </div>
+        <h2 class="font-arcade text-4xl sm:text-5xl font-bold text-white">
+          WORKOUT <span class="neon-text-green">CRUSHED!</span>
+        </h2>
+      </div>
+
+      <!-- Primary Metrics Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Calories Burned</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-pink mt-1">
+            <span id="sumCalories">0.0</span> <span class="text-lg">kcal</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Walls Cleared</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-green mt-1">
+            <span id="sumCleared">0</span><span class="text-xl text-slate-400">/<span id="sumTotal">0</span></span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Accuracy</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-cyan mt-1">
+            <span id="sumAccuracy">0</span>%
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Final Score</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold text-white mt-1" id="sumScore">0</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Max Combo</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold neon-text-gold mt-1">
+            <span id="sumMaxCombo">0</span>x
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Active Time</div>
+          <div class="font-arcade text-3xl sm:text-4xl font-bold text-white mt-1" id="sumDuration">00:00</div>
+        </div>
+      </div>
+
+      <!-- Exercise Breakdown -->
+      <div class="bg-slate-900/75 border border-slate-800 rounded-2xl p-4 mb-6">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">Exercise Breakdown</div>
+        <div id="sumBreakdownGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Play Again CTA -->
+      <button type="button" id="playAgainBtn" class="w-full py-4 px-6 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase shadow-lg shadow-emerald-500/30 transition cursor-pointer">
+        ↻ PLAY AGAIN
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ES MODULE APPLICATION LOGIC                                           -->
+  <!-- ===================================================================== -->
+  <script type="module">
+    /**
+     * POSE WALL — Full-Body Fitness & Pose-Matching Arcade Game
+     * Single-file production architecture using MediaPipe Tasks Vision & Web Audio API.
+     */
+
+    // =========================================================================
+    // 1. CONFIGURATION & POSE DEFINITIONS
+    // =========================================================================
+    const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+    const WASM_BASE_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/wasm";
+
+    const WORKOUT_MODES = {
+      warmup: {
+        id: "warmup",
+        name: "Warm-Up",
+        durationSec: 180, // 3 min
+        baseWallTimeSec: 5.2, // Time for a wall to travel from spawn to strike zone
+        spawnIntervalSec: 5.8,
+        met: 4.5,
+        intensityMult: 1.0
+      },
+      fatburn: {
+        id: "fatburn",
+        name: "Fat Burn",
+        durationSec: 300, // 5 min
+        baseWallTimeSec: 4.1,
+        spawnIntervalSec: 4.6,
+        met: 6.5,
+        intensityMult: 1.15
+      },
+      hiit: {
+        id: "hiit",
+        name: "HIIT Beast",
+        durationSec: 480, // 8 min
+        baseWallTimeSec: 3.3,
+        spawnIntervalSec: 3.7,
+        met: 8.5,
+        intensityMult: 1.3
+      }
+    };
+
+    const POSE_TYPES = {
+      SQUAT: {
+        id: "SQUAT",
+        name: "DEEP SQUAT",
+        voiceLabel: "Deep Squat!",
+        cue: "Drop hips below 95°",
+        color: "#00D4FF",
+        lockDurationSec: 0.25,
+        svg: `<svg viewBox="0 0 80 80" class="w-14 h-14 stroke-[#00D4FF]" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="40" cy="18" r="7" />
+          <path d="M40 26 L40 44 L24 54 L26 70" />
+          <path d="M40 44 L56 54 L54 70" />
+          <path d="M22 36 L40 32 L58 36" />
+          <line x1="10" y1="10" x2="70" y2="10" stroke="#FF3366" stroke-width="4" stroke-dasharray="6 4"/>
+        </svg>`
+      },
+      STAR_JUMP: {
+        id: "STAR_JUMP",
+        name: "STAR JUMP",
+        voiceLabel: "Star Jump!",
+        cue: "Hands above head & feet wide",
+        color: "#FFD60A",
+        lockDurationSec: 0.25,
+        svg: `<svg viewBox="0 0 80 80" class="w-14 h-14 stroke-[#FFD60A]" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="40" cy="20" r="7" />
+          <path d="M40 28 L40 48" />
+          <path d="M40 34 L16 14" />
+          <path d="M40 34 L64 14" />
+          <path d="M40 48 L20 72" />
+          <path d="M40 48 L60 72" />
+        </svg>`
+      },
+      HIGH_KNEES: {
+        id: "HIGH_KNEES",
+        name: "HIGH KNEES",
+        voiceLabel: "High Knees!",
+        cue: "Drive knee up to hip height",
+        color: "#FF3366",
+        lockDurationSec: 0.25,
+        svg: `<svg viewBox="0 0 80 80" class="w-14 h-14 stroke-[#FF3366]" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="38" cy="16" r="7" />
+          <path d="M38 24 L38 44 L34 72" />
+          <path d="M38 44 L56 42 L54 62" />
+          <path d="M38 30 L24 42" />
+          <path d="M38 30 L52 24" />
+          <line x1="12" y1="62" x2="68" y2="62" stroke="#00D4FF" stroke-width="4"/>
+        </svg>`
+      },
+      OVERHEAD_PRESS: {
+        id: "OVERHEAD_PRESS",
+        name: "OVERHEAD PRESS",
+        voiceLabel: "Overhead Press!",
+        cue: "Lock both arms straight up",
+        color: "#00FF88",
+        lockDurationSec: 0.60, // Required 0.6s hold-in bar
+        svg: `<svg viewBox="0 0 80 80" class="w-14 h-14 stroke-[#00FF88]" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="40" cy="24" r="7" />
+          <path d="M40 32 L40 52" />
+          <path d="M26 36 L26 10" />
+          <path d="M54 36 L54 10" />
+          <path d="M26 36 L54 36" />
+          <path d="M40 52 L30 72" />
+          <path d="M40 52 L50 72" />
+        </svg>`
+      }
+    };
+
+    const POSE_KEYS = Object.keys(POSE_TYPES);
+
+    // MediaPipe Pose Landmark Connection Pairs for Neon Skeleton Rendering
+    const SKELETON_CONNECTIONS = [
+      [11, 12], // Shoulders
+      [11, 13], [13, 15], // Left arm
+      [12, 14], [14, 16], // Right arm
+      [11, 23], [12, 24], // Torso sides
+      [23, 24], // Hips
+      [23, 25], [25, 27], [27, 31], // Left leg
+      [24, 26], [26, 28], [28, 32]  // Right leg
+    ];
+
+    // =========================================================================
+    // 2. WEB AUDIO API SYNTHESIZER (ZERO EXTERNAL SOUND FILES)
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      unlock() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume().catch(() => {});
+        }
+      }
+
+      playTone(freq, type = "sine", duration = 0.15, gainVal = 0.2, delay = 0) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      playCountdown(isGo = false) {
+        this.unlock();
+        if (isGo) {
+          this.playTone(880, "triangle", 0.35, 0.28, 0);
+          this.playTone(1174.66, "sine", 0.4, 0.22, 0.05);
+        } else {
+          this.playTone(440, "sine", 0.18, 0.22, 0);
+        }
+      }
+
+      playFormLockTick(progress) {
+        // Rising pitch subtle tick as form lock progresses
+        const freq = 320 + progress * 480;
+        this.playTone(freq, "sine", 0.06, 0.07, 0);
+      }
+
+      playWallBreak(combo = 1) {
+        this.unlock();
+        // Harmonic major chord burst + noise shatter
+        const base = 440 * Math.pow(1.06, Math.min(combo, 10));
+        this.playTone(base, "triangle", 0.35, 0.26, 0);
+        this.playTone(base * 1.25, "sine", 0.38, 0.22, 0.03);
+        this.playTone(base * 1.5, "sine", 0.45, 0.24, 0.06);
+        this.playTone(base * 2.0, "triangle", 0.5, 0.18, 0.09);
+
+        // Filtered white noise burst for glass/energy wall shatter
+        if (this.ctx && !this.muted) {
+          const bufferSize = this.ctx.sampleRate * 0.25;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.value = 1800;
+
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.28, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        }
+      }
+
+      playObstacleImpact() {
+        this.unlock();
+        // Low sawtooth thud
+        if (!this.ctx || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(42, now + 0.32);
+
+        gain.gain.setValueAtTime(0.32, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.36);
+      }
+
+      playVictoryFanfare() {
+        this.unlock();
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        notes.forEach((n, idx) => {
+          this.playTone(n, "triangle", 0.45, 0.24, idx * 0.11);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // =========================================================================
+    // 3. VOICE COACH (WEB SPEECH API)
+    // =========================================================================
+    class VoiceCoach {
+      constructor() {
+        this.enabled = true;
+        this.lastSpokenAt = 0;
+      }
+
+      speak(text, force = false) {
+        if (!this.enabled || !("speechSynthesis" in window)) return;
+        const now = performance.now();
+        if (!force && now - this.lastSpokenAt < 1400) return;
+        this.lastSpokenAt = now;
+
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.rate = 1.15;
+          utter.pitch = 1.05;
+          utter.volume = 0.95;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {
+          // Ignore speech synthesis errors on restricted browsers
+        }
+      }
+    }
+
+    const voiceCoach = new VoiceCoach();
+
+    // =========================================================================
+    // 4. APPLICATION STATE & DOM REFERENCES
+    // =========================================================================
+    const videoEl = document.getElementById("webcamVideo");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const state = {
+      screen: "LOADING", // LOADING | CALIBRATION | COUNTDOWN | PLAYING | PAUSED | SUMMARY
+      selectedMode: "fatburn",
+      weightKg: 70,
+      delegateUsed: "GPU",
+
+      // Pose tracking & EMA smoothing
+      poseLandmarker: null,
+      smoothedLandmarks: null,
+      rawLandmarks: null,
+      lastVideoTime: -1,
+      lastTimestamp: 0,
+      emaAlpha: 0.45,
+
+      // Calibration status
+      bodyPartsReady: {
+        head: false,
+        shoulders: false,
+        hips: false,
+        knees: false,
+        ankles: false
+      },
+      fullBodyReady: false,
+
+      // Gameplay metrics
+      timeRemainingSec: 300,
+      activeElapsedSec: 0,
+      score: 0,
+      streak: 0,
+      maxCombo: 1,
+      caloriesBurned: 0,
+      wallsSpawned: 0,
+      wallsCleared: 0,
+      poseStats: {
+        SQUAT: { total: 0, cleared: 0 },
+        STAR_JUMP: { total: 0, cleared: 0 },
+        HIGH_KNEES: { total: 0, cleared: 0 },
+        OVERHEAD_PRESS: { total: 0, cleared: 0 }
+      },
+
+      // Active wall & particles
+      currentWall: null, // { type, progress (0..1), status: 'approaching'|'broken'|'missed' }
+      spawnCooldownSec: 0.8,
+      poseHoldTimerSec: 0,
+      lastTickThreshold: 0,
+      lastPoseKey: null,
+
+      // Visual FX
+      particles: [],
+      screenFlashColor: null,
+      screenFlashAlpha: 0,
+      screenShakeTime: 0,
+      countdownValue: 3,
+      countdownTimer: 0,
+      frameCounter: 0
+    };
+
+    // UI Elements
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingStatusText = document.getElementById("loadingStatusText");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const errorDiagnosticBox = document.getElementById("errorDiagnosticBox");
+    const errorTitle = document.getElementById("errorTitle");
+    const errorDetail = document.getElementById("errorDetail");
+
+    const calibrationOverlay = document.getElementById("calibrationOverlay");
+    const startWorkoutBtn = document.getElementById("startWorkoutBtn");
+    const calibrationPromptPill = document.getElementById("calibrationPromptPill");
+    const calibrationPromptText = document.getElementById("calibrationPromptText");
+
+    const gameHudOverlay = document.getElementById("gameHudOverlay");
+    const pauseOverlay = document.getElementById("pauseOverlay");
+    const summaryOverlay = document.getElementById("summaryOverlay");
+
+    // =========================================================================
+    // 5. GEOMETRY & JOINT-ANGLE MATH UTILITIES
+    // =========================================================================
+
+    /**
+     * Computes the interior 2D angle in degrees at vertex B given points A, B, C.
+     */
+    function calculateAngle2D(a, b, c) {
+      const abx = a.x - b.x;
+      const aby = a.y - b.y;
+      const cbx = c.x - b.x;
+      const cby = c.y - b.y;
+
+      const dot = abx * cbx + aby * cby;
+      const magAB = Math.hypot(abx, aby);
+      const magCB = Math.hypot(cbx, cby);
+
+      if (magAB < 1e-6 || magCB < 1e-6) return 180;
+      const cosTheta = Math.max(-1, Math.min(1, dot / (magAB * magCB)));
+      return (Math.acos(cosTheta) * 180) / Math.PI;
+    }
+
+    /**
+     * Applies Exponential Moving Average (EMA) smoothing to MediaPipe landmarks
+     * to eliminate camera jitter while keeping fast cardio movements responsive.
+     */
+    function smoothLandmarks(newLandmarks) {
+      if (!newLandmarks || newLandmarks.length === 0) {
+        return state.smoothedLandmarks;
+      }
+
+      if (!state.smoothedLandmarks || state.smoothedLandmarks.length !== newLandmarks.length) {
+        state.smoothedLandmarks = newLandmarks.map(lm => ({
+          x: lm.x,
+          y: lm.y,
+          z: lm.z || 0,
+          visibility: lm.visibility !== undefined ? lm.visibility : 1.0
+        }));
+        return state.smoothedLandmarks;
+      }
+
+      const alpha = state.emaAlpha;
+      for (let i = 0; i < newLandmarks.length; i++) {
+        const curr = newLandmarks[i];
+        const prev = state.smoothedLandmarks[i];
+        prev.x = alpha * curr.x + (1 - alpha) * prev.x;
+        prev.y = alpha * curr.y + (1 - alpha) * prev.y;
+        prev.z = alpha * (curr.z || 0) + (1 - alpha) * prev.z;
+        const vis = curr.visibility !== undefined ? curr.visibility : 1.0;
+        prev.visibility = alpha * vis + (1 - alpha) * prev.visibility;
+      }
+
+      return state.smoothedLandmarks;
+    }
+
+    /**
+     * Evaluates the player's current smoothed skeleton against the target pose.
+     * Returns { matched: boolean, coaching: string, closeness: number (0..1) }
+     */
+    function evaluatePose(landmarks, poseId) {
+      if (!landmarks || landmarks.length < 29) {
+        return { matched: false, coaching: "STEP INTO CAMERA VIEW!", closeness: 0 };
+      }
+
+      const nose = landmarks[0];
+      const lShoulder = landmarks[11];
+      const rShoulder = landmarks[12];
+      const lElbow = landmarks[13];
+      const rElbow = landmarks[14];
+      const lWrist = landmarks[15];
+      const rWrist = landmarks[16];
+      const lHip = landmarks[23];
+      const rHip = landmarks[24];
+      const lKnee = landmarks[25];
+      const rKnee = landmarks[26];
+      const lAnkle = landmarks[27];
+      const rAnkle = landmarks[28];
+
+      // 1. DEEP SQUAT: Knee angle < 95° AND hips drop close to knee Y
+      if (poseId === "SQUAT") {
+        const leftKneeAngle = calculateAngle2D(lHip, lKnee, lAnkle);
+        const rightKneeAngle = calculateAngle2D(rHip, rKnee, rAnkle);
+        const avgKneeAngle = (leftKneeAngle + rightKneeAngle) * 0.5;
+
+        const avgHipY = (lHip.y + rHip.y) * 0.5;
+        const avgKneeY = (lKnee.y + rKnee.y) * 0.5;
+        const hipToKneeDy = avgKneeY - avgHipY; // Smaller means hips dropped closer to knees
+
+        const angleMatched = avgKneeAngle < 95;
+        const depthMatched = hipToKneeDy < 0.16;
+
+        if (angleMatched && depthMatched) {
+          return { matched: true, coaching: "HOLD SQUAT!", closeness: 1 };
+        }
+
+        // Progressive closeness meter between 145 deg (standing) and 95 deg (squat)
+        const angleProgress = Math.max(0, Math.min(0.95, (145 - avgKneeAngle) / (145 - 95)));
+        if (avgKneeAngle < 135) {
+          return { matched: false, coaching: "SQUAT LOWER!", closeness: angleProgress };
+        }
+        return { matched: false, coaching: "BEND KNEES & DROP HIPS!", closeness: angleProgress };
+      }
+
+      // 2. STAR JUMP: Both wrists above nose AND ankle spread > 1.4x shoulder width
+      if (poseId === "STAR_JUMP") {
+        const handsUp = lWrist.y < nose.y && rWrist.y < nose.y;
+        const shoulderWidth = Math.max(0.05, Math.abs(lShoulder.x - rShoulder.x));
+        const ankleSpread = Math.abs(lAnkle.x - rAnkle.x);
+        const spreadRatio = ankleSpread / shoulderWidth;
+        const feetWide = spreadRatio > 1.4;
+
+        if (handsUp && feetWide) {
+          return { matched: true, coaching: "STAR LOCKED!", closeness: 1 };
+        }
+
+        const handsScore = ((lWrist.y < nose.y ? 0.5 : 0) + (rWrist.y < nose.y ? 0.5 : 0)) * 0.5;
+        const feetScore = Math.min(1, spreadRatio / 1.4) * 0.5;
+        const closeness = Math.min(0.95, handsScore + feetScore);
+
+        if (!handsUp && !feetWide) {
+          return { matched: false, coaching: "HANDS UP & JUMP WIDE!", closeness };
+        } else if (!handsUp) {
+          return { matched: false, coaching: "HANDS ABOVE HEAD!", closeness };
+        } else {
+          return { matched: false, coaching: "SPREAD FEET WIDER!", closeness };
+        }
+      }
+
+      // 3. HIGH KNEES: Either knee rises within 0.08 normalized Y-distance of corresponding hip
+      if (poseId === "HIGH_KNEES") {
+        const leftDiff = Math.abs(lKnee.y - lHip.y);
+        const rightDiff = Math.abs(rKnee.y - rHip.y);
+        const minDiff = Math.min(leftDiff, rightDiff);
+
+        if (minDiff <= 0.08) {
+          return { matched: true, coaching: "KNEE UP! HOLD!", closeness: 1 };
+        }
+
+        // Standing diff is roughly ~0.24; target is <= 0.08
+        const closeness = Math.max(0, Math.min(0.95, (0.24 - minDiff) / (0.24 - 0.08)));
+        return { matched: false, coaching: "DRIVE KNEES HIGHER!", closeness };
+      }
+
+      // 4. OVERHEAD PRESS: Both wrists well above shoulders & elbows extended (> 150°)
+      if (poseId === "OVERHEAD_PRESS") {
+        const leftRaised = lWrist.y < lShoulder.y - 0.10;
+        const rightRaised = rWrist.y < rShoulder.y - 0.10;
+        const leftElbowAngle = calculateAngle2D(lShoulder, lElbow, lWrist);
+        const rightElbowAngle = calculateAngle2D(rShoulder, rElbow, rWrist);
+        const armsStraight = leftElbowAngle > 150 && rightElbowAngle > 150;
+
+        if (leftRaised && rightRaised && armsStraight) {
+          return { matched: true, coaching: "CHARGING SHIELD...", closeness: 1 };
+        }
+
+        const avgElbow = (leftElbowAngle + rightElbowAngle) * 0.5;
+        const straightScore = Math.max(0, Math.min(1, (avgElbow - 90) / 60)) * 0.5;
+        const heightScore = ((leftRaised ? 0.5 : 0) + (rightRaised ? 0.5 : 0)) * 0.5;
+        const closeness = Math.min(0.95, straightScore + heightScore);
+
+        if (!leftRaised || !rightRaised) {
+          return { matched: false, coaching: "PRESS HANDS STRAIGHT UP!", closeness };
+        }
+        return { matched: false, coaching: "LOCK ELBOWS STRAIGHT!", closeness };
+      }
+
+      return { matched: false, coaching: "MATCH THE POSE!", closeness: 0 };
+    }
+
+    // =========================================================================
+    // 6. CALIBRATION BODY CHECK
+    // =========================================================================
+    function updateCalibrationStatus(landmarks) {
+      if (!landmarks || landmarks.length < 29) {
+        state.fullBodyReady = false;
+        return;
+      }
+
+      const visThreshold = 0.6;
+      const checkVis = (indices) => indices.every(idx => landmarks[idx] && landmarks[idx].visibility > visThreshold);
+
+      const parts = {
+        head: checkVis([0]),
+        shoulders: checkVis([11, 12]),
+        hips: checkVis([23, 24]),
+        knees: checkVis([25, 26]),
+        ankles: checkVis([27, 28])
+      };
+
+      state.bodyPartsReady = parts;
+      const allReady = parts.head && parts.shoulders && parts.hips && parts.knees && parts.ankles;
+      state.fullBodyReady = allReady;
+
+      // Update UI badges
+      const updateBadge = (id, ok) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (ok) {
+          el.className = "px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/25 text-[#00FF88] border border-[#00FF88] transition-colors";
+        } else {
+          el.className = "px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors";
+        }
+      };
+
+      updateBadge("badgeHead", parts.head);
+      updateBadge("badgeShoulders", parts.shoulders);
+      updateBadge("badgeHips", parts.hips);
+      updateBadge("badgeKnees", parts.knees);
+      updateBadge("badgeAnkles", parts.ankles);
+
+      if (allReady) {
+        calibrationPromptPill.className = "glass-panel rounded-full px-6 py-3 border-2 neon-border-green transition-all duration-300";
+        calibrationPromptText.className = "font-arcade text-lg sm:text-2xl font-bold tracking-wide neon-text-green";
+        calibrationPromptText.textContent = "FULL BODY LOCKED IN — READY TO WORKOUT!";
+
+        startWorkoutBtn.disabled = false;
+        startWorkoutBtn.textContent = "⚡ START WORKOUT";
+        startWorkoutBtn.className = "w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 border-2 border-[#00FF88] btn-ready-pulse cursor-pointer";
+      } else {
+        calibrationPromptPill.className = "glass-panel rounded-full px-6 py-3 border-2 border-cyan-400/60 transition-all duration-300";
+        calibrationPromptText.className = "font-arcade text-lg sm:text-2xl font-bold tracking-wide text-cyan-300";
+        calibrationPromptText.textContent = "STEP BACK 6–8 FT UNTIL FULL BODY IS GREEN";
+
+        startWorkoutBtn.disabled = true;
+        startWorkoutBtn.textContent = "STEP INTO FRAME TO UNLOCK";
+        startWorkoutBtn.className = "w-full py-4 px-6 rounded-2xl font-arcade text-2xl sm:text-3xl font-bold tracking-wider uppercase transition-all bg-slate-800 text-slate-500 border-2 border-slate-700 cursor-not-allowed";
+      }
+    }
+
+    // =========================================================================
+    // 7. MEDIAPIPE & CAMERA INITIALIZATION
+    // =========================================================================
+    async function initMediaPipeAndCamera() {
+      loadingOverlay.classList.remove("hidden");
+      errorDiagnosticBox.classList.add("hidden");
+      loadingSpinner.classList.remove("hidden");
+      loadingStatusText.textContent = "Requesting camera access...";
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera API (getUserMedia) is not supported in this browser or context. Ensure you are using HTTPS or localhost.");
+        }
+
+        // Request 16:9 or tablet-friendly webcam stream
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        });
+
+        videoEl.srcObject = stream;
+        await new Promise((resolve) => {
+          videoEl.onloadedmetadata = () => {
+            videoEl.play().then(resolve).catch(resolve);
+          };
+        });
+
+        loadingStatusText.textContent = "Loading MediaPipe Vision AI model...";
+
+        // Dynamic ESM import with fallback CDN
+        let visionModule;
+        try {
+          visionModule = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/+esm");
+        } catch (cdnErr) {
+          visionModule = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs");
+        }
+
+        const { FilesetResolver, PoseLandmarker } = visionModule;
+        const vision = await FilesetResolver.forVisionTasks(WASM_BASE_URL);
+
+        // Try GPU delegate first, fallback cleanly to CPU
+        try {
+          state.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath: MODEL_URL,
+              delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            numPoses: 1,
+            minPoseDetectionConfidence: 0.55,
+            minPosePresenceConfidence: 0.55,
+            minTrackingConfidence: 0.55
+          });
+          state.delegateUsed = "GPU";
+        } catch (gpuErr) {
+          console.warn("GPU delegate failed, falling back to CPU:", gpuErr);
+          state.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath: MODEL_URL,
+              delegate: "CPU"
+            },
+            runningMode: "VIDEO",
+            numPoses: 1,
+            minPoseDetectionConfidence: 0.55,
+            minPosePresenceConfidence: 0.55,
+            minTrackingConfidence: 0.55
+          });
+          state.delegateUsed = "CPU";
+        }
+
+        document.getElementById("delegateBadge").textContent = `${state.delegateUsed} AI READY`;
+
+        // Transition to Calibration Screen
+        loadingOverlay.classList.add("hidden");
+        enterCalibrationScreen();
+      } catch (err) {
+        console.error("Initialization error:", err);
+        loadingSpinner.classList.add("hidden");
+        loadingStatusText.textContent = "Setup paused due to hardware or permission error.";
+        errorDiagnosticBox.classList.remove("hidden");
+
+        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+          errorTitle.textContent = "Camera Permission Denied";
+          errorDetail.textContent = "Please allow camera access in your browser's address bar settings, then tap Retry.";
+        } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+          errorTitle.textContent = "No Webcam Detected";
+          errorDetail.textContent = "We couldn't find a front-facing camera on this device. Connect a webcam and tap Retry.";
+        } else {
+          errorTitle.textContent = "AI Vision / Camera Error";
+          errorDetail.textContent = err.message || "Failed to load MediaPipe WASM or access camera.";
+        }
+      }
+    }
+
+    // =========================================================================
+    // 8. SCREEN & GAME FLOW CONTROLLERS
+    // =========================================================================
+    function hideAllOverlays() {
+      loadingOverlay.classList.add("hidden");
+      calibrationOverlay.classList.add("hidden");
+      gameHudOverlay.classList.add("hidden");
+      pauseOverlay.classList.add("hidden");
+      summaryOverlay.classList.add("hidden");
+    }
+
+    function enterCalibrationScreen() {
+      hideAllOverlays();
+      state.screen = "CALIBRATION";
+      calibrationOverlay.classList.remove("hidden");
+    }
+
+    function startNewWorkout() {
+      sound.unlock();
+      hideAllOverlays();
+
+      const mode = WORKOUT_MODES[state.selectedMode];
+      state.screen = "COUNTDOWN";
+      state.countdownValue = 3;
+      state.countdownTimer = 0.95;
+
+      state.timeRemainingSec = mode.durationSec;
+      state.activeElapsedSec = 0;
+      state.score = 0;
+      state.streak = 0;
+      state.maxCombo = 1;
+      state.caloriesBurned = 0;
+      state.wallsSpawned = 0;
+      state.wallsCleared = 0;
+      state.currentWall = null;
+      state.spawnCooldownSec = 0.5;
+      state.poseHoldTimerSec = 0;
+      state.lastPoseKey = null;
+      state.particles = [];
+
+      Object.keys(state.poseStats).forEach(k => {
+        state.poseStats[k] = { total: 0, cleared: 0 };
+      });
+
+      gameHudOverlay.classList.remove("hidden");
+      updateHudUI();
+      setCoachingBanner("GET READY! 3", "#00D4FF");
+      sound.playCountdown(false);
+      voiceCoach.speak("Get ready! Three", true);
+    }
+
+    function spawnNextWall() {
+      // Avoid repeating the same pose 3 times in a row
+      let chosenKey = POSE_KEYS[Math.floor(Math.random() * POSE_KEYS.length)];
+      if (chosenKey === state.lastPoseKey && Math.random() < 0.7) {
+        const others = POSE_KEYS.filter(k => k !== state.lastPoseKey);
+        chosenKey = others[Math.floor(Math.random() * others.length)];
+      }
+      state.lastPoseKey = chosenKey;
+
+      const poseDef = POSE_TYPES[chosenKey];
+      state.currentWall = {
+        type: chosenKey,
+        progress: 0, // 0 = far horizon, 1.0 = player strike zone
+        status: "approaching"
+      };
+
+      state.poseHoldTimerSec = 0;
+      state.lastTickThreshold = 0;
+      state.wallsSpawned++;
+      state.poseStats[chosenKey].total++;
+
+      // Update incoming pose banner card
+      const card = document.getElementById("targetPoseCard");
+      const iconBox = document.getElementById("targetPoseIconBox");
+      const nameEl = document.getElementById("targetPoseName");
+      const cueEl = document.getElementById("targetPoseCue");
+
+      card.style.borderColor = poseDef.color;
+      iconBox.style.borderColor = poseDef.color;
+      iconBox.innerHTML = poseDef.svg;
+      nameEl.textContent = poseDef.name;
+      nameEl.style.color = poseDef.color;
+      cueEl.textContent = poseDef.cue;
+
+      voiceCoach.speak(poseDef.voiceLabel, true);
+    }
+
+    function handleWallBreak() {
+      if (!state.currentWall || state.currentWall.status !== "approaching") return;
+
+      const wallType = state.currentWall.type;
+      state.currentWall.status = "broken";
+      state.wallsCleared++;
+      state.poseStats[wallType].cleared++;
+
+      state.streak++;
+      const multiplier = Math.min(4, 1 + Math.floor(state.streak / 3));
+      state.maxCombo = Math.max(state.maxCombo, multiplier);
+
+      const pointsEarned = 100 * multiplier;
+      state.score += pointsEarned;
+
+      // Instant burst calorie bonus for explosive movement
+      state.caloriesBurned += 0.35 * (state.weightKg / 70);
+
+      // Visual & Audio feedback
+      sound.playWallBreak(state.streak);
+      triggerScreenFlash("#00FF88", 0.35);
+      spawnShatterParticles(POSE_TYPES[wallType].color, 55);
+      setCoachingBanner(`PERFECT BREAK! +${pointsEarned}`, "#00FF88");
+      setLockRingProgress(1);
+
+      state.spawnCooldownSec = 0.75;
+      state.currentWall = null;
+      updateHudUI();
+    }
+
+    function handleWallMiss() {
+      if (!state.currentWall || state.currentWall.status !== "approaching") return;
+
+      state.currentWall.status = "missed";
+      state.streak = 0;
+      state.poseHoldTimerSec = 0;
+
+      sound.playObstacleImpact();
+      triggerScreenFlash("#FF3366", 0.42);
+      state.screenShakeTime = 0.35;
+      setCoachingBanner("WALL IMPACT! KEEP MOVING!", "#FF3366");
+      setLockRingProgress(0);
+
+      state.spawnCooldownSec = 0.85;
+      state.currentWall = null;
+      updateHudUI();
+    }
+
+    function finishWorkout() {
+      state.screen = "SUMMARY";
+      hideAllOverlays();
+      summaryOverlay.classList.remove("hidden");
+
+      sound.playVictoryFanfare();
+      voiceCoach.speak("Workout complete! Great job!", true);
+
+      const accuracy = state.wallsSpawned > 0
+        ? Math.round((state.wallsCleared / state.wallsSpawned) * 100)
+        : 0;
+
+      document.getElementById("sumCalories").textContent = state.caloriesBurned.toFixed(1);
+      document.getElementById("sumCleared").textContent = state.wallsCleared;
+      document.getElementById("sumTotal").textContent = state.wallsSpawned;
+      document.getElementById("sumAccuracy").textContent = accuracy;
+      document.getElementById("sumScore").textContent = state.score.toLocaleString();
+      document.getElementById("sumMaxCombo").textContent = state.maxCombo;
+
+      const mins = Math.floor(state.activeElapsedSec / 60);
+      const secs = Math.floor(state.activeElapsedSec % 60);
+      document.getElementById("sumDuration").textContent =
+        `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+      // Render per-exercise breakdown cards
+      const breakdownEl = document.getElementById("sumBreakdownGrid");
+      breakdownEl.innerHTML = POSE_KEYS.map(key => {
+        const p = POSE_TYPES[key];
+        const stat = state.poseStats[key];
+        return `
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3">
+            <div class="text-[11px] font-bold uppercase tracking-wider" style="color:${p.color}">${p.name}</div>
+            <div class="font-arcade text-2xl font-bold text-white mt-1">${stat.cleared}/${stat.total}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // 9. HUD & VISUAL EFFECT HELPERS
+    // =========================================================================
+    function updateHudUI() {
+      const mins = Math.max(0, Math.floor(state.timeRemainingSec / 60));
+      const secs = Math.max(0, Math.floor(state.timeRemainingSec % 60));
+      document.getElementById("hudTimer").textContent =
+        `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+      document.getElementById("hudScore").textContent = state.score.toLocaleString();
+
+      const multiplier = Math.min(4, 1 + Math.floor(state.streak / 3));
+      document.getElementById("hudCombo").textContent = `x${multiplier}`;
+      document.getElementById("hudStreakCount").textContent = `${state.streak} streak`;
+      document.getElementById("hudCalories").textContent = state.caloriesBurned.toFixed(1);
+    }
+
+    function setCoachingBanner(text, color = "#FFFFFF") {
+      const el = document.getElementById("coachingText");
+      if (el.textContent !== text) {
+        el.textContent = text;
+      }
+      el.style.color = color;
+    }
+
+    function setLockRingProgress(ratio) {
+      const clamped = Math.max(0, Math.min(1, ratio));
+      const circumference = 263.89;
+      const offset = circumference * (1 - clamped);
+      const circle = document.getElementById("lockProgressCircle");
+      circle.style.strokeDashoffset = offset.toFixed(2);
+      circle.style.stroke = clamped >= 0.99 ? "#00FF88" : "#00D4FF";
+      document.getElementById("lockPercentText").textContent = `${Math.round(clamped * 100)}%`;
+    }
+
+    function triggerScreenFlash(color, alpha = 0.35) {
+      state.screenFlashColor = color;
+      state.screenFlashAlpha = alpha;
+    }
+
+    function spawnShatterParticles(color, count = 45) {
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.5;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 180 + Math.random() * 680;
+        state.particles.push({
+          x: cx + (Math.random() - 0.5) * canvas.width * 0.45,
+          y: cy + (Math.random() - 0.5) * canvas.height * 0.45,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 120,
+          size: 6 + Math.random() * 14,
+          color: Math.random() > 0.3 ? color : "#00FF88",
+          life: 0.55 + Math.random() * 0.45,
+          maxLife: 1.0,
+          rot: Math.random() * Math.PI,
+          vRot: (Math.random() - 0.5) * 12
+        });
+      }
+    }
+
+    // =========================================================================
+    // 10. CANVAS RENDERING (COVER CAMERA, 3D CORRIDOR, WALLS, NEON SKELETON)
+    // =========================================================================
+    function resizeCanvas() {
+      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+    }
+
+    /**
+     * Computes object-fit: cover source/dest rectangles so the webcam video
+     * fills portrait or landscape tablet viewports without distortion.
+     */
+    function getVideoCoverTransform() {
+      const vw = videoEl.videoWidth || 1280;
+      const vh = videoEl.videoHeight || 720;
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      const videoAspect = vw / vh;
+      const canvasAspect = cw / ch;
+
+      let sx = 0, sy = 0, sw = vw, sh = vh;
+      if (canvasAspect > videoAspect) {
+        // Canvas is wider than video -> crop top/bottom
+        sh = vw / canvasAspect;
+        sy = (vh - sh) * 0.5;
+      } else {
+        // Canvas is taller than video (e.g., portrait iPad) -> crop sides
+        sw = vh * canvasAspect;
+        sx = (vw - sw) * 0.5;
+      }
+
+      return { sx, sy, sw, sh, vw, vh, cw, ch };
+    }
+
+    /**
+     * Maps normalized MediaPipe landmark (0..1) to mirrored screen pixel coords.
+     */
+    function landmarkToCanvas(lm, transform) {
+      const { sx, sy, sw, sh, vw, vh, cw, ch } = transform;
+      const px = lm.x * vw;
+      const py = lm.y * vh;
+      const normX = (px - sx) / sw;
+      const normY = (py - sy) / sh;
+      // Mirror horizontally because camera feed is mirrored
+      return {
+        x: (1 - normX) * cw,
+        y: normY * ch
+      };
+    }
+
+    function renderFrame(dt) {
+      resizeCanvas();
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      ctx.save();
+
+      // Screen shake on wall impact
+      if (state.screenShakeTime > 0) {
+        state.screenShakeTime = Math.max(0, state.screenShakeTime - dt);
+        const mag = 16 * (state.screenShakeTime / 0.35);
+        ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+      }
+
+      // 1. Draw Mirrored Webcam Feed with Aspect-Ratio Cover
+      const transform = getVideoCoverTransform();
+      if (videoEl.readyState >= 2) {
+        ctx.save();
+        ctx.translate(cw, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(
+          videoEl,
+          transform.sx, transform.sy, transform.sw, transform.sh,
+          0, 0, cw, ch
+        );
+        ctx.restore();
+
+        // Dark cyber vignette tint so neon HUD & walls pop cleanly
+        ctx.fillStyle = "rgba(6, 9, 19, 0.42)";
+        ctx.fillRect(0, 0, cw, ch);
+      } else {
+        ctx.fillStyle = "#060913";
+        ctx.fillRect(0, 0, cw, ch);
+      }
+
+      // 2. Draw 3D Perspective Cyber-Fitness Corridor Grid
+      drawPerspectiveCorridor(cw, ch);
+
+      // 3. Draw Calibration Framing Guide if on Calibration Screen
+      if (state.screen === "CALIBRATION") {
+        drawCalibrationGuide(cw, ch);
+      }
+
+      // 4. Draw Incoming 3D Energy Wall if Playing
+      if (state.currentWall && (state.screen === "PLAYING" || state.screen === "PAUSED")) {
+        drawIncomingWall(cw, ch, state.currentWall);
+      }
+
+      // 5. Draw Glowing Neon Skeleton Overlay
+      if (state.smoothedLandmarks) {
+        drawNeonSkeleton(state.smoothedLandmarks, transform);
+      }
+
+      // 6. Draw Shatter Particles
+      updateAndDrawParticles(dt);
+
+      // 7. Draw Screen Flash Overlay (Green break / Red hit)
+      if (state.screenFlashAlpha > 0 && state.screenFlashColor) {
+        ctx.fillStyle = state.screenFlashColor;
+        ctx.globalAlpha = state.screenFlashAlpha;
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.globalAlpha = 1;
+        state.screenFlashAlpha = Math.max(0, state.screenFlashAlpha - dt * 1.4);
+      }
+
+      ctx.restore();
+    }
+
+    function drawPerspectiveCorridor(cw, ch) {
+      const vx = cw * 0.5;
+      const vy = ch * 0.44;
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(0, 212, 255, 0.22)";
+      ctx.lineWidth = 2;
+
+      // 4 Corner perspective rails
+      const corners = [
+        [0, 0],
+        [cw, 0],
+        [cw, ch],
+        [0, ch]
+      ];
+      corners.forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.moveTo(vx, vy);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      });
+
+      // Floor lane guidelines
+      ctx.strokeStyle = "rgba(0, 255, 136, 0.28)";
+      ctx.beginPath();
+      ctx.moveTo(vx - cw * 0.08, vy + ch * 0.08);
+      ctx.lineTo(cw * 0.12, ch);
+      ctx.moveTo(vx + cw * 0.08, vy + ch * 0.08);
+      ctx.lineTo(cw * 0.88, ch);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawCalibrationGuide(cw, ch) {
+      const boxW = Math.min(cw * 0.68, ch * 0.56);
+      const boxH = ch * 0.76;
+      const bx = (cw - boxW) * 0.5;
+      const by = (ch - boxH) * 0.5;
+
+      const color = state.fullBodyReady ? "#00FF88" : "#00D4FF";
+
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 4;
+      ctx.setLineDash([18, 12]);
+      ctx.strokeRect(bx, by, boxW, boxH);
+      ctx.setLineDash([]);
+
+      // Corner brackets
+      const bracket = 34;
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      // Top-left
+      ctx.moveTo(bx, by + bracket); ctx.lineTo(bx, by); ctx.lineTo(bx + bracket, by);
+      // Top-right
+      ctx.moveTo(bx + boxW - bracket, by); ctx.lineTo(bx + boxW, by); ctx.lineTo(bx + boxW, by + bracket);
+      // Bottom-left
+      ctx.moveTo(bx, by + boxH - bracket); ctx.lineTo(bx, by + boxH); ctx.lineTo(bx + bracket, by + boxH);
+      // Bottom-right
+      ctx.moveTo(bx + boxW - bracket, by + boxH); ctx.lineTo(bx + boxW, by + boxH); ctx.lineTo(bx + boxW, by + boxH - bracket);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawIncomingWall(cw, ch, wall) {
+      const poseDef = POSE_TYPES[wall.type];
+      // Cubic ease-in perspective scaling so wall accelerates naturally toward viewer
+      const t = Math.max(0, Math.min(1, wall.progress));
+      const persp = 0.14 + Math.pow(t, 1.85) * 0.86;
+
+      const vx = cw * 0.5;
+      const vy = ch * 0.45;
+
+      const wallW = cw * 0.86 * persp;
+      const wallH = ch * 0.78 * persp;
+      const wx = vx - wallW * 0.5;
+      const wy = vy - wallH * 0.48;
+
+      const isUrgent = t > 0.78;
+      const wallColor = isUrgent ? "#FF3366" : poseDef.color;
+
+      ctx.save();
+      ctx.shadowColor = wallColor;
+      ctx.shadowBlur = 24 * persp;
+
+      // Outer Energy Frame
+      ctx.strokeStyle = wallColor;
+      ctx.lineWidth = Math.max(3, 10 * persp);
+      ctx.strokeRect(wx, wy, wallW, wallH);
+
+      // Pose-specific obstacle geometry inside the wall frame
+      ctx.fillStyle = wallColor + "33"; // Translucent fill
+
+      if (wall.type === "SQUAT") {
+        // High Laser Beam across upper 52% — player must squat underneath!
+        const beamH = wallH * 0.52;
+        ctx.fillRect(wx, wy, wallW, beamH);
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = Math.max(2, 4 * persp);
+        ctx.beginPath();
+        ctx.moveTo(wx, wy + beamH);
+        ctx.lineTo(wx + wallW, wy + beamH);
+        ctx.stroke();
+      } else if (wall.type === "HIGH_KNEES") {
+        // Low Hurdle Bar across bottom 35% — player must drive knees above!
+        const hurdleH = wallH * 0.35;
+        ctx.fillRect(wx, wy + wallH - hurdleH, wallW, hurdleH);
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = Math.max(2, 4 * persp);
+        ctx.beginPath();
+        ctx.moveTo(wx, wy + wallH - hurdleH);
+        ctx.lineTo(wx + wallW, wy + wallH - hurdleH);
+        ctx.stroke();
+      } else if (wall.type === "STAR_JUMP") {
+        // Full X-Forcefield Barrier to shatter
+        ctx.fillRect(wx, wy, wallW, wallH);
+        ctx.strokeStyle = wallColor;
+        ctx.lineWidth = Math.max(2, 5 * persp);
+        ctx.beginPath();
+        ctx.moveTo(wx, wy); ctx.lineTo(wx + wallW, wy + wallH);
+        ctx.moveTo(wx + wallW, wy); ctx.lineTo(wx, wy + wallH);
+        ctx.stroke();
+      } else if (wall.type === "OVERHEAD_PRESS") {
+        // Overhead Power Core Ring
+        ctx.fillRect(wx, wy, wallW, wallH * 0.25);
+        ctx.beginPath();
+        ctx.arc(vx, wy + wallH * 0.28, wallW * 0.16, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Wall Label Header
+      if (persp > 0.22) {
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = `800 ${Math.round(44 * persp)}px "Chakra Petch", sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText(poseDef.name, vx, wy - 12 * persp);
+      }
+
+      ctx.restore();
+    }
+
+    function drawNeonSkeleton(landmarks, transform) {
+      const isMatched = state.poseHoldTimerSec > 0;
+      const limbColor = isMatched ? "#00FF88" : "#00D4FF";
+
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      // Draw glowing bones
+      ctx.strokeStyle = limbColor;
+      ctx.shadowColor = limbColor;
+      ctx.shadowBlur = 14;
+      ctx.lineWidth = 6;
+
+      for (const [i, j] of SKELETON_CONNECTIONS) {
+        const a = landmarks[i];
+        const b = landmarks[j];
+        if (!a || !b || a.visibility < 0.45 || b.visibility < 0.45) continue;
+
+        const pa = landmarkToCanvas(a, transform);
+        const pb = landmarkToCanvas(b, transform);
+
+        ctx.beginPath();
+        ctx.moveTo(pa.x, pa.y);
+        ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
+      }
+
+      // Draw head ring
+      const nose = landmarks[0];
+      if (nose && nose.visibility > 0.5) {
+        const pn = landmarkToCanvas(nose, transform);
+        ctx.beginPath();
+        ctx.arc(pn.x, pn.y, 18, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Draw joint nodes
+      const keyJoints = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
+      for (const idx of keyJoints) {
+        const lm = landmarks[idx];
+        if (!lm || lm.visibility < 0.45) continue;
+        const p = landmarkToCanvas(lm, transform);
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function updateAndDrawParticles(dt) {
+      if (state.particles.length === 0) return;
+
+      ctx.save();
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+          state.particles.splice(i, 1);
+          continue;
+        }
+
+        p.vy += 680 * dt; // Gravity
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.vRot * dt;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+        ctx.fillRect(-p.size * 0.5, -p.size * 0.5, p.size, p.size * 0.6);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 11. MAIN SIMULATION & POSE DETECTION LOOP
+    // =========================================================================
+    let previousFrameTime = performance.now();
+
+    function mainLoop(now) {
+      requestAnimationFrame(mainLoop);
+
+      const dt = Math.min(0.1, (now - previousFrameTime) / 1000);
+      previousFrameTime = now;
+
+      // 1. Run MediaPipe PoseLandmarker on video frame using monotonic timestamp
+      if (state.poseLandmarker && videoEl.readyState >= 2) {
+        if (videoEl.currentTime !== state.lastVideoTime) {
+          state.lastVideoTime = videoEl.currentTime;
+          const monotonicTs = Math.max(now, state.lastTimestamp + 1);
+          state.lastTimestamp = monotonicTs;
+
+          try {
+            const results = state.poseLandmarker.detectForVideo(videoEl, monotonicTs);
+            if (results && results.landmarks && results.landmarks.length > 0) {
+              state.rawLandmarks = results.landmarks[0];
+              smoothLandmarks(state.rawLandmarks);
+            }
+          } catch (detectErr) {
+            console.warn("Frame detection skipped:", detectErr);
+          }
+        }
+      }
+
+      // 2. State-specific game logic
+      if (state.screen === "CALIBRATION") {
+        updateCalibrationStatus(state.smoothedLandmarks);
+      } else if (state.screen === "COUNTDOWN") {
+        state.countdownTimer -= dt;
+        if (state.countdownTimer <= 0) {
+          state.countdownValue--;
+          if (state.countdownValue > 0) {
+            state.countdownTimer = 0.95;
+            sound.playCountdown(false);
+            setCoachingBanner(`GET READY! ${state.countdownValue}`, "#00D4FF");
+            voiceCoach.speak(String(state.countdownValue), true);
+          } else {
+            state.screen = "PLAYING";
+            sound.playCountdown(true);
+            setCoachingBanner("GO! CRUSH THE WALLS!", "#00FF88");
+            voiceCoach.speak("Go!", true);
+            spawnNextWall();
+          }
+        }
+      } else if (state.screen === "PLAYING") {
+        updatePlayingState(dt);
+      }
+
+      // 3. Render Canvas
+      renderFrame(dt);
+    }
+
+    function updatePlayingState(dt) {
+      const mode = WORKOUT_MODES[state.selectedMode];
+
+      // Update timers & MET-based calorie burn
+      state.timeRemainingSec -= dt;
+      state.activeElapsedSec += dt;
+
+      const streakFactor = 1 + Math.min(0.25, state.streak * 0.02);
+      const kcalPerSec = (mode.met * state.weightKg * mode.intensityMult * streakFactor) / 3600;
+      state.caloriesBurned += kcalPerSec * dt;
+
+      if (state.timeRemainingSec <= 0) {
+        state.timeRemainingSec = 0;
+        updateHudUI();
+        finishWorkout();
+        return;
+      }
+
+      // Spawn cooldown between walls
+      if (!state.currentWall) {
+        state.spawnCooldownSec -= dt;
+        if (state.spawnCooldownSec <= 0) {
+          spawnNextWall();
+        }
+        updateHudUI();
+        return;
+      }
+
+      // Advance incoming wall toward player (speed scales +4% per streak step, capped at 1.65x)
+      const speedMult = Math.min(1.65, 1 + state.streak * 0.04);
+      const wallTravelDuration = mode.baseWallTimeSec / speedMult;
+      state.currentWall.progress += dt / wallTravelDuration;
+
+      // Evaluate player form against current target pose
+      const poseDef = POSE_TYPES[state.currentWall.type];
+      const evalRes = evaluatePose(state.smoothedLandmarks, state.currentWall.type);
+
+      if (evalRes.matched) {
+        state.poseHoldTimerSec += dt;
+        const lockRatio = Math.min(1, state.poseHoldTimerSec / poseDef.lockDurationSec);
+        setLockRingProgress(lockRatio);
+        setCoachingBanner(evalRes.coaching, "#00FF88");
+
+        // Audio tick feedback at 33% and 66%
+        const tickStep = Math.floor(lockRatio * 3);
+        if (tickStep > state.lastTickThreshold && lockRatio < 1) {
+          state.lastTickThreshold = tickStep;
+          sound.playFormLockTick(lockRatio);
+        }
+
+        if (state.poseHoldTimerSec >= poseDef.lockDurationSec) {
+          handleWallBreak();
+          return;
+        }
+      } else {
+        // Decay hold timer smoothly if form slips slightly
+        state.poseHoldTimerSec = Math.max(0, state.poseHoldTimerSec - dt * 1.8);
+        state.lastTickThreshold = 0;
+
+        const visualRatio = Math.max(
+          state.poseHoldTimerSec / poseDef.lockDurationSec,
+          evalRes.closeness * 0.65
+        );
+        setLockRingProgress(visualRatio);
+        setCoachingBanner(evalRes.coaching, state.currentWall.progress > 0.72 ? "#FFD60A" : "#FFFFFF");
+      }
+
+      // Check if wall reached strike zone without breaking
+      if (state.currentWall && state.currentWall.progress >= 1.0) {
+        handleWallMiss();
+        return;
+      }
+
+      // Periodic HUD refresh
+      state.frameCounter++;
+      if (state.frameCounter % 6 === 0) {
+        updateHudUI();
+      }
+    }
+
+    // =========================================================================
+    // 12. UI EVENT LISTENERS (TOUCH & CLICK RESPONSIVE)
+    // =========================================================================
+    document.getElementById("retryInitBtn").addEventListener("click", () => {
+      sound.unlock();
+      initMediaPipeAndCamera();
+    });
+
+    // Mode Selection Cards
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        sound.unlock();
+        sound.playTone(520, "sine", 0.08, 0.15);
+        state.selectedMode = btn.dataset.mode;
+
+        document.querySelectorAll(".mode-btn").forEach(b => {
+          b.className = "mode-btn rounded-2xl p-3 text-left border-2 border-slate-700/80 bg-slate-900/70 hover:border-cyan-400/60 transition cursor-pointer";
+        });
+        btn.className = "mode-btn rounded-2xl p-3 text-left border-2 border-[#00FF88] bg-emerald-950/40 transition cursor-pointer";
+      });
+    });
+
+    // Weight Stepper
+    document.getElementById("weightMinusBtn").addEventListener("click", () => {
+      sound.unlock();
+      state.weightKg = Math.max(40, state.weightKg - 2);
+      document.getElementById("weightDisplay").textContent = state.weightKg;
+    });
+
+    document.getElementById("weightPlusBtn").addEventListener("click", () => {
+      sound.unlock();
+      state.weightKg = Math.min(150, state.weightKg + 2);
+      document.getElementById("weightDisplay").textContent = state.weightKg;
+    });
+
+    // Voice Coach Toggles (Calibration + In-Game HUD synced)
+    function toggleVoiceCoach() {
+      sound.unlock();
+      voiceCoach.enabled = !voiceCoach.enabled;
+
+      const calibLabel = document.getElementById("voiceStatusLabel");
+      const calibBtn = document.getElementById("toggleVoiceCalibBtn");
+      const hudBtn = document.getElementById("hudVoiceToggleBtn");
+
+      if (voiceCoach.enabled) {
+        calibLabel.textContent = "ON (Audio Cues)";
+        calibLabel.className = "text-sm font-bold text-[#00FF88]";
+        calibBtn.textContent = "Enabled";
+        calibBtn.className = "px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-[#00FF88] text-[#00FF88] font-bold text-xs uppercase tracking-wider active:scale-95 transition cursor-pointer";
+        hudBtn.textContent = "🔊 VOICE ON";
+        hudBtn.className = "glass-panel hover:bg-slate-800/90 active:scale-95 px-5 py-3.5 rounded-2xl font-arcade text-lg sm:text-xl font-bold text-[#00FF88] border border-emerald-400/50 transition cursor-pointer";
+        voiceCoach.speak("Voice coach enabled", true);
+      } else {
+        calibLabel.textContent = "MUTED";
+        calibLabel.className = "text-sm font-bold text-slate-400";
+        calibBtn.textContent = "Muted";
+        calibBtn.className = "px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-600 text-slate-400 font-bold text-xs uppercase tracking-wider active:scale-95 transition cursor-pointer";
+        hudBtn.textContent = "🔇 VOICE OFF";
+        hudBtn.className = "glass-panel hover:bg-slate-800/90 active:scale-95 px-5 py-3.5 rounded-2xl font-arcade text-lg sm:text-xl font-bold text-slate-400 border border-slate-600 transition cursor-pointer";
+      }
+    }
+
+    document.getElementById("toggleVoiceCalibBtn").addEventListener("click", toggleVoiceCoach);
+    document.getElementById("hudVoiceToggleBtn").addEventListener("click", toggleVoiceCoach);
+
+    // Start Workout Buttons
+    startWorkoutBtn.addEventListener("click", () => {
+      if (!startWorkoutBtn.disabled) {
+        startNewWorkout();
+      }
+    });
+
+    document.getElementById("manualOverrideBtn").addEventListener("click", () => {
+      startNewWorkout();
+    });
+
+    // Pause / Resume / Finish Controls
+    document.getElementById("pauseBtn").addEventListener("click", () => {
+      if (state.screen === "PLAYING" || state.screen === "COUNTDOWN") {
+        state.previousActiveScreen = state.screen;
+        state.screen = "PAUSED";
+        pauseOverlay.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("resumeWorkoutBtn").addEventListener("click", () => {
+      sound.unlock();
+      pauseOverlay.classList.add("hidden");
+      state.screen = state.previousActiveScreen || "PLAYING";
+      previousFrameTime = performance.now();
+    });
+
+    document.getElementById("endWorkoutBtn").addEventListener("click", () => {
+      finishWorkout();
+    });
+
+    document.getElementById("quitToSummaryBtn").addEventListener("click", () => {
+      finishWorkout();
+    });
+
+    document.getElementById("playAgainBtn").addEventListener("click", () => {
+      enterCalibrationScreen();
+    });
+
+    // =========================================================================
+    // 13. BOOTSTRAP ON WINDOW LOAD
+    // =========================================================================
+    window.addEventListener("load", () => {
+      resizeCanvas();
+      requestAnimationFrame(mainLoop);
+      initMediaPipeAndCamera();
+    });
+  </script>
+</body>
+</html>
