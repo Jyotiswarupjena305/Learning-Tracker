@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>CRICKET 360° FPP — Dynamic Ball-Tracking Stadium</title>
+  <title>CRICKET 360° PRO — Full-Body + Bat Tracking & Broadcast Action Cam</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -48,7 +48,7 @@
       background: #050A14;
     }
 
-    #webcamVideo {
+    #webcamVideo, #procCanvas {
       position: fixed;
       width: 1px;
       height: 1px;
@@ -104,6 +104,7 @@
 </head>
 <body>
   <video id="webcamVideo" playsinline autoplay muted></video>
+  <canvas id="procCanvas" width="160" height="120"></canvas>
   <canvas id="gameCanvas"></canvas>
 
   <!-- Landscape Rotation Prompt if Tablet is Held Vertically -->
@@ -111,7 +112,7 @@
     <div class="text-6xl mb-4 animate-bounce">📱🔄</div>
     <h2 class="font-arcade text-3xl font-bold text-[#00FF88] mb-2">ROTATE TABLET TO LANDSCAPE</h2>
     <p class="text-slate-300 text-base max-w-sm">
-      Cricket 360° FPP uses wide landscape view for 360° camera ball-tracking and full-range bat swings.
+      Cricket 360° Pro uses wide landscape view to track your full body, bat blade, and 360° ball follow-through.
     </p>
   </div>
 
@@ -121,13 +122,13 @@
   <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-[#050A14]/95 backdrop-blur-md">
     <div class="max-w-lg w-full glass-panel rounded-3xl p-8 text-center border border-emerald-400/30">
       <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold tracking-widest uppercase mb-4">
-        <span>360° FPP Ball-Tracking Stadium</span>
+        <span>Full-Body + Bat Optical Engine</span>
       </div>
       <h1 class="font-arcade text-4xl sm:text-5xl font-bold tracking-wider text-white mb-2">
-        CRICKET <span class="neon-text-green">360° FPP</span>
+        CRICKET <span class="neon-text-green">360° PRO</span>
       </h1>
       <p id="loadingStatusText" class="text-slate-300 text-base sm:text-lg mb-6">
-        Initializing Hand-Locked Bat &amp; Footwork Tracker...
+        Initializing Full-Body Pose &amp; Bat Blade Tracker...
       </p>
 
       <div id="loadingSpinner" class="flex justify-center mb-6">
@@ -147,16 +148,16 @@
       </div>
 
       <p class="text-xs text-slate-400">
-        Hold your cricket bat in your hands—the FPP camera follows your shot across all 360°!
+        Stand 6–8 feet back in Landscape mode holding your cricket bat so your full body and bat blade are visible.
       </p>
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 2. MATCH SETUP & HAND-LOCKED BAT CALIBRATION OVERLAY                  -->
+  <!-- 2. MATCH SETUP & FULL-BODY + BAT CALIBRATION OVERLAY                  -->
   <!-- ===================================================================== -->
   <div id="calibrationOverlay" class="hidden fixed inset-0 z-30 flex flex-col justify-between p-4 sm:p-5 pointer-events-none">
-    <!-- Top Header + Hand Tracking Status -->
+    <!-- Top Header + Full-Body & Bat Blade Status -->
     <div class="w-full max-w-7xl mx-auto flex flex-row items-center justify-between gap-3 pointer-events-auto">
       <div class="glass-panel rounded-2xl px-4 py-2.5 flex items-center gap-3">
         <button type="button" onclick="window.location.href='index.html'" class="px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-bold uppercase tracking-wider transition cursor-pointer">
@@ -164,16 +165,16 @@
         </button>
         <div>
           <h1 class="font-arcade text-xl sm:text-2xl font-bold tracking-wider leading-none">
-            CRICKET <span class="neon-text-green">360° FPP</span>
+            CRICKET <span class="neon-text-green">360° PRO</span>
           </h1>
-          <p class="text-[11px] text-slate-400 mt-0.5">Default • Front-Foot • Back-Foot • 360° FPP Tracking</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Full-Body Skeleton + Bat Blade Optical Tracking</p>
         </div>
       </div>
 
       <div class="glass-panel rounded-2xl px-4 py-2 flex flex-wrap items-center justify-center gap-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Tracker:</span>
-        <span id="badgeWrists" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">BAT HANDS</span>
-        <span id="badgeShoulders" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">FOOTWORK</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Sensors:</span>
+        <span id="badgeFullBody" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">FULL BODY</span>
+        <span id="badgeBatBlade" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors">BAT BLADE</span>
         <span id="delegateBadge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-cyan-500/15 border border-cyan-400/40 text-cyan-300">GPU READY</span>
       </div>
     </div>
@@ -182,7 +183,7 @@
     <div class="my-auto flex flex-col items-center text-center pointer-events-none px-4">
       <div id="calibrationPromptPill" class="glass-panel rounded-full px-6 py-2.5 border-2 border-cyan-400/60 transition-all duration-300">
         <p id="calibrationPromptText" class="font-arcade text-base sm:text-xl font-bold tracking-wide text-cyan-300">
-          SWING YOUR BAT IN ANY DIRECTION — THE CAMERA FOLLOWS THE BALL IN 360°!
+          STAND IN BATTING STANCE WITH BAT — WATCH SKELETON &amp; BAT TRACKER LOCK ON!
         </p>
       </div>
     </div>
@@ -250,7 +251,7 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 3. CLEAR-VIEW FPP BROADCAST HUD (ZERO PITCH OBSTRUCTION!)             -->
+  <!-- 3. CLEAR-VIEW BROADCAST HUD                                           -->
   <!-- ===================================================================== -->
   <div id="gameHudOverlay" class="hidden fixed inset-0 z-20 flex flex-col justify-between p-3 sm:p-4 pointer-events-none">
     <!-- Top Compact Scoreboard Strip -->
@@ -293,9 +294,9 @@
       </div>
     </div>
 
-    <!-- Top-Left Shot & Delivery Callout + Top-Right Footwork Stance Badge -->
+    <!-- Top-Left Shot & Delivery Callout + Top-Right Live Swing Power & Footwork Meter -->
     <div class="w-full max-w-7xl mx-auto flex justify-between items-start mt-2">
-      <div id="deliveryBanner" class="glass-panel rounded-2xl px-4 py-2.5 border-l-4 border-cyan-400 max-w-xs transition-all duration-150">
+      <div id="deliveryBanner" class="glass-panel rounded-2xl px-4 py-2.5 border-l-4 border-cyan-400 max-w-sm transition-all duration-150">
         <div id="deliveryTitle" class="font-arcade text-lg sm:text-xl font-bold tracking-wider uppercase text-white leading-tight">
           TAKE YOUR GUARD!
         </div>
@@ -304,19 +305,23 @@
         </div>
       </div>
 
-      <!-- Active Footwork & 360° Shot Angle Indicator -->
-      <div class="glass-panel rounded-2xl px-4 py-2 border border-emerald-400/40 text-right">
-        <div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">ACTIVE FOOTWORK</div>
-        <div id="footworkBadge" class="font-arcade text-base sm:text-lg font-bold neon-text-green">
-          DEFAULT STANCE
+      <!-- Live Bat Swing Power & Classification Readout -->
+      <div class="glass-panel rounded-2xl px-4 py-2.5 border border-emerald-400/40 text-right min-w-[210px]">
+        <div class="flex items-center justify-end gap-2">
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">SWING POWER</span>
+          <span id="swingTierLabel" class="font-arcade text-xs font-bold text-emerald-300">GUARD</span>
         </div>
-        <div id="shotAngleReadout" class="text-[11px] font-bold text-cyan-300">
-          360° Ready
+        <div class="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden my-1">
+          <div id="swingPowerFill" class="h-full bg-[#00FF88] transition-all duration-75" style="width: 0%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] font-bold text-slate-400">
+          <span id="footworkBadge" class="text-cyan-300">DEFAULT FOOT</span>
+          <span id="shotAngleReadout">360° READY</span>
         </div>
       </div>
     </div>
 
-    <!-- Bottom-Center Controls (Bottom-Left = Camera PiP, Bottom-Right = 360° Field Radar) -->
+    <!-- Bottom-Center Controls -->
     <div class="w-full max-w-7xl mx-auto flex items-end justify-center gap-2.5 pointer-events-auto">
       <button type="button" id="pauseBtn" class="glass-panel hover:bg-slate-800/90 active:scale-95 px-4 py-2 rounded-xl font-arcade text-xs sm:text-sm font-bold text-white border border-cyan-400/50 transition cursor-pointer">
         ⏸ PAUSE
@@ -336,7 +341,7 @@
   <div id="pauseOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
     <div class="glass-panel max-w-md w-full rounded-3xl p-8 text-center border-2 border-cyan-400/60 animate-pop">
       <h2 class="font-arcade text-4xl font-bold text-white mb-2">DRINKS BREAK</h2>
-      <p class="text-slate-300 mb-6">Hold your bat in front of the camera before resuming.</p>
+      <p class="text-slate-300 mb-6">Stand in frame holding your bat before resuming.</p>
       <div class="flex flex-col gap-3">
         <button type="button" id="resumeWorkoutBtn" class="w-full py-4 rounded-2xl bg-[#00FF88] hover:bg-emerald-400 active:scale-95 text-slate-950 font-arcade text-2xl font-bold tracking-wider uppercase transition cursor-pointer">
           ▶ RESUME MATCH
@@ -407,7 +412,7 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- ES MODULE 360° FPP BALL-TRACKING CRICKET ENGINE                       -->
+  <!-- ES MODULE FULL-BODY + BAT BLADE TRACKER & BROADCAST ACTION CAM ENGINE -->
   <!-- ===================================================================== -->
   <script type="module">
     const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -417,7 +422,7 @@
       GOOD_LENGTH: {
         id: "GOOD_LENGTH",
         name: "GOOD LENGTH",
-        cue: "Default, Front-Foot Drive, or Loft!",
+        cue: "Defend, Ground Drive, Flick, or Loft!",
         color: "#00FF88",
         speedMult: 1.0,
         bounceZ: 0.64,
@@ -439,7 +444,7 @@
         name: "SHORT BOUNCER",
         cue: "Back-Foot Pull, Hook, Cut, Upper Cut, or Ramp!",
         color: "#FF3366",
-        speedMult: 1.04,
+        speedMult: 1.02,
         bounceZ: 0.56,
         bouncePeak: 145,
         isWide: false
@@ -449,7 +454,7 @@
         name: "TOE YORKER",
         cue: "Helicopter whip, Dilscoop, or Block!",
         color: "#00D4FF",
-        speedMult: 1.10,
+        speedMult: 1.08,
         bounceZ: 0.89,
         bouncePeak: 42,
         isWide: false
@@ -469,14 +474,14 @@
         name: "WIDE LINE",
         cue: "Leave for +1 Wide — or reach & Cut!",
         color: "#FB923C",
-        speedMult: 0.98,
+        speedMult: 0.96,
         bounceZ: 0.68,
         bouncePeak: 100,
         isWide: true
       }
     };
 
-    // 11 Fielders placed around the 360° ground:
+    // 11 Fielders in 360° stadium coordinates:
     // (0, -1) = Straight down ground (0°), (+1, 0) = Off-side (90°), (0, +1) = Behind Keeper (180°), (-1, 0) = Leg-side (270°)
     const BASE_FIELDERS = [
       { id: "WK",   name: "Wicketkeeper",    x: 0.00,  y: 0.24 },
@@ -492,9 +497,15 @@
       { id: "BWL",  name: "Bowler",          x: -0.05, y: -0.42 }
     ];
 
-    const SKELETON_CONNECTIONS = [
-      [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
-      [11, 23], [12, 24], [23, 24]
+    // Full-Body Skeleton Connections (Head, Torso, Arms, Hips, Knees, Ankles)
+    const FULL_BODY_CONNECTIONS = [
+      [11, 12], // Shoulders
+      [11, 13], [13, 15], // Left Arm
+      [12, 14], [14, 16], // Right Arm
+      [11, 23], [12, 24], // Torso
+      [23, 24], // Hips
+      [23, 25], [25, 27], [27, 31], // Left Leg & Foot
+      [24, 26], [26, 28], [28, 32]  // Right Leg & Foot
     ];
 
     // =========================================================================
@@ -534,6 +545,11 @@
 
       playPitchBounce() {
         this.playTone(150, "triangle", 0.06, 0.14, 0);
+      }
+
+      playKeeperGloveSnap() {
+        this.playTone(180, "sine", 0.08, 0.22, 0);
+        this.playTone(110, "triangle", 0.09, 0.18, 0.02);
       }
 
       playBatCrack(isBoundary = false) {
@@ -594,6 +610,8 @@
     // APPLICATION & MATCH STATE
     // =========================================================================
     const videoEl = document.getElementById("webcamVideo");
+    const procCanvas = document.getElementById("procCanvas");
+    const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -608,18 +626,21 @@
       smoothedLandmarks: null,
       lastVideoTime: -1,
       lastTimestamp: 0,
-      emaAlpha: 0.65,
+      emaAlpha: 0.52,
 
-      // Footwork Stance Detection (DEFAULT | FRONT_FOOT | BACK_FOOT)
-      baselineShoulderSpan: 0.18,
-      footworkStance: "DEFAULT",
-
-      // Hand-Locked Bat State
+      // Full-Body + Bat Optical Blade Tracking State
+      fullBodyDetected: false,
+      batBladeDetected: false,
+      baselineShoulderSpan: 0.16,
+      footworkStance: "DEFAULT", // DEFAULT | FRONT_FOOT | BACK_FOOT
       batterLane: 1,
+      batterVisualLane: 1,
       isCrouchingSweep: false,
       isSwitchHitStance: false,
-      batPos: { x: 0.5, y: 0.65 },
-      prevBatPos: { x: 0.5, y: 0.65 },
+
+      batGrip: { x: 0.5, y: 0.62 },     // Normalized hand grip position (0..1)
+      batTip: { x: 0.5, y: 0.35 },      // Normalized detected bat blade tip (0..1)
+      prevBatTip: { x: 0.5, y: 0.35 },
       batAngleRad: 0,
       batVel: { vx: 0, vy: 0, speed: 0 },
       peakSwingSpeed: 0,
@@ -643,11 +664,18 @@
       ball: null,
       nextDeliveryTimer: 1.2,
 
-      // 360° FPP Camera Pan + World Ball Tracking (Synchronized between 3D FPP View & Radar!)
-      cameraYawRad: 0,          // Current FPP camera horizontal pan angle (0 = facing bowler)
-      targetCameraYawRad: 0,    // Smoothly rotates up to ±180° to track the ball anywhere in 360°!
+      // Broadcast Action-Cam Follow-Through State
+      // Camera modes: "BATTING_FPP" (facing bowler) | "ACTION_FOLLOW" (elevated broadcast cam showing batsman, stumps, ball & chasing fielders!)
+      cameraMode: "BATTING_FPP",
+      cameraPanX: 0,
+      cameraPanY: 0,
+      cameraZoom: 1.0,
+      stumpsShattered: false,
+      stumpFlyTimer: 0,
+      keeperCatchAnim: 0,
+
       fielders: BASE_FIELDERS.map(f => ({ ...f, curX: f.x, curY: f.y })),
-      trackedShotBall: null,    // { active, x, y, zHeight, vx, vy, vz, loft, shotName, angleDeg, path: [], resolved, timer, fielderName }
+      actionBall: null, // Full 3D follow-through ball state for hits, keeper takes, and bowled deliveries!
 
       // FX
       particles: [],
@@ -664,7 +692,7 @@
     const summaryOverlay = document.getElementById("summaryOverlay");
 
     // =========================================================================
-    // HAND-LOCKED BAT + FOOTWORK STANCE + CONTINUOUS 360° SHOT CLASSIFIER
+    // FULL-BODY + OPTICAL BAT BLADE TRACKING ENGINE
     // =========================================================================
     function smoothLandmarks(newLandmarks) {
       if (!newLandmarks || newLandmarks.length === 0) return state.smoothedLandmarks;
@@ -688,9 +716,68 @@
       return state.smoothedLandmarks;
     }
 
-    function updateBatTracking(landmarks, dt) {
-      if (!landmarks || landmarks.length < 25 || dt <= 0) return;
+    /**
+     * Scans camera pixels extending out from the player's hands to detect the physical
+     * cricket bat blade angle and tip position, augmenting MediaPipe wrist/elbow tracking.
+     */
+    function detectPhysicalBatBlade(gripNormX, gripNormY, defaultAngleRad) {
+      if (videoEl.readyState < 2) {
+        return { detected: false, angleRad: defaultAngleRad };
+      }
 
+      const pw = procCanvas.width;
+      const ph = procCanvas.height;
+      procCtx.save();
+      procCtx.translate(pw, 0);
+      procCtx.scale(-1, 1);
+      procCtx.drawImage(videoEl, 0, 0, pw, ph);
+      procCtx.restore();
+
+      const img = procCtx.getImageData(0, 0, pw, ph).data;
+      const gx = Math.round(gripNormX * pw);
+      const gy = Math.round(gripNormY * ph);
+
+      // Sample candidate angles around the forearm extension (-115° to +115°)
+      let bestScore = 0;
+      let bestAngle = defaultAngleRad;
+      const searchMin = defaultAngleRad - 0.85;
+      const searchMax = defaultAngleRad + 0.85;
+
+      for (let ang = searchMin; ang <= searchMax; ang += 0.12) {
+        let edgeEnergy = 0;
+        for (let r = 8; r <= 34; r += 4) {
+          const sx = Math.round(gx + Math.sin(ang) * r);
+          const sy = Math.round(gy - Math.cos(ang) * r);
+          if (sx < 2 || sx >= pw - 2 || sy < 2 || sy >= ph - 2) continue;
+
+          const idxCenter = (sy * pw + sx) * 4;
+          const idxLeft = (sy * pw + (sx - 2)) * 4;
+          const idxRight = (sy * pw + (sx + 2)) * 4;
+
+          const lumC = img[idxCenter] + img[idxCenter + 1] + img[idxCenter + 2];
+          const lumL = img[idxLeft] + img[idxLeft + 1] + img[idxLeft + 2];
+          const lumR = img[idxRight] + img[idxRight + 1] + img[idxRight + 2];
+
+          // Contrast edge between bat blade and background
+          edgeEnergy += Math.abs(lumC - lumL) + Math.abs(lumC - lumR);
+        }
+        if (edgeEnergy > bestScore) {
+          bestScore = edgeEnergy;
+          bestAngle = ang;
+        }
+      }
+
+      const detected = bestScore > 420;
+      return {
+        detected,
+        angleRad: detected ? (defaultAngleRad * 0.45 + bestAngle * 0.55) : defaultAngleRad
+      };
+    }
+
+    function updateFullBodyAndBatTracking(landmarks, dt) {
+      if (!landmarks || landmarks.length < 29 || dt <= 0) return;
+
+      const nose = landmarks[0];
       const lShoulder = landmarks[11];
       const rShoulder = landmarks[12];
       const lElbow = landmarks[13];
@@ -699,43 +786,30 @@
       const rWrist = landmarks[16];
       const lHip = landmarks[23];
       const rHip = landmarks[24];
+      const lKnee = landmarks[25];
+      const rKnee = landmarks[26];
+      const lAnkle = landmarks[27];
+      const rAnkle = landmarks[28];
 
-      const shouldersOk = lShoulder.visibility > 0.45 && rShoulder.visibility > 0.45;
-      const wristsOk = lWrist.visibility > 0.4 || rWrist.visibility > 0.4;
+      // Full-body detection check (Head, Shoulders, Wrists, Hips, Knees, Ankles)
+      const visOk = (arr) => arr.every(lm => lm && lm.visibility > 0.45);
+      const upperOk = visOk([nose, lShoulder, rShoulder, lWrist, rWrist]);
+      const lowerOk = visOk([lHip, rHip, lKnee, rKnee]);
+      state.fullBodyDetected = upperOk && lowerOk;
 
-      // Detect Front-Foot vs Back-Foot vs Default Stance via shoulder span & posture depth
-      if (shouldersOk) {
+      // Footwork Stance Detection (Default vs Front-Foot vs Back-Foot)
+      if (lShoulder.visibility > 0.45 && rShoulder.visibility > 0.45) {
         const currentSpan = Math.hypot(lShoulder.x - rShoulder.x, lShoulder.y - rShoulder.y);
-        if (state.screen === "CALIBRATION" || (!state.ball && !state.trackedShotBall)) {
-          state.baselineShoulderSpan = state.baselineShoulderSpan * 0.95 + currentSpan * 0.05;
+        if (state.screen === "CALIBRATION" || (!state.ball && !state.actionBall)) {
+          state.baselineShoulderSpan = state.baselineShoulderSpan * 0.96 + currentSpan * 0.04;
         }
         const ratio = currentSpan / Math.max(0.05, state.baselineShoulderSpan);
-        if (ratio > 1.09) {
+        if (ratio > 1.07) {
           state.footworkStance = "FRONT_FOOT";
-        } else if (ratio < 0.91) {
+        } else if (ratio < 0.93) {
           state.footworkStance = "BACK_FOOT";
         } else {
           state.footworkStance = "DEFAULT";
-        }
-      }
-
-      if (state.screen === "CALIBRATION") {
-        const setBadge = (id, ok) => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          el.className = ok
-            ? "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500/25 text-[#00FF88] border border-[#00FF88] transition-colors"
-            : "px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors";
-        };
-        setBadge("badgeWrists", wristsOk);
-        setBadge("badgeShoulders", shouldersOk);
-
-        const pill = document.getElementById("calibrationPromptPill");
-        const txt = document.getElementById("calibrationPromptText");
-        if (wristsOk) {
-          pill.className = "glass-panel rounded-full px-6 py-2.5 border-2 neon-border-green transition-all duration-300";
-          txt.className = "font-arcade text-base sm:text-xl font-bold tracking-wide neon-text-green";
-          txt.textContent = "BAT LOCKED TO HANDS — SWING IN ANY 360° DIRECTION!";
         }
       }
 
@@ -748,48 +822,60 @@
       if (mirroredX < 0.39) state.batterLane = 0;
       else if (mirroredX > 0.61) state.batterLane = 2;
       else state.batterLane = 1;
+      state.batterVisualLane += (state.batterLane - state.batterVisualLane) * Math.min(1, dt * 14);
 
       const shoulderY = (lShoulder.y + rShoulder.y) * 0.5;
       state.isCrouchingSweep = shoulderY > 0.52;
       state.isSwitchHitStance = (state.battingHand === "RIGHT" && lWrist.x < rWrist.x - 0.06) ||
                                 (state.battingHand === "LEFT" && rWrist.x < lWrist.x - 0.06);
 
-      // Exact Hand-Anchored Bat Position
+      // Hand Grip Coordinates (Mirrored X)
       const wL = Math.max(0.05, lWrist.visibility || 0);
       const wR = Math.max(0.05, rWrist.visibility || 0);
       const wSum = wL + wR;
 
-      const handX = 1 - ((lWrist.x * wL + rWrist.x * wR) / wSum);
-      const handY = (lWrist.y * wL + rWrist.y * wR) / wSum;
+      const gripX = 1 - ((lWrist.x * wL + rWrist.x * wR) / wSum);
+      const gripY = (lWrist.y * wL + rWrist.y * wR) / wSum;
 
+      // Forearm + Physical Bat Blade Angle
       const domElbow = wR >= wL ? rElbow : lElbow;
       const domWrist = wR >= wL ? rWrist : lWrist;
       const forearmDx = (1 - domWrist.x) - (1 - domElbow.x);
       const forearmDy = domWrist.y - domElbow.y;
-      const targetAngle = Math.atan2(forearmDx, -forearmDy) * 0.9;
-      state.batAngleRad += (targetAngle - state.batAngleRad) * Math.min(1, dt * 20);
+      const rawArmAngle = Math.atan2(forearmDx, -forearmDy);
 
-      state.prevBatPos = { ...state.batPos };
-      state.batPos = { x: handX, y: handY };
+      const bladeScan = detectPhysicalBatBlade(gripX, gripY, rawArmAngle);
+      state.batBladeDetected = bladeScan.detected;
+      state.batAngleRad += (bladeScan.angleRad - state.batAngleRad) * Math.min(1, dt * 20);
 
-      const vx = (state.batPos.x - state.prevBatPos.x) / dt;
-      const vy = (state.batPos.y - state.prevBatPos.y) / dt;
-      const instSpeed = Math.hypot(vx, vy);
+      // Compute Bat Tip Coordinates (Bat tip moves 1.8x faster than wrists during a swing!)
+      const batLenNorm = 0.24;
+      const tipX = gripX + Math.sin(state.batAngleRad) * batLenNorm;
+      const tipY = gripY - Math.cos(state.batAngleRad) * batLenNorm;
+
+      state.prevBatTip = { ...state.batTip };
+      state.batGrip = { x: gripX, y: gripY };
+      state.batTip = { x: tipX, y: tipY };
+
+      // Measure Bat Tip Velocity (Captures wrist snap, flicks, drives, and blocks accurately!)
+      const vx = (state.batTip.x - state.prevBatTip.x) / dt;
+      const vy = (state.batTip.y - state.prevBatTip.y) / dt;
+      const instTipSpeed = Math.hypot(vx, vy);
 
       state.batVel = {
         vx,
         vy,
-        speed: state.batVel.speed * 0.22 + instSpeed * 0.78
+        speed: state.batVel.speed * 0.25 + instTipSpeed * 0.75
       };
 
-      // Latch Peak Swing for 220ms
-      if (state.batVel.speed > 0.78) {
+      // Latch Peak Swing for 260ms so every swing connects reliably
+      if (state.batVel.speed > 0.55) {
         if (state.batVel.speed >= state.peakSwingSpeed || state.swingBufferTimer <= 0) {
           state.peakSwingSpeed = state.batVel.speed;
           state.peakSwingVx = vx;
           state.peakSwingVy = vy;
         }
-        state.swingBufferTimer = 0.22;
+        state.swingBufferTimer = 0.26;
       } else if (state.swingBufferTimer > 0) {
         state.swingBufferTimer = Math.max(0, state.swingBufferTimer - dt);
         if (state.swingBufferTimer === 0) state.peakSwingSpeed = 0;
@@ -799,226 +885,316 @@
         state.swingCooldown = Math.max(0, state.swingCooldown - dt);
       }
 
-      if (state.screen === "PLAYING" && state.batVel.speed > 1.5 && state.swingCooldown <= 0 && !state.ball) {
+      if (state.screen === "PLAYING" && state.batVel.speed > 1.8 && state.swingCooldown <= 0 && !state.ball) {
         state.swingCooldown = 0.35;
         sound.playWhoosh();
       }
 
-      // Update Footwork Stance Badge
-      const fwEl = document.getElementById("footworkBadge");
-      if (fwEl) {
-        if (state.footworkStance === "FRONT_FOOT") {
-          fwEl.textContent = "FRONT-FOOT STRIDE";
-          fwEl.className = "font-arcade text-base sm:text-lg font-bold neon-text-cyan";
-        } else if (state.footworkStance === "BACK_FOOT") {
-          fwEl.textContent = "BACK-FOOT PIVOT";
-          fwEl.className = "font-arcade text-base sm:text-lg font-bold neon-text-gold";
-        } else {
-          fwEl.textContent = "DEFAULT STANCE";
-          fwEl.className = "font-arcade text-base sm:text-lg font-bold neon-text-green";
+      // Update Calibration Badges
+      if (state.screen === "CALIBRATION") {
+        const setBadge = (id, ok) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.className = ok
+            ? "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500/25 text-[#00FF88] border border-[#00FF88] transition-colors"
+            : "px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-800/90 text-slate-400 border border-slate-700 transition-colors";
+        };
+        setBadge("badgeFullBody", state.fullBodyDetected);
+        setBadge("badgeBatBlade", state.batBladeDetected || upperOk);
+
+        const pill = document.getElementById("calibrationPromptPill");
+        const txt = document.getElementById("calibrationPromptText");
+        if (upperOk) {
+          pill.className = "glass-panel rounded-full px-6 py-2.5 border-2 neon-border-green transition-all duration-300";
+          txt.className = "font-arcade text-base sm:text-xl font-bold tracking-wide neon-text-green";
+          txt.textContent = "FULL BODY & BAT LOCKED — SWING TO TEST POWER & DIRECTION!";
         }
+      }
+
+      // Update Live Swing Power & Classification HUD Meter
+      const activePower = Math.max(state.batVel.speed, state.peakSwingSpeed);
+      const powerPct = Math.min(100, Math.round((activePower / 2.8) * 100));
+      const fillEl = document.getElementById("swingPowerFill");
+      const tierEl = document.getElementById("swingTierLabel");
+      const fwEl = document.getElementById("footworkBadge");
+
+      if (fillEl && tierEl) {
+        fillEl.style.width = `${powerPct}%`;
+        if (activePower < 0.55) {
+          tierEl.textContent = "GUARD / LEAVE";
+          tierEl.className = "font-arcade text-xs font-bold text-slate-400";
+          fillEl.style.backgroundColor = "#64748B";
+        } else if (activePower < 1.25) {
+          tierEl.textContent = "DEFENSIVE BLOCK";
+          tierEl.className = "font-arcade text-xs font-bold text-cyan-300";
+          fillEl.style.backgroundColor = "#00D4FF";
+        } else if (activePower < 2.05) {
+          tierEl.textContent = "GROUND / FLICK SHOT";
+          tierEl.className = "font-arcade text-xs font-bold text-[#00FF88]";
+          fillEl.style.backgroundColor = "#00FF88";
+        } else {
+          tierEl.textContent = "LOFTED POWER HIT!";
+          tierEl.className = "font-arcade text-xs font-bold text-amber-300";
+          fillEl.style.backgroundColor = "#FFD60A";
+        }
+      }
+
+      if (fwEl) {
+        fwEl.textContent = state.footworkStance === "FRONT_FOOT"
+          ? "FRONT-FOOT"
+          : state.footworkStance === "BACK_FOOT"
+            ? "BACK-FOOT"
+            : "DEFAULT FOOT";
       }
     }
 
     /**
-     * Continuous 360° Shot Engine:
-     * Computes exact continuous 360-degree ground angle from your swing vector + bat face tilt
-     * AND maps it to Default, Front-Foot, Back-Foot, Sweep, or Unorthodox shot names!
+     * Classifies swing power + 360° swing direction + footwork stance into:
+     * - Defensive Shots (Forward Defense, Back-Foot Defense)
+     * - Grounded Attacking & Flick Shots (Straight Drive, Cover Drive, Off Drive, On Drive, Square Drive, Flick/Leg Glance, Square Cut, Late Cut, Back-Foot Punch, Pull)
+     * - Lofted Attacking & Unorthodox Shots (Lofted Drive, Slog, Slog Sweep, Helicopter, Dilscoop, Ramp, Upper Cut, Hook, Switch Hit, Inside-Out)
      */
-    function computeContinuous360Shot(deliveryType, swingVx, swingVy, swingSpeed, ballLane) {
+    function classifyShotAndTrajectory(deliveryType, swingVx, swingVy, swingSpeed) {
       const isRightHand = state.battingHand === "RIGHT";
-      // Combine horizontal swing velocity with bat tilt & hand position offset so every angle from 0° to 360° is reachable!
-      const handOffsetBias = (state.batPos.x - 0.5) * 1.4;
-      const rawWorldVx = swingVx * 0.72 + Math.sin(state.batAngleRad) * 0.85 + handOffsetBias;
+      const handOffsetBias = (state.batTip.x - 0.5) * 1.4;
+      const rawWorldVx = swingVx * 0.75 + Math.sin(state.batAngleRad) * 0.90 + handOffsetBias;
 
-      // Forward vs Backward ground component:
-      // Swinging upward/through = down the ground (-Y on radar); late cut / scoop / hook = behind square (+Y on radar)
-      const isLateOrBehind =
-        (swingVy < -0.95 && Math.abs(rawWorldVx) < 0.65) || // Scoop / Dilscoop / Ramp straight behind keeper
-        (swingVy > 0.55 && Math.abs(rawWorldVx) > 0.45);    // Late cut / Fine leg glance behind square
+      const isBehindSquare =
+        (swingVy < -1.15 && Math.abs(rawWorldVx) < 0.65) || // Dilscoop / Ramp behind keeper
+        (swingVy > 0.65 && Math.abs(rawWorldVx) > 0.45);    // Late Cut / Fine Leg glance
 
-      const rawWorldVy = isLateOrBehind
+      const rawWorldVy = isBehindSquare
         ? Math.max(0.35, Math.abs(swingVy) * 0.85)
-        : -Math.max(0.25, 1.15 - Math.abs(rawWorldVx) * 0.42);
+        : -Math.max(0.28, 1.25 - Math.abs(rawWorldVx) * 0.42);
 
-      // Normalize continuous 360° unit vector (radX, radY)
       const mag = Math.max(0.01, Math.hypot(rawWorldVx, rawWorldVy));
       const radX = rawWorldVx / mag;
       const radY = rawWorldVy / mag;
 
-      // Compute continuous 360° angle in degrees:
-      // 0° = Straight down ground, 90° = Off-side (Point/Cover), 180° = Behind Keeper, 270° = Leg-side (Square Leg)
-      const signedRad = Math.atan2(radX, -radY); // -PI .. +PI
+      const signedRad = Math.atan2(radX, -radY);
       const angleDeg = Math.round(((signedRad * 180) / Math.PI + 360) % 360);
-
-      // Off-side vs Leg-side relative to batting hand
       const offSideDeg = isRightHand ? angleDeg : (360 - angleDeg) % 360;
 
-      const isAerial = swingVy < -0.45 && swingSpeed > 1.22;
-      const isDefensive = swingSpeed < 1.05;
+      // 3 Clear Power Tiers:
+      // 1. Defensive Block (0.55 .. 1.25)
+      // 2. Grounded Attacking / Flick (1.25 .. 2.05 OR downward follow-through)
+      // 3. Lofted Power Shot (>= 2.05 AND upward follow-through vy < -0.35)
+      const isDefensive = swingSpeed < 1.25;
+      const isLofted = !isDefensive && swingSpeed >= 2.05 && swingVy < -0.35;
       const stance = state.footworkStance;
 
-      let shotName = "DEFAULT STRAIGHT SHOT";
+      let shotName = "STRAIGHT DRIVE";
+      let category = isDefensive ? "DEFENSIVE" : isLofted ? "LOFTED" : "GROUNDED";
 
-      if (state.isSwitchHitStance && swingSpeed >= 1.1) {
+      if (state.isSwitchHitStance && !isDefensive) {
         shotName = "SWITCH HIT";
       } else if (isDefensive) {
         shotName = stance === "BACK_FOOT" ? "BACK-FOOT DEFENSE" : "FORWARD DEFENSE";
       } else if (offSideDeg >= 155 && offSideDeg <= 205) {
         shotName = deliveryType === "SHORT_BALL" ? "RAMP SHOT" : "SCOOP / DILSCOOP";
       } else if (state.isCrouchingSweep || deliveryType === "FLIGHTED_SPIN") {
-        if (offSideDeg > 20 && offSideDeg < 155) {
-          shotName = "REVERSE SWEEP";
-        } else if (isAerial && swingSpeed > 1.5) {
-          shotName = "SLOG SWEEP";
-        } else if (offSideDeg >= 205 && offSideDeg <= 245) {
-          shotName = "PADDLE SWEEP";
-        } else {
-          shotName = "ORTHODOX SWEEP";
-        }
-      } else if ((deliveryType === "YORKER" || deliveryType === "FULL_TOSS") && swingSpeed > 1.65 && offSideDeg >= 240) {
+        if (offSideDeg > 20 && offSideDeg < 155) shotName = "REVERSE SWEEP";
+        else if (isLofted) shotName = "SLOG SWEEP";
+        else if (offSideDeg >= 205 && offSideDeg <= 245) shotName = "PADDLE SWEEP";
+        else shotName = "ORTHODOX SWEEP";
+      } else if ((deliveryType === "YORKER" || deliveryType === "FULL_TOSS") && isLofted && offSideDeg >= 240) {
         shotName = "HELICOPTER SHOT";
       } else if (offSideDeg <= 18 || offSideDeg >= 342) {
-        // Straight down the ground (0° ± 18°)
-        if (stance === "BACK_FOOT" || deliveryType === "SHORT_BALL") {
-          shotName = "BACK-FOOT PUNCH";
-        } else if (isAerial) {
-          shotName = "LOFTED DRIVE";
-        } else {
-          shotName = stance === "FRONT_FOOT" ? "FRONT-FOOT STRAIGHT DRIVE" : "STRAIGHT DRIVE";
-        }
+        if (stance === "BACK_FOOT" || deliveryType === "SHORT_BALL") shotName = "BACK-FOOT PUNCH";
+        else if (isLofted) shotName = "LOFTED STRAIGHT DRIVE";
+        else shotName = stance === "FRONT_FOOT" ? "FRONT-FOOT STRAIGHT DRIVE" : "STRAIGHT DRIVE";
       } else if (offSideDeg > 18 && offSideDeg < 155) {
-        // Off-Side 360° Arc (19° to 154°)
         if (stance === "BACK_FOOT" || deliveryType === "SHORT_BALL" || deliveryType === "WIDE_DELIVERY") {
           if (offSideDeg >= 115) shotName = "LATE CUT";
-          else if (isAerial) shotName = "UPPER CUT";
+          else if (isLofted) shotName = "UPPER CUT";
           else if (offSideDeg >= 72) shotName = "SQUARE CUT";
           else shotName = "BACK-FOOT OFF PUNCH";
         } else {
-          if (state.batterLane === 2 && isAerial) shotName = "INSIDE-OUT SHOT";
+          if (state.batterLane === 2 && isLofted) shotName = "INSIDE-OUT LOFT";
           else if (offSideDeg >= 78) shotName = "SQUARE DRIVE";
           else if (offSideDeg >= 38) shotName = "COVER DRIVE";
           else shotName = "OFF DRIVE";
         }
       } else {
-        // Leg-Side 360° Arc (206° to 341°)
         if (stance === "BACK_FOOT" || deliveryType === "SHORT_BALL") {
-          if (offSideDeg <= 245) shotName = "HOOK SHOT";
-          else shotName = "PULL SHOT";
+          shotName = offSideDeg <= 245 ? "HOOK SHOT" : "PULL SHOT";
         } else {
-          if (swingSpeed > 1.72 && isAerial) shotName = "SLOG";
+          if (isLofted) shotName = "SLOG";
           else if (offSideDeg <= 265) shotName = "FLICK / LEG GLANCE";
           else shotName = "ON DRIVE";
         }
       }
 
-      const loft = isDefensive ? 0.05 : isAerial ? Math.min(0.98, 0.72 + (swingSpeed - 1.2) * 0.25) : 0.16;
-      const power = isDefensive ? 0.36 : Math.min(1.65, swingSpeed * (stance === "FRONT_FOOT" ? 1.12 : 1.05));
+      const loft = isDefensive ? 0.04 : isLofted ? Math.min(0.98, 0.76 + (swingSpeed - 2.0) * 0.2) : 0.14;
+      const ballSpeed = isDefensive
+        ? 0.24
+        : isLofted
+          ? Math.min(1.58, 1.12 + (swingSpeed - 2.0) * 0.35)
+          : Math.min(1.38, 0.72 + (swingSpeed - 1.25) * 0.65);
 
       return {
         name: shotName,
+        category,
         radX,
         radY,
-        signedRad,
         angleDeg,
         loft,
-        power
+        ballSpeed
       };
     }
 
     // =========================================================================
-    // SYNCHRONIZED 360° FPP CAMERA + OUTFIELD BALL-TRACKING ENGINE
+    // BROADCAST ACTION-CAM FOLLOW-THROUGH (HITS, KEEPER TAKES, & BOWLED!)
     // =========================================================================
     function resetFielders() {
       state.fielders = BASE_FIELDERS.map(f => ({ ...f, curX: f.x, curY: f.y }));
     }
 
-    function launchTrackedShot(shot) {
+    /**
+     * Transitions the stadium into Broadcast Action-Cam mode so the player sees:
+     * - Their batsman at the crease & the 3 stumps
+     * - The ball flying/rolling across the entire 360° stadium
+     * - All 11 fielders running behind/toward the ball to field, catch, or throw back!
+     */
+    function startShotFollowThrough(shot) {
       resetFielders();
-      const baseSpeed = Math.min(1.52, Math.max(0.30, shot.power * 0.72));
+      state.cameraMode = "ACTION_FOLLOW";
+      document.getElementById("shotAngleReadout").textContent = `${shot.angleDeg}° • ${shot.category}`;
 
-      // Rotate the FPP stadium camera smoothly to face the exact 360° angle of the shot!
-      state.targetCameraYawRad = shot.signedRad;
-
-      document.getElementById("shotAngleReadout").textContent = `${shot.angleDeg}° • ${shot.name}`;
-
-      state.trackedShotBall = {
-        active: true,
+      state.actionBall = {
+        outcomeType: "HIT",
         x: 0,
-        y: 0.12,            // Crease origin
-        zHeight: 0.12,      // Vertical height above turf (0..1)
+        y: 0.14,          // Crease position in 360° stadium coordinates
+        zHeight: 0.08,
         vz: shot.loft * 1.35,
-        vx: shot.radX * baseSpeed,
-        vy: shot.radY * baseSpeed,
+        vx: shot.radX * shot.ballSpeed,
+        vy: shot.radY * shot.ballSpeed,
         loft: shot.loft,
         shotName: shot.name,
+        category: shot.category,
         angleDeg: shot.angleDeg,
-        path: [{ x: 0, y: 0.12 }],
+        path: [{ x: 0, y: 0.14 }],
         resolved: false,
-        displayTimer: 2.3
+        postTimer: 2.2,
+        throwBackProgress: 0,
+        fielder: null
       };
     }
 
-    function updateTrackedShotAndCamera(dt) {
-      // Smoothly pan the 360° FPP camera toward targetCameraYawRad
-      let angleDiff = state.targetCameraYawRad - state.cameraYawRad;
-      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-      state.cameraYawRad += angleDiff * Math.min(1, dt * 6.5);
+    /**
+     * Transitions the stadium into Close-Up Crease Follow-Through when the ball passes
+     * the batsman—showing the batsman, stumps shattering (Bowled), or Wicketkeeper gathering!
+     */
+    function startMissedBallFollowThrough(isWide, isBowled) {
+      state.cameraMode = "ACTION_FOLLOW";
+      state.stumpsShattered = isBowled;
+      state.stumpFlyTimer = isBowled ? 1.5 : 0;
+      state.keeperCatchAnim = !isBowled ? 1.0 : 0;
 
-      const sb = state.trackedShotBall;
-      if (!sb) return;
+      if (isBowled) {
+        sound.playWicketShatter();
+        triggerFlash("#FF3366", 0.48);
+        state.screenShakeTime = 0.45;
+        spawnParticles("#FFD60A", 45);
+        recordBallResult("W", 0, true, "BOWLED HIM! WICKET!", "Ball crashes past the bat into the stumps!", "#FF3366");
+        commentator.say("Bowled him! Stumps shattered!", true);
+      } else if (isWide) {
+        sound.playKeeperGloveSnap();
+        recordBallResult("WD", 1, false, "WIDE BALL (+1 RUN)", "Gathered wide by the Wicketkeeper behind the stumps", "#FB923C", true);
+        commentator.say("Wide ball! Collected by the keeper.", true);
+      } else {
+        sound.playKeeperGloveSnap();
+        recordBallResult("•", 0, false, "LEFT / TAKEN BY KEEPER", "Passes the bat cleanly into the keeper's gloves", "#94A3B8");
+      }
 
-      if (sb.resolved) {
-        sb.displayTimer -= dt;
-        if (sb.displayTimer <= 0) {
-          state.trackedShotBall = null;
-          state.targetCameraYawRad = 0; // Return FPP view back to bowler for next ball!
+      state.actionBall = {
+        outcomeType: isBowled ? "BOWLED" : "KEEPER",
+        x: isWide ? 0.16 : 0.04,
+        y: 0.26, // Behind the stumps in keeper's gloves
+        zHeight: 0.06,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        path: [{ x: 0, y: 0.14 }, { x: isWide ? 0.16 : 0.04, y: 0.26 }],
+        resolved: true,
+        postTimer: 1.8
+      };
+    }
+
+    function updateActionFollowThrough(dt) {
+      const ab = state.actionBall;
+      if (!ab) {
+        // Smoothly return camera to First-Person Batting View
+        state.cameraPanX += (0 - state.cameraPanX) * Math.min(1, dt * 6);
+        state.cameraPanY += (0 - state.cameraPanY) * Math.min(1, dt * 6);
+        state.cameraZoom += (1.0 - state.cameraZoom) * Math.min(1, dt * 6);
+        return;
+      }
+
+      if (state.stumpFlyTimer > 0) {
+        state.stumpFlyTimer = Math.max(0, state.stumpFlyTimer - dt);
+      }
+
+      if (ab.resolved) {
+        ab.postTimer -= dt;
+        // If a fielder fielded the ball, animate their return throw back toward the keeper/stumps!
+        if (ab.fielder && ab.throwBackProgress < 1) {
+          ab.throwBackProgress = Math.min(1, ab.throwBackProgress + dt * 1.8);
+          ab.x = ab.fielder.curX * (1 - ab.throwBackProgress);
+          ab.y = ab.fielder.curY * (1 - ab.throwBackProgress) + 0.22 * ab.throwBackProgress;
+        }
+        if (ab.postTimer <= 0) {
+          state.actionBall = null;
+          state.cameraMode = "BATTING_FPP";
+          state.stumpsShattered = false;
           resetFielders();
         }
         return;
       }
 
-      // Advance ball in 3D stadium coordinates (x, y ground plane + zHeight vertical arc)
-      sb.x += sb.vx * dt;
-      sb.y += sb.vy * dt;
-      sb.path.push({ x: sb.x, y: sb.y });
+      // Advance Hit Ball across 360° Stadium Ground
+      ab.x += ab.vx * dt;
+      ab.y += ab.vy * dt;
+      ab.path.push({ x: ab.x, y: ab.y });
 
-      // Vertical bounce physics
-      if (sb.zHeight > 0 || sb.vz > 0) {
-        sb.zHeight += sb.vz * dt;
-        sb.vz -= 2.1 * dt; // Gravity
-        if (sb.zHeight <= 0) {
-          sb.zHeight = 0;
-          sb.vz = sb.vz < -0.25 ? -sb.vz * 0.45 : 0; // Turf bounce
+      // Bounce physics on outfield turf
+      if (ab.zHeight > 0 || ab.vz > 0) {
+        ab.zHeight += ab.vz * dt;
+        ab.vz -= 2.1 * dt;
+        if (ab.zHeight <= 0) {
+          ab.zHeight = 0;
+          ab.vz = ab.vz < -0.22 ? -ab.vz * 0.42 : 0;
         }
       }
 
-      // Ground rolling drag when touching turf
-      const drag = sb.zHeight > 0.02 ? 0.994 : 0.972;
-      sb.vx *= Math.pow(drag, dt * 60);
-      sb.vy *= Math.pow(drag, dt * 60);
+      // Turf rolling friction for grounded shots
+      const drag = ab.zHeight > 0.02 ? 0.994 : 0.974;
+      ab.vx *= Math.pow(drag, dt * 60);
+      ab.vy *= Math.pow(drag, dt * 60);
 
-      const distFromCenter = Math.hypot(sb.x, sb.y);
-      const ballSpeed = Math.hypot(sb.vx, sb.vy);
+      const distFromCenter = Math.hypot(ab.x, ab.y);
+      const ballSpeed = Math.hypot(ab.vx, ab.vy);
 
-      // Update FPP camera yaw continuously as ball curves/travels
-      state.targetCameraYawRad = Math.atan2(sb.x, -sb.y);
-
-      // All 11 fielders sprint toward the live ball coordinates
+      // All 11 Fielders sprint dynamically behind & toward the ball's path!
       let closestDist = Infinity;
       let closestFielder = null;
 
       for (const f of state.fielders) {
-        const dx = sb.x - f.curX;
-        const dy = sb.y - f.curY;
+        // Aim slightly ahead of the ball's movement vector for realistic pursuit angle
+        const targetX = ab.x + ab.vx * 0.22;
+        const targetY = ab.y + ab.vy * 0.22;
+        const dx = targetX - f.curX;
+        const dy = targetY - f.curY;
         const d = Math.hypot(dx, dy);
-        if (d < closestDist) {
-          closestDist = d;
+
+        const actualDistToBall = Math.hypot(ab.x - f.curX, ab.y - f.curY);
+        if (actualDistToBall < closestDist) {
+          closestDist = actualDistToBall;
           closestFielder = f;
         }
+
         if (d > 0.01) {
-          const chaseSpeed = 0.56;
+          const chaseSpeed = 0.58;
           f.curX += (dx / d) * chaseSpeed * dt;
           f.curY += (dy / d) * chaseSpeed * dt;
         }
@@ -1026,48 +1202,51 @@
 
       // 1. Boundary Rope Reached (dist >= 1.0)
       if (distFromCenter >= 1.0) {
-        sb.resolved = true;
-        if (sb.loft >= 0.74 && ballSpeed > 0.42) {
+        ab.resolved = true;
+        if (ab.loft >= 0.72 && ballSpeed > 0.40) {
           sound.playBatCrack(true);
           triggerFlash("#00FF88", 0.32);
           spawnParticles("#FFD60A", 55);
-          recordBallResult("6", 6, false, `SIX! ${sb.shotName} (${sb.angleDeg}°)`, "Sails clean over the boundary rope!", "#00FF88");
-          commentator.say(`Massive six! ${sb.shotName} over the rope!`, true);
+          recordBallResult("6", 6, false, `SIX! ${ab.shotName} (${ab.angleDeg}°)`, "Sails clean over the boundary rope!", "#00FF88");
+          commentator.say(`Massive six! ${ab.shotName} over the rope!`, true);
         } else {
           sound.playBatCrack(true);
           triggerFlash("#00D4FF", 0.25);
           spawnParticles("#00D4FF", 38);
-          recordBallResult("4", 4, false, `FOUR! ${sb.shotName} (${sb.angleDeg}°)`, "Bullets past the fielder to the boundary!", "#00D4FF");
-          commentator.say(`Four runs! ${sb.shotName} to the boundary!`, true);
+          recordBallResult("4", 4, false, `FOUR! ${ab.shotName} (${ab.angleDeg}°)`, "Grounded bullet beats the chasing fielder to the rope!", "#00D4FF");
+          commentator.say(`Four runs! ${ab.shotName} to the boundary!`, true);
         }
         return;
       }
 
-      // 2. Fielder Catch or Ground Stop (closestDist < 0.085)
+      // 2. Fielder Catch or Ground Pickup (closestDist < 0.085)
       if (closestFielder && closestDist < 0.085) {
-        sb.resolved = true;
-        if (sb.loft >= 0.72 && sb.zHeight > 0.08 && distFromCenter > 0.22) {
+        ab.resolved = true;
+        ab.fielder = closestFielder;
+
+        if (ab.loft >= 0.72 && ab.zHeight > 0.07 && distFromCenter > 0.22) {
           sound.playWicketShatter();
           triggerFlash("#FF3366", 0.45);
           state.screenShakeTime = 0.35;
-          recordBallResult("W", 0, true, `CAUGHT BY ${closestFielder.name.toUpperCase()}!`, `${sb.shotName} taken in mid-air!`, "#FF3366");
+          recordBallResult("W", 0, true, `CAUGHT BY ${closestFielder.name.toUpperCase()}!`, `${ab.shotName} taken cleanly in mid-air!`, "#FF3366");
           commentator.say(`Caught out by ${closestFielder.name}!`, true);
         } else {
-          const runs = distFromCenter > 0.74 ? 3 : distFromCenter > 0.46 ? 2 : distFromCenter > 0.24 ? 1 : 0;
+          const runs = distFromCenter > 0.74 ? 3 : distFromCenter > 0.45 ? 2 : distFromCenter > 0.20 ? 1 : 0;
           sound.playBatCrack(false);
-          const title = runs === 0 ? `${sb.shotName} (DOT)` : `${runs} RUN${runs > 1 ? "S" : ""}! ${sb.shotName}`;
-          const sub = `Fielded by ${closestFielder.name} at ${sb.angleDeg}°`;
+          const title = runs === 0 ? `${ab.shotName} (DOT)` : `${runs} RUN${runs > 1 ? "S" : ""}! ${ab.shotName}`;
+          const sub = `Fielded by ${closestFielder.name} — throwing back to keeper`;
           recordBallResult(runs === 0 ? "•" : String(runs), runs, false, title, sub, runs > 0 ? "#FFD60A" : "#94A3B8");
           if (runs > 0) commentator.say(`${runs} run${runs > 1 ? "s" : ""}!`, true);
         }
         return;
       }
 
-      // 3. Ball stops rolling in the outfield gap
+      // 3. Ball slows to a stop in the outfield
       if (ballSpeed < 0.08) {
-        sb.resolved = true;
-        const runs = distFromCenter > 0.72 ? 3 : distFromCenter > 0.45 ? 2 : distFromCenter > 0.22 ? 1 : 0;
-        recordBallResult(runs === 0 ? "•" : String(runs), runs, false, `${runs} RUN${runs > 1 ? "S" : ""}! ${sb.shotName}`, `Placed into the gap at ${sb.angleDeg}°`, runs > 0 ? "#FFD60A" : "#94A3B8");
+        ab.resolved = true;
+        ab.fielder = closestFielder;
+        const runs = distFromCenter > 0.72 ? 3 : distFromCenter > 0.44 ? 2 : distFromCenter > 0.18 ? 1 : 0;
+        recordBallResult(runs === 0 ? "•" : String(runs), runs, false, `${runs} RUN${runs > 1 ? "S" : ""}! ${ab.shotName}`, `Placed into the gap at ${ab.angleDeg}°`, runs > 0 ? "#FFD60A" : "#94A3B8");
       }
     }
 
@@ -1095,7 +1274,7 @@
           videoEl.onloadedmetadata = () => videoEl.play().then(resolve).catch(resolve);
         });
 
-        document.getElementById("loadingStatusText").textContent = "Loading 360° Bat & Footwork Tracker...";
+        document.getElementById("loadingStatusText").textContent = "Loading Full-Body + Bat Optical Engine...";
 
         let visionModule;
         try {
@@ -1174,12 +1353,12 @@
       hideAllOverlays();
       state.currentInnings = inningsNum;
       state.screen = "PLAYING";
+      state.cameraMode = "BATTING_FPP";
       state.bowlerPhase = "IDLE";
       state.bowlerProgress = 0;
       state.ball = null;
-      state.trackedShotBall = null;
-      state.cameraYawRad = 0;
-      state.targetCameraYawRad = 0;
+      state.actionBall = null;
+      state.stumpsShattered = false;
       resetFielders();
       state.nextDeliveryTimer = 1.1;
       state.particles = [];
@@ -1201,9 +1380,9 @@
     }
 
     function startBowlerRunUp() {
+      state.cameraMode = "BATTING_FPP";
       state.bowlerPhase = "RUNUP";
       state.bowlerProgress = 0;
-      state.targetCameraYawRad = 0;
       setDeliveryBanner("BOWLER RUNNING IN...", "Watch the release!", "#00D4FF");
     }
 
@@ -1224,9 +1403,8 @@
         type: chosenKey,
         lane,
         z: 0.0,
-        speed: 0.53 * def.speedMult * progressionMult,
-        bounced: false,
-        hitState: "approaching"
+        speed: 0.50 * def.speedMult * progressionMult,
+        bounced: false
       };
 
       state.bowlerPhase = "FOLLOW_THROUGH";
@@ -1255,7 +1433,7 @@
       if (state.numPlayers === 2 && state.currentInnings === 2 && inn.runs >= state.targetScore) {
         setTimeout(() => {
           if (state.screen === "PLAYING") finishMatch();
-        }, 1500);
+        }, 1600);
         return;
       }
 
@@ -1267,7 +1445,7 @@
           } else {
             finishMatch();
           }
-        }, 1600);
+        }, 1700);
       } else {
         state.nextDeliveryTimer = 1.9;
         state.bowlerPhase = "IDLE";
@@ -1275,10 +1453,10 @@
     }
 
     function updatePlayingState(dt) {
-      updateTrackedShotAndCamera(dt);
+      updateActionFollowThrough(dt);
 
       if (!state.ball) {
-        if (state.bowlerPhase === "IDLE" && (!state.trackedShotBall || state.trackedShotBall.resolved)) {
+        if (state.bowlerPhase === "IDLE" && !state.actionBall) {
           state.nextDeliveryTimer -= dt;
           if (state.nextDeliveryTimer <= 0) {
             startBowlerRunUp();
@@ -1301,45 +1479,35 @@
         sound.playPitchBounce();
       }
 
-      // Check Bat Contact inside Crease Hitting Zone (z: 0.76 .. 0.99)
-      if (b.hitState === "approaching" && b.z >= 0.76 && b.z <= 0.99) {
+      // Generous, Responsive Crease Hitting Window (z: 0.72 .. 1.00)
+      if (b.z >= 0.72 && b.z <= 1.00) {
         const activeSwingSpeed = Math.max(state.batVel.speed, state.peakSwingSpeed);
-        const isSwinging = activeSwingSpeed > 0.72;
-        const canReach = !def.isWide || activeSwingSpeed > 1.12;
+        const isSwinging = activeSwingSpeed >= 0.55; // Triggers Defensive Block, Grounded Shot, Flick, or Loft!
+        const canReach = !def.isWide || activeSwingSpeed >= 0.95;
 
         if (isSwinging && canReach) {
           const swingVx = state.peakSwingSpeed >= state.batVel.speed ? state.peakSwingVx : state.batVel.vx;
           const swingVy = state.peakSwingSpeed >= state.batVel.speed ? state.peakSwingVy : state.batVel.vy;
 
-          const shot = computeContinuous360Shot(b.type, swingVx, swingVy, activeSwingSpeed, b.lane);
+          const shot = classifyShotAndTrajectory(b.type, swingVx, swingVy, activeSwingSpeed);
 
           state.swingBufferTimer = 0;
           state.peakSwingSpeed = 0;
-          state.ball = null; // Hand off ball seamlessly to 3D FPP Outfield Tracking!
+          state.ball = null;
 
           sound.playBatCrack(false);
-          setDeliveryBanner(`${shot.name} (${shot.angleDeg}°)`, "FPP Camera tracking ball flight...", "#00FF88");
-          launchTrackedShot(shot);
+          setDeliveryBanner(`${shot.name} (${shot.angleDeg}°)`, `${shot.category} • Following ball & fielders...`, "#00FF88");
+          startShotFollowThrough(shot);
           return;
         }
       }
 
-      // Ball passes the batter without contact
-      if (b.hitState === "approaching" && b.z >= 1.0) {
-        if (def.isWide) {
-          recordBallResult("WD", 1, false, "WIDE BALL (+1 RUN)", "Left outside the tramline — extra run!", "#FB923C", true);
-          commentator.say("Wide ball! Extra run.", true);
-        } else if (Math.round(b.lane) === 1) {
-          sound.playWicketShatter();
-          triggerFlash("#FF3366", 0.48);
-          state.screenShakeTime = 0.42;
-          spawnParticles("#FF3366", 48);
-          recordBallResult("W", 0, true, "BOWLED HIM! WICKET!", "Middle stump shattered!", "#FF3366");
-          commentator.say("Bowled him! Timber!", true);
-        } else {
-          recordBallResult("•", 0, false, "LEAVE / DOT BALL", "Shouldered arms — passes safely to keeper", "#94A3B8");
-        }
+      // Ball passes batsman without contact -> Follow through to Stumps / Wicketkeeper!
+      if (b.z >= 1.0) {
+        const isWide = def.isWide;
+        const isBowled = !isWide && Math.round(b.lane) === 1;
         state.ball = null;
+        startMissedBallFollowThrough(isWide, isBowled);
       }
     }
 
@@ -1504,7 +1672,9 @@
     }
 
     // =========================================================================
-    // TRUE 360° FPP STADIUM RENDERING (CAMERA PANS TO FOLLOW BALL IN 3D!)
+    // DUAL-CAMERA RENDERER:
+    // 1) FPP BATTING VIEW (facing bowler with hand-locked bat)
+    // 2) BROADCAST ACTION-CAM FOLLOW-THROUGH (shows batsman, stumps, ball & fielders!)
     // =========================================================================
     function resizeCanvas() {
       if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
@@ -1526,35 +1696,6 @@
       return { x, y, persp, pitchHalfW };
     }
 
-    /**
-     * Projects any 360° world coordinate (wx, wy, wzHeight) onto the First-Person Perspective
-     * screen relative to the current cameraYawRad, so the player sees the entire 360° stadium
-     * pan as the ball flies toward the boundary or a fielder!
-     */
-    function project360WorldToFPP(wx, wy, wzHeight, cw, ch) {
-      const horizonY = ch * 0.30;
-      // Rotate world point by -cameraYawRad so forward direction aligns with screen center
-      const cosA = Math.cos(-state.cameraYawRad);
-      const sinA = Math.sin(-state.cameraYawRad);
-
-      // Relative to batter crease (0, 0.12)
-      const dx = wx - 0;
-      const dy = -(wy - 0.12); // Positive forward depth away from batter
-
-      const rotX = dx * cosA - dy * sinA;
-      const rotForward = dx * sinA + dy * cosA;
-
-      if (rotForward <= 0.04) return null; // Behind camera FOV
-
-      const depthNorm = Math.min(1.3, rotForward / 1.15);
-      const scale = Math.max(0.18, 1 - depthNorm * 0.68);
-      const screenX = cw * 0.5 + (rotX / rotForward) * (cw * 0.58);
-      const groundScreenY = ch * 0.88 - (ch * 0.88 - horizonY) * Math.pow(depthNorm, 0.72);
-      const screenY = groundScreenY - wzHeight * (ch * 0.48) * scale;
-
-      return { x: screenX, y: screenY, groundY: groundScreenY, scale, depthNorm };
-    }
-
     function renderFrame(dt) {
       resizeCanvas();
       const cw = canvas.width;
@@ -1569,15 +1710,19 @@
       }
 
       if (state.screen === "CALIBRATION" || state.screen === "LOADING") {
-        drawMirroredCamera(0, 0, cw, ch, true);
+        drawFullBodyAndBatCamera(0, 0, cw, ch, true);
         drawHandLockedBat(cw, ch, dt);
       } else {
-        drawStadiumWorld360(cw, ch, dt);
+        if (state.cameraMode === "ACTION_FOLLOW" && state.actionBall) {
+          drawBroadcastActionFollowView(cw, ch, dt);
+        } else {
+          drawFPPBattingView(cw, ch, dt);
+        }
 
-        // Bottom-Left: Live PiP Camera Feed
-        const pipW = Math.min(230, cw * 0.21);
-        const pipH = pipW * 0.68;
-        drawMirroredCamera(16, ch - pipH - 16, pipW, pipH, false);
+        // Bottom-Left: Live Full-Body + Bat Optical Camera PiP
+        const pipW = Math.min(240, cw * 0.22);
+        const pipH = pipW * 0.72;
+        drawFullBodyAndBatCamera(16, ch - pipH - 16, pipW, pipH, false);
 
         // Bottom-Right: Live 360° Field Setup & Ball-Tracking Radar
         const radarR = Math.min(115, ch * 0.19, cw * 0.14);
@@ -1613,175 +1758,257 @@
       ctx.restore();
     }
 
-    function drawStadiumWorld360(cw, ch, dt) {
+    /**
+     * Mode 1: First-Person Perspective (FPP) Batting View facing the bowler
+     */
+    function drawFPPBattingView(cw, ch, dt) {
       const horizonY = ch * 0.30;
-      const panShiftPx = -Math.sin(state.cameraYawRad) * (cw * 0.42);
 
-      // Night Floodlit Stadium Sky
       const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
       skyGrad.addColorStop(0, "#040812");
       skyGrad.addColorStop(1, "#0E2240");
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, cw, horizonY);
 
-      // Panoramic 360° Stadium Stand Lights that pan horizontally as camera rotates!
-      [-0.7, -0.35, 0.15, 0.5, 0.85, 1.2, 1.55].forEach(rx => {
-        const lx = ((cw * rx + panShiftPx) % (cw * 1.5) + cw * 1.5) % (cw * 1.5) - cw * 0.25;
-        const ly = horizonY * 0.38;
-        const glow = ctx.createRadialGradient(lx, ly, 4, lx, ly, cw * 0.12);
-        glow.addColorStop(0, "rgba(255, 255, 255, 0.88)");
-        glow.addColorStop(0.35, "rgba(0, 212, 255, 0.22)");
+      [0.14, 0.86].forEach(rx => {
+        const lx = cw * rx;
+        const ly = horizonY * 0.36;
+        const glow = ctx.createRadialGradient(lx, ly, 4, lx, ly, cw * 0.15);
+        glow.addColorStop(0, "rgba(255, 255, 255, 0.92)");
+        glow.addColorStop(0.35, "rgba(0, 212, 255, 0.25)");
         glow.addColorStop(1, "rgba(5, 10, 20, 0)");
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(lx, ly, cw * 0.12, 0, Math.PI * 2);
+        ctx.arc(lx, ly, cw * 0.15, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Stadium Outfield Grass
       const turfGrad = ctx.createLinearGradient(0, horizonY, 0, ch);
       turfGrad.addColorStop(0, "#083523");
       turfGrad.addColorStop(1, "#041C12");
       ctx.fillStyle = turfGrad;
       ctx.fillRect(0, horizonY, cw, ch - horizonY);
 
-      // 360° Glowing Boundary Rope along Horizon
       ctx.strokeStyle = "#00FF88";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.moveTo(0, horizonY + 12);
-      ctx.quadraticCurveTo(cw * 0.5, horizonY + 28, cw, horizonY + 12);
+      ctx.ellipse(cw * 0.5, horizonY + 10, cw * 0.48, 24, 0, 0, Math.PI);
       ctx.stroke();
 
-      // Render 3D Pitch & Bowler when facing the pitch (|cameraYawRad| < 65°)
-      if (Math.abs(state.cameraYawRad) < 1.15) {
-        ctx.save();
-        ctx.translate(panShiftPx, 0);
+      const topL = projectPitch(-0.5, 0, cw, ch);
+      const topR = projectPitch(2.5, 0, cw, ch);
+      const botL = projectPitch(-0.5, 1.06, cw, ch);
+      const botR = projectPitch(2.5, 1.06, cw, ch);
 
-        const topL = projectPitch(-0.5, 0, cw, ch);
-        const topR = projectPitch(2.5, 0, cw, ch);
-        const botL = projectPitch(-0.5, 1.06, cw, ch);
-        const botR = projectPitch(2.5, 1.06, cw, ch);
-
-        const pitchGrad = ctx.createLinearGradient(0, horizonY, 0, ch);
-        pitchGrad.addColorStop(0, "#C9AA7E");
-        pitchGrad.addColorStop(1, "#A68456");
-        ctx.fillStyle = pitchGrad;
-        ctx.beginPath();
-        ctx.moveTo(topL.x, topL.y);
-        ctx.lineTo(topR.x, topR.y);
-        ctx.lineTo(botR.x, botR.y);
-        ctx.lineTo(botL.x, botL.y);
-        ctx.closePath();
-        ctx.fill();
-
-        const sweetNear = projectPitch(-0.5, 0.96, cw, ch);
-        const sweetNearR = projectPitch(2.5, 0.96, cw, ch);
-        const sweetFar = projectPitch(-0.5, 0.78, cw, ch);
-        const sweetFarR = projectPitch(2.5, 0.78, cw, ch);
-
-        ctx.fillStyle = "rgba(0, 255, 136, 0.24)";
-        ctx.beginPath();
-        ctx.moveTo(sweetFar.x, sweetFar.y);
-        ctx.lineTo(sweetFarR.x, sweetFarR.y);
-        ctx.lineTo(sweetNearR.x, sweetNearR.y);
-        ctx.lineTo(sweetNear.x, sweetNear.y);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(sweetNear.x, sweetNear.y);
-        ctx.lineTo(sweetNearR.x, sweetNearR.y);
-        ctx.stroke();
-
-        drawStumps(cw * 0.5, horizonY + 14, 0.36);
-        drawAnimatedBowler(cw, horizonY);
-
-        if (state.ball) {
-          drawIncomingPitchBall(state.ball, cw, ch);
-        }
-
-        ctx.restore();
-      }
-
-      // Render 3D Outfield Fielders in FPP View!
-      for (const f of state.fielders) {
-        const fp = project360WorldToFPP(f.curX, f.curY, 0, cw, ch);
-        if (!fp) continue;
-        const fh = 58 * fp.scale;
-        const fw = 22 * fp.scale;
-        ctx.save();
-        ctx.fillStyle = "rgba(0,0,0,0.35)";
-        ctx.beginPath();
-        ctx.ellipse(fp.x, fp.groundY, fw * 0.8, 5 * fp.scale, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#00D4FF";
-        ctx.beginPath();
-        ctx.roundRect(fp.x - fw * 0.5, fp.groundY - fh, fw, fh, 6 * fp.scale);
-        ctx.fill();
-
-        ctx.fillStyle = "#FFFFFF";
-        ctx.beginPath();
-        ctx.arc(fp.x, fp.groundY - fh - 8 * fp.scale, 7 * fp.scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // Render 3D Outfield Ball Trajectory in FPP View after contact!
-      if (state.trackedShotBall) {
-        draw3DFPPShotBall(state.trackedShotBall, cw, ch);
-      }
-
-      // Hand-Locked FPP Willow Bat
-      drawHandLockedBat(cw, ch, dt);
-    }
-
-    function draw3DFPPShotBall(sb, cw, ch) {
-      const proj = project360WorldToFPP(sb.x, sb.y, sb.zHeight, cw, ch);
-      if (!proj) return;
-
-      // Draw glowing 3D shot tracer ribbon behind the ball
-      ctx.save();
-      ctx.strokeStyle = "#FFD60A";
-      ctx.lineWidth = Math.max(2, 6 * proj.scale);
+      const pitchGrad = ctx.createLinearGradient(0, horizonY, 0, ch);
+      pitchGrad.addColorStop(0, "#C9AA7E");
+      pitchGrad.addColorStop(1, "#A68456");
+      ctx.fillStyle = pitchGrad;
       ctx.beginPath();
-      let started = false;
-      for (let i = Math.max(0, sb.path.length - 18); i < sb.path.length; i++) {
-        const pt = sb.path[i];
-        const p3 = project360WorldToFPP(pt.x, pt.y, sb.zHeight * (i / sb.path.length), cw, ch);
-        if (!p3) continue;
-        if (!started) {
-          ctx.moveTo(p3.x, p3.y);
-          started = true;
-        } else {
-          ctx.lineTo(p3.x, p3.y);
-        }
-      }
-      ctx.stroke();
-
-      // Ground shadow directly beneath airborne ball
-      const r = Math.max(7, 22 * proj.scale);
-      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-      ctx.beginPath();
-      ctx.ellipse(proj.x, proj.groundY, r * 0.9, r * 0.35, 0, 0, Math.PI * 2);
+      ctx.moveTo(topL.x, topL.y);
+      ctx.lineTo(topR.x, topR.y);
+      ctx.lineTo(botR.x, botR.y);
+      ctx.lineTo(botL.x, botL.y);
+      ctx.closePath();
       ctx.fill();
 
-      // Bright Red & Gold Tracer Cricket Ball
-      ctx.fillStyle = "#FF1E42";
-      ctx.shadowColor = "#FFD60A";
-      ctx.shadowBlur = 24;
+      const sweetNear = projectPitch(-0.5, 0.96, cw, ch);
+      const sweetNearR = projectPitch(2.5, 0.96, cw, ch);
+      const sweetFar = projectPitch(-0.5, 0.72, cw, ch);
+      const sweetFarR = projectPitch(2.5, 0.72, cw, ch);
+
+      ctx.fillStyle = "rgba(0, 255, 136, 0.24)";
       ctx.beginPath();
-      ctx.arc(proj.x, proj.y, r, 0, Math.PI * 2);
+      ctx.moveTo(sweetFar.x, sweetFar.y);
+      ctx.lineTo(sweetFarR.x, sweetFarR.y);
+      ctx.lineTo(sweetNearR.x, sweetNearR.y);
+      ctx.lineTo(sweetNear.x, sweetNear.y);
+      ctx.closePath();
       ctx.fill();
 
       ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = Math.max(1.5, 3 * proj.scale);
+      ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(proj.x, proj.y, r * 0.65, -0.5, 1.8);
+      ctx.moveTo(sweetNear.x, sweetNear.y);
+      ctx.lineTo(sweetNearR.x, sweetNearR.y);
       ctx.stroke();
+
+      drawStumps(cw * 0.5, horizonY + 14, 0.36, false);
+      drawAnimatedBowler(cw, horizonY);
+
+      if (state.ball) {
+        drawIncomingPitchBall(state.ball, cw, ch);
+      }
+
+      drawHandLockedBat(cw, ch, dt);
+    }
+
+    /**
+     * Mode 2: Broadcast Action-Cam Follow-Through View!
+     * Shows the entire 360° stadium ground, the Pitch Strip, the Batsman at the crease,
+     * the 3 Stumps (shattering if Bowled), the Wicketkeeper behind the stumps,
+     * the glowing 3D Ball Trajectory, and all 11 Fielders running in pursuit!
+     */
+    function drawBroadcastActionFollowView(cw, ch, dt) {
+      const ab = state.actionBall;
+
+      // Smoothly pan camera to track the ball's 360° position across the stadium
+      const targetPanX = -ab.x * (cw * 0.22);
+      const targetPanY = -ab.y * (ch * 0.16);
+      state.cameraPanX += (targetPanX - state.cameraPanX) * Math.min(1, dt * 6);
+      state.cameraPanY += (targetPanY - state.cameraPanY) * Math.min(1, dt * 6);
+
+      // Stadium Dark Backdrop
+      ctx.fillStyle = "#040812";
+      ctx.fillRect(0, 0, cw, ch);
+
+      const cx = cw * 0.5 + state.cameraPanX;
+      const cy = ch * 0.54 + state.cameraPanY;
+      const groundRx = Math.min(cw * 0.58, ch * 0.62);
+      const groundRy = groundRx * 0.68; // Tilted 2.5D stadium broadcast perspective
+
+      ctx.save();
+
+      // Stadium Outfield Oval
+      const turfGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, groundRx);
+      turfGrad.addColorStop(0, "#0D4D33");
+      turfGrad.addColorStop(0.7, "#073321");
+      turfGrad.addColorStop(1, "#041E13");
+      ctx.fillStyle = turfGrad;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, groundRx, groundRy, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glowing Boundary Rope
+      ctx.strokeStyle = "#00FF88";
+      ctx.lineWidth = 5;
+      ctx.shadowColor = "#00FF88";
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, groundRx, groundRy, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // 30-Yard Inner Circle
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 8]);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, groundRx * 0.52, groundRy * 0.52, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Center 22-Yard Cricket Pitch Strip
+      const pitchW = 34;
+      const pitchH = groundRy * 0.34;
+      ctx.fillStyle = "#C9AA7E";
+      ctx.fillRect(cx - pitchW * 0.5, cy - pitchH * 0.5, pitchW, pitchH);
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx - pitchW * 0.5, cy - pitchH * 0.5, pitchW, pitchH);
+
+      // Bowler-End Stumps (Top of pitch)
+      drawStumps(cx, cy - pitchH * 0.45, 0.32, false);
+
+      // Batter-End Stumps (Bottom of pitch — shatters if Bowled!)
+      const batterCreaseY = cy + pitchH * 0.44;
+      drawStumps(cx, batterCreaseY, 0.44, state.stumpsShattered);
+
+      // Render Batsman at the Crease (with follow-through bat pose!)
+      const batterX = cx + (state.batterVisualLane - 1) * 14 - 16;
+      drawBroadcastPlayer(batterX, batterCreaseY - 4, state.currentInnings === 1 ? "#00FF88" : "#FFD60A", true);
+
+      // Render Wicketkeeper crouching behind the stumps!
+      const keeperX = cx + (ab.outcomeType === "KEEPER" ? ab.x * 40 : 4);
+      const keeperY = batterCreaseY + 26;
+      drawBroadcastPlayer(keeperX, keeperY, "#FF7A00", false);
+
+      // Render All 11 Fielders Running in Pursuit Behind the Ball!
+      for (const f of state.fielders) {
+        if (f.id === "WK") continue; // Keeper already rendered behind stumps
+        const fx = cx + f.curX * groundRx;
+        const fy = cy + f.curY * groundRy;
+        drawBroadcastPlayer(fx, fy, "#00D4FF", false);
+
+        // Fielder position label
+        ctx.fillStyle = "rgba(255,255,255,0.65)";
+        ctx.font = '700 10px "Chakra Petch", sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText(f.id, fx, fy + 14);
+      }
+
+      // Render Glowing Ball Trajectory Ribbon & 3D Ball with Height Shadow!
+      if (ab.path.length > 1) {
+        ctx.strokeStyle = ab.category === "LOFTED" ? "#FFD60A" : "#00FF88";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ab.path.forEach((pt, idx) => {
+          const px = cx + pt.x * groundRx;
+          const py = cy + pt.y * groundRy;
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+      }
+
+      const bx = cx + ab.x * groundRx;
+      const groundBy = cy + ab.y * groundRy;
+      const loftLiftPx = ab.zHeight * 145;
+      const ballBy = groundBy - loftLiftPx;
+      const ballRadius = 8 + ab.zHeight * 8;
+
+      // Ground Shadow directly underneath ball
+      ctx.fillStyle = "rgba(0, 0, 0, 0.48)";
+      ctx.beginPath();
+      ctx.ellipse(bx, groundBy, ballRadius * 0.9, ballRadius * 0.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cricket Ball
+      ctx.fillStyle = "#FF1E42";
+      ctx.shadowColor = "#FFD60A";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(bx, ballBy, ballRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(bx, ballBy, ballRadius * 0.65, -0.4, 1.8);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawBroadcastPlayer(x, y, jerseyColor, hasBat) {
+      ctx.save();
+      // Shadow
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.beginPath();
+      ctx.ellipse(x, y + 2, 10, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Torso
+      ctx.fillStyle = jerseyColor;
+      ctx.beginPath();
+      ctx.roundRect(x - 6, y - 22, 12, 20, 4);
+      ctx.fill();
+
+      // Head / Helmet
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(x, y - 27, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Willow Bat in Batsman's hands
+      if (hasBat) {
+        ctx.save();
+        ctx.translate(x + 6, y - 14);
+        ctx.rotate(state.batAngleRad);
+        ctx.fillStyle = "#FBBF24";
+        ctx.fillRect(-2, -16, 4, 18);
+        ctx.restore();
+      }
       ctx.restore();
     }
 
@@ -1851,7 +2078,7 @@
       ctx.restore();
     }
 
-    function drawStumps(cx, cy, scale) {
+    function drawStumps(cx, cy, scale, shattered = false) {
       const h = 72 * scale;
       const gap = 15 * scale;
       ctx.save();
@@ -1860,19 +2087,30 @@
       ctx.shadowBlur = 10 * scale;
       ctx.lineWidth = Math.max(2, 5 * scale);
 
-      [-1, 0, 1].forEach(offset => {
+      [-1, 0, 1].forEach((offset, idx) => {
         const sx = cx + offset * gap;
+        ctx.save();
+        ctx.translate(sx, cy);
+        if (shattered) {
+          // Stumps knocked flying in different directions!
+          const tilt = (offset === 0 ? 0.85 : offset * 0.55);
+          ctx.rotate(tilt);
+          ctx.translate(offset * 14, -10);
+        }
         ctx.beginPath();
-        ctx.moveTo(sx, cy);
-        ctx.lineTo(sx, cy - h);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -h);
         ctx.stroke();
+        ctx.restore();
       });
 
-      ctx.strokeStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.moveTo(cx - gap, cy - h);
-      ctx.lineTo(cx + gap, cy - h);
-      ctx.stroke();
+      if (!shattered) {
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.moveTo(cx - gap, cy - h);
+        ctx.lineTo(cx + gap, cy - h);
+        ctx.stroke();
+      }
       ctx.restore();
     }
 
@@ -1916,12 +2154,12 @@
     }
 
     function drawHandLockedBat(cw, ch, dt) {
-      const handleX = Math.max(80, Math.min(cw - 80, state.batPos.x * cw));
-      const handleY = Math.max(120, Math.min(ch - 30, state.batPos.y * ch));
+      const handleX = Math.max(80, Math.min(cw - 80, state.batGrip.x * cw));
+      const handleY = Math.max(120, Math.min(ch - 30, state.batGrip.y * ch));
 
       const dynamicAngle = Math.max(
         -1.65,
-        Math.min(1.65, state.batAngleRad + state.batVel.vx * 0.35)
+        Math.min(1.65, state.batAngleRad + state.batVel.vx * 0.28)
       );
 
       const bladeLen = Math.min(220, ch * 0.32);
@@ -1930,7 +2168,7 @@
       const tipY = handleY - Math.cos(dynamicAngle) * bladeLen;
 
       const activeSpeed = Math.max(state.batVel.speed, state.peakSwingSpeed);
-      if (activeSpeed > 0.85) {
+      if (activeSpeed > 0.65) {
         state.swingTrail.push({ hx: handleX, hy: handleY, tx: tipX, ty: tipY, life: 0.18 });
       }
 
@@ -2034,7 +2272,7 @@
         ctx.fill();
       }
 
-      const rb = state.trackedShotBall;
+      const rb = state.actionBall;
       if (rb && rb.path.length > 0) {
         ctx.strokeStyle = "#FFD60A";
         ctx.lineWidth = 2.5;
@@ -2060,7 +2298,10 @@
       ctx.restore();
     }
 
-    function drawMirroredCamera(dx, dy, dw, dh, isFullscreen) {
+    /**
+     * Renders the Full-Body Skeleton + Optical Bat Blade Overlay inside the camera feed!
+     */
+    function drawFullBodyAndBatCamera(dx, dy, dw, dh, isFullscreen) {
       const vw = videoEl.videoWidth || 1280;
       const vh = videoEl.videoHeight || 720;
       const videoAspect = vw / vh;
@@ -2104,10 +2345,11 @@
           return { x: dx + (1 - normX) * dw, y: dy + normY * dh };
         };
 
-        ctx.strokeStyle = "#00FF88";
-        ctx.lineWidth = isFullscreen ? 5 : 3;
+        // Draw Full-Body Skeleton (Head, Arms, Torso, Hips, Knees, Ankles)
+        ctx.strokeStyle = "#00D4FF";
+        ctx.lineWidth = isFullscreen ? 5 : 2.5;
         ctx.lineCap = "round";
-        for (const [i, j] of SKELETON_CONNECTIONS) {
+        for (const [i, j] of FULL_BODY_CONNECTIONS) {
           const a = lms[i], b = lms[j];
           if (!a || !b || a.visibility < 0.4 || b.visibility < 0.4) continue;
           const pa = mapPt(a), pb = mapPt(b);
@@ -2116,6 +2358,24 @@
           ctx.lineTo(pb.x, pb.y);
           ctx.stroke();
         }
+
+        // Draw Tracked Bat Vector extending from player's hands in Neon Gold!
+        const gx = dx + state.batGrip.x * dw;
+        const gy = dy + state.batGrip.y * dh;
+        const tx = dx + state.batTip.x * dw;
+        const ty = dy + state.batTip.y * dh;
+
+        ctx.strokeStyle = "#FFD60A";
+        ctx.lineWidth = isFullscreen ? 8 : 4;
+        ctx.beginPath();
+        ctx.moveTo(gx, gy);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+
+        ctx.fillStyle = "#00FF88";
+        ctx.beginPath();
+        ctx.arc(gx, gy, isFullscreen ? 8 : 4, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       if (!isFullscreen) {
@@ -2150,7 +2410,7 @@
         }
       }
 
-      updateBatTracking(state.smoothedLandmarks, dt);
+      updateFullBodyAndBatTracking(state.smoothedLandmarks, dt);
 
       if (state.screen === "PLAYING") {
         updatePlayingState(dt);
