@@ -832,6 +832,17 @@ window.addEventListener('beforeunload', () => {
     db.collection("users").doc(currentUser.uid).set(appData); // Fire-and-forget save
   }
 });
+
+  window.openPoseWall = async function() {
+  if (appData.activeSubjectId && currentUser) {
+    clearInterval(liveTimerInterval);
+    commitSessionTime(Date.now());
+    appData.activeSubjectId = null;
+    appData.lastSessionStart = null;
+    await saveState();
+  }
+  window.location.href = 'posewala.html';
+}
 </script>
 </body>
 </html>
