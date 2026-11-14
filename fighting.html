@@ -21,18 +21,23 @@ canvas{display:block;width:100%;height:100%}
 .btn-cyan{color:#00e5ff;border-color:#00e5ff}.btn-cyan:hover{background:rgba(0,229,255,0.15)}
 .btn-gold{color:#ffd700;border-color:#ffd700}.btn-gold:hover{background:rgba(255,215,0,0.15)}
 .title-font{font-family:'Chakra Petch',sans-serif}
-#main-menu,#lobby-screen,#settings-screen,#victory-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20}
+#main-menu,#settings-screen,#victory-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20}
+#lobby-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;overflow-x:hidden;padding:24px 16px 40px;box-sizing:border-box;z-index:20}
+#lobby-screen::-webkit-scrollbar{width:8px}
+#lobby-screen::-webkit-scrollbar-track{background:rgba(0,0,0,0.3)}
+#lobby-screen::-webkit-scrollbar-thumb{background:rgba(57,255,20,0.3);border-radius:4px}
+#lobby-screen::-webkit-scrollbar-thumb:hover{background:rgba(57,255,20,0.6)}
 .menu-title{font-size:64px;font-weight:700;letter-spacing:6px;text-shadow:0 0 30px rgba(57,255,20,0.5)}
 .menu-subtitle{font-size:18px;color:#888;margin-top:8px;letter-spacing:4px}
 .menu-buttons{display:flex;flex-direction:column;gap:16px;margin-top:40px}
-.lobby-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;width:80%;max-width:900px;margin-top:20px}
-.player-slot{padding:24px;text-align:center;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.3s}
+.lobby-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:90%;max-width:850px;margin-top:12px}
+.player-slot{padding:14px;text-align:center;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.3s}
 .player-slot.joined{border-color:currentColor!important;box-shadow:0 0 15px rgba(255,255,255,0.1)}
 .power-select{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
 .power-btn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);cursor:pointer;font-size:12px;color:#ccc;transition:all 0.2s}
 .power-btn:hover{border-color:#fff;color:#fff}.power-btn.selected{border-color:currentColor;background:rgba(255,255,255,0.15);font-weight:700}
-.arena-select{display:flex;gap:12px;margin-top:20px}
-.arena-card{padding:16px 24px;border-radius:10px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;width:200px}
+.arena-select{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.arena-card{padding:12px 18px;border-radius:10px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;width:180px}
 .arena-card:hover{border-color:rgba(255,255,255,0.3)}.arena-card.selected{border-color:#39ff14;box-shadow:0 0 15px rgba(57,255,20,0.2)}
 .settings-panel{width:80%;max-width:800px;max-height:70vh;overflow-y:auto;padding:30px}
 .settings-panel::-webkit-scrollbar{width:6px}.settings-panel::-webkit-scrollbar-track{background:transparent}
