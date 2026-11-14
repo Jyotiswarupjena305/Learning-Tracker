@@ -451,9 +451,17 @@ let pointerLocked = false;
 document.addEventListener('keydown', e => {
   if (!keys[e.code]) keyJustPressed[e.code] = true;
   keys[e.code] = true;
-  e.preventDefault();
+  // Prevent scrolling for game keys while playing or in menus
+  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) {
+    e.preventDefault();
+  }
 });
-document.addEventListener('keyup', e => { keys[e.code] = false; e.preventDefault(); });
+document.addEventListener('keyup', e => {
+  keys[e.code] = false;
+  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) {
+    e.preventDefault();
+  }
+});
 document.addEventListener('mousedown', e => { mouseButtons[e.button] = true; });
 document.addEventListener('mouseup', e => { mouseButtons[e.button] = false; });
 document.addEventListener('mousemove', e => {
