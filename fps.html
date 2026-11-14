@@ -103,6 +103,18 @@ canvas { display:block; }
       <button id="modeBtnTeam" class="menu-btn" style="padding:8px 20px; font-size:0.85rem;" onclick="setMode('team')">TEAMS (2v2)</button>
     </div>
     <div style="display:flex; gap:10px; align-items:center;">
+      <span class="font-chakra" style="color:#aaa; font-size:0.85rem;">SPLIT SCREEN:</span>
+      <button id="splitBtnV" class="menu-btn active" style="padding:6px 16px; font-size:0.8rem;" onclick="setSplitMode('v')">VERTICAL ❚❚</button>
+      <button id="splitBtnH" class="menu-btn" style="padding:6px 16px; font-size:0.8rem;" onclick="setSplitMode('h')">HORIZONTAL ☰</button>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <span class="font-chakra" style="color:#aaa; font-size:0.85rem;">BOT DIFFICULTY:</span>
+      <button id="diffBtnEasy" class="menu-btn" style="padding:6px 14px; font-size:0.75rem;" onclick="setBotDifficulty('easy')">EASY</button>
+      <button id="diffBtnMedium" class="menu-btn active" style="padding:6px 14px; font-size:0.75rem;" onclick="setBotDifficulty('medium')">MEDIUM</button>
+      <button id="diffBtnHard" class="menu-btn" style="padding:6px 14px; font-size:0.75rem;" onclick="setBotDifficulty('hard')">HARD</button>
+      <button id="diffBtnExpert" class="menu-btn" style="padding:6px 14px; font-size:0.75rem; border-color:#ff0055; color:#ff0055;" onclick="setBotDifficulty('expert')">EXPERT</button>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
       <span class="font-chakra" style="color:#aaa; font-size:0.85rem;">ROUNDS TO WIN:</span>
       <button class="menu-btn" style="padding:6px 16px; font-size:0.8rem;" onclick="setRounds(3)">3</button>
       <button id="roundsBtn5" class="menu-btn active" style="padding:6px 16px; font-size:0.8rem;" onclick="setRounds(5)">5</button>
@@ -403,11 +415,11 @@ function generateMap() {
 
 const MAP = generateMap();
 
-// Wall colors/textures
+// Wall colors/textures (Tactical Urban Military styling: Concrete, Sandstone, Cargo Crates)
 const WALL_COLORS = {
-  1: ['#2a2a3e','#333350','#252540','#2e2e48'], // Standard wall
-  2: ['#3a3a2e','#4a4a3e','#353528','#3f3f32'], // Thin wall
-  3: ['#3a2a2a','#4a3535','#352828','#402e2e']  // Box/cover
+  1: ['#4b515d','#3c414b','#5c6370','#363a43'], // Reinforced Concrete / Urban Bunker
+  2: ['#786b59','#655a4b','#8a7c67','#52493d'], // Sandstone / Stucco Wall
+  3: ['#8a5d3b','#6d492f','#9c6b45','#593b26']  // Wooden Military Cargo Crate
 };
 
 // Spawn positions
@@ -422,6 +434,16 @@ const BOMBSITE_B = {x1:18,y1:26,x2:27,y2:30};
 // ==================== GAME STATE ====================
 let gameState = 'menu'; // menu, lobby, playing, scoreboard
 let gameMode = 'ffa'; // ffa, team
+let splitScreenMode = 'v'; // 'v' = vertical split (side-by-side), 'h' = horizontal split (top/bottom)
+let botDifficulty = 'medium'; // easy, medium, hard, expert
+
+const DIFFICULTY_SETTINGS = {
+  easy: { aimSpeed: 2.5, shootSpread: 0.35, fireDelay: 600, reactionDelay: 0.45, strafeSpeed: 0.65 },
+  medium: { aimSpeed: 4.5, shootSpread: 0.22, fireDelay: 350, reactionDelay: 0.25, strafeSpeed: 0.85 },
+  hard: { aimSpeed: 7.0, shootSpread: 0.12, fireDelay: 200, reactionDelay: 0.12, strafeSpeed: 1.05 },
+  expert: { aimSpeed: 10.5, shootSpread: 0.05, fireDelay: 120, reactionDelay: 0.05, strafeSpeed: 1.25 }
+};
+
 let roundsToWin = 5;
 let currentRound = 0;
 let roundTimer = 0;
@@ -860,9 +882,42 @@ function getViewports(numPlayers) {
   const W = canvas.width;
   const H = canvas.height;
   if (numPlayers === 1) return [{x:0,y:0,w:W,h:H}];
-  if (numPlayers === 2) return [{x:0,y:0,w:W,h:H/2},{x:0,y:H/2,w:W,h:H/2}];
-  if (numPlayers === 3) return [{x:0,y:0,w:W,h:H/2},{x:0,y:H/2,w:W/2,h:H/2},{x:W/2,y:H/2,w:W/2,h:H/2}];
-  return [{x:0,y:0,w:W/2,h:H/2},{x:W/2,y:0,w:W/2,h:H/2},{x:0,y:H/2,w:W/2,h:H/2},{x:W/2,y:H/2,w:W/2,h:H/2}];
+  if (numPlayers === 2) {
+    if (splitScreenMode === 'v') {
+      // Vertical Split (Side-by-Side: Left & Right)
+      return [
+        {x: 0, y: 0, w: Math.floor(W / 2), h: H},
+        {x: Math.floor(W / 2), y: 0, w: Math.ceil(W / 2), h: H}
+      ];
+    } else {
+      // Horizontal Split (Top & Bottom)
+      return [
+        {x: 0, y: 0, w: W, h: Math.floor(H / 2)},
+        {x: 0, y: Math.floor(H / 2), w: W, h: Math.ceil(H / 2)}
+      ];
+    }
+  }
+  if (numPlayers === 3) {
+    if (splitScreenMode === 'v') {
+      return [
+        {x: 0, y: 0, w: Math.floor(W / 2), h: H},
+        {x: Math.floor(W / 2), y: 0, w: Math.ceil(W / 2), h: Math.floor(H / 2)},
+        {x: Math.floor(W / 2), y: Math.floor(H / 2), w: Math.ceil(W / 2), h: Math.ceil(H / 2)}
+      ];
+    } else {
+      return [
+        {x: 0, y: 0, w: W, h: Math.floor(H / 2)},
+        {x: 0, y: Math.floor(H / 2), w: Math.floor(W / 2), h: Math.ceil(H / 2)},
+        {x: Math.floor(W / 2), y: Math.floor(H / 2), w: Math.ceil(W / 2), h: Math.ceil(H / 2)}
+      ];
+    }
+  }
+  return [
+    {x: 0, y: 0, w: Math.floor(W / 2), h: Math.floor(H / 2)},
+    {x: Math.floor(W / 2), y: 0, w: Math.ceil(W / 2), h: Math.floor(H / 2)},
+    {x: 0, y: Math.floor(H / 2), w: Math.floor(W / 2), h: Math.ceil(H / 2)},
+    {x: Math.floor(W / 2), y: Math.floor(H / 2), w: Math.ceil(W / 2), h: Math.ceil(H / 2)}
+  ];
 }
 
 function renderPlayerView(player, vp) {
@@ -915,18 +970,34 @@ function renderPlayerView(player, vp) {
   // Pitch offset
   const pitchOffset = player.pitch * vpH * 2 + player.recoilOffset * vpH;
 
-  // --- CEILING ---
-  ctx.fillStyle = '#0e0e18';
+  // --- CEILING / SKY ---
+  const ceilGrad = ctx.createLinearGradient(vp.x, vp.y, vp.x, vp.y + halfH + pitchOffset);
+  ceilGrad.addColorStop(0, '#0d131f'); // Night tactical sky
+  ceilGrad.addColorStop(0.7, '#151b28');
+  ceilGrad.addColorStop(1, '#1e2430');
+  ctx.fillStyle = ceilGrad;
   ctx.fillRect(vp.x, vp.y, vpW, halfH + pitchOffset);
 
-  // --- FLOOR ---
+  // --- FLOOR (Tarmac / Dirt / Combat Surface) ---
   const floorGrad = ctx.createLinearGradient(vp.x, vp.y + halfH + pitchOffset, vp.x, vp.y + vpH);
-  floorGrad.addColorStop(0, '#1a1a24');
-  floorGrad.addColorStop(1, '#252530');
+  floorGrad.addColorStop(0, '#1c1c1f');
+  floorGrad.addColorStop(0.5, '#28282e');
+  floorGrad.addColorStop(1, '#34343d');
   ctx.fillStyle = floorGrad;
   ctx.fillRect(vp.x, vp.y + halfH + pitchOffset, vpW, halfH - pitchOffset);
 
-  // --- WALLS (Raycasting) ---
+  // Tactical Floor Grid Lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+  ctx.lineWidth = 1;
+  const floorTop = halfH + pitchOffset;
+  for (let flY = floorTop + 10; flY < vpH; flY += (flY - floorTop) * 0.45 + 8) {
+    ctx.beginPath();
+    ctx.moveTo(vp.x, vp.y + flY);
+    ctx.lineTo(vp.x + vpW, vp.y + flY);
+    ctx.stroke();
+  }
+
+  // --- WALLS (Raycasting with Realistic Mortar / Crate Texture Details) ---
   for (let i = 0; i < numRays; i++) {
     const rayAngle = player.angle - fov/2 + (i / numRays) * fov;
     const result = castRayDDA(player.x, player.y, rayAngle);
@@ -943,18 +1014,28 @@ function renderPlayerView(player, vp) {
     const drawHeight = lineHeight * heightMult;
     const drawStart = halfH - drawHeight / 2 + pitchOffset;
 
-    // Wall color with shading
+    // Wall color with natural shading
     const colors = WALL_COLORS[result.wallType] || WALL_COLORS[1];
     let colorIdx = result.side;
     if (result.wallX > 0.5) colorIdx += 2;
     let wallColor = colors[colorIdx % colors.length];
 
-    // Distance fog
+    // Texture grain & mortar simulation
+    let texLight = 1.0;
+    if (result.wallType === 3) {
+      // Wood crate diagonal brace & slat lines
+      if (Math.abs(result.wallX - 0.5) < 0.04 || result.wallX < 0.06 || result.wallX > 0.94) texLight = 0.72;
+    } else {
+      // Concrete & brick mortar seams
+      if (result.wallX < 0.04 || (result.wallX > 0.48 && result.wallX < 0.52) || result.wallX > 0.96) texLight = 0.78;
+    }
+
+    // Distance atmospheric fog
     const fogFactor = Math.min(1, perpDist / RENDER_DIST);
-    const r = parseInt(wallColor.slice(1,3),16);
-    const g = parseInt(wallColor.slice(3,5),16);
-    const b = parseInt(wallColor.slice(5,7),16);
-    const bgR = 10, bgG = 10, bgB = 15;
+    const r = Math.floor(parseInt(wallColor.slice(1,3),16) * texLight);
+    const g = Math.floor(parseInt(wallColor.slice(3,5),16) * texLight);
+    const b = Math.floor(parseInt(wallColor.slice(5,7),16) * texLight);
+    const bgR = 13, bgG = 19, bgB = 31;
     const fr = Math.floor(r + (bgR - r) * fogFactor);
     const fg = Math.floor(g + (bgG - g) * fogFactor);
     const fb = Math.floor(b + (bgB - b) * fogFactor);
@@ -962,9 +1043,9 @@ function renderPlayerView(player, vp) {
     ctx.fillStyle = `rgb(${fr},${fg},${fb})`;
     ctx.fillRect(vp.x + i * 2, vp.y + drawStart, 2, drawHeight);
 
-    // Wall edge highlight
+    // Wall top edge / border shadow
     if (result.wallX < 0.02 || result.wallX > 0.98) {
-      ctx.fillStyle = `rgba(0,0,0,0.3)`;
+      ctx.fillStyle = `rgba(0,0,0,0.35)`;
       ctx.fillRect(vp.x + i * 2, vp.y + drawStart, 2, drawHeight);
     }
   }
@@ -1026,29 +1107,89 @@ function renderPlayerView(player, vp) {
     const rayIdx = Math.floor(screenX / 2);
     if (rayIdx >= 0 && rayIdx < numRays && zBuffer[rayIdx] < perpDist) continue;
 
-    // Draw sprite (simple colored figure)
+    // Draw realistic soldier / operative model (Tactical Helmet, Body Vest, Camo Uniform, Gun in hand)
     const fogFactor = Math.min(1, perpDist / RENDER_DIST);
     const col = sp.player.color;
     const cr = parseInt(col.slice(1,3),16);
     const cg = parseInt(col.slice(3,5),16);
     const cb = parseInt(col.slice(5,7),16);
-    const fr = Math.floor(cr + (10 - cr) * fogFactor);
-    const fg = Math.floor(cg + (10 - cg) * fogFactor);
-    const fb = Math.floor(cb + (10 - cb) * fogFactor);
+    const fr = Math.floor(cr + (13 - cr) * fogFactor);
+    const fg = Math.floor(cg + (19 - cg) * fogFactor);
+    const fb = Math.floor(cb + (31 - cb) * fogFactor);
 
-    // Body
-    ctx.fillStyle = `rgb(${fr},${fg},${fb})`;
-    ctx.fillRect(vp.x + screenX - spriteW/3, vp.y + spriteTop + spriteH*0.25, spriteW*0.66, spriteH*0.6);
+    const pxCenter = vp.x + screenX;
+    const pyTop = vp.y + spriteTop;
 
-    // Head (top 25% = headshot zone)
-    const headSize = spriteH * 0.22;
+    // 1. Shadow beneath operative
+    ctx.fillStyle = `rgba(0,0,0,${Math.max(0.2, 0.6 * (1 - fogFactor))})`;
     ctx.beginPath();
-    ctx.arc(vp.x + screenX, vp.y + spriteTop + headSize/2 + spriteH*0.03, headSize/2, 0, Math.PI*2);
+    ctx.ellipse(pxCenter, pyTop + spriteH, spriteW * 0.45, spriteH * 0.08, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Legs
-    ctx.fillRect(vp.x + screenX - spriteW/4, vp.y + spriteTop + spriteH*0.85, spriteW*0.2, spriteH*0.15);
-    ctx.fillRect(vp.x + screenX + spriteW/12, vp.y + spriteTop + spriteH*0.85, spriteW*0.2, spriteH*0.15);
+    // 2. Tactical Legs / Combat Trousers (Dark military camo)
+    const legW = spriteW * 0.22;
+    const legH = spriteH * 0.32;
+    const legY = pyTop + spriteH * 0.68;
+    ctx.fillStyle = `rgb(${Math.floor(28 * (1 - fogFactor))}, ${Math.floor(32 * (1 - fogFactor))}, ${Math.floor(36 * (1 - fogFactor))})`;
+    ctx.fillRect(pxCenter - spriteW * 0.28, legY, legW, legH);
+    ctx.fillRect(pxCenter + spriteW * 0.06, legY, legW, legH);
+
+    // Combat Boots
+    ctx.fillStyle = `rgb(${Math.floor(10 * (1 - fogFactor))}, ${Math.floor(10 * (1 - fogFactor))}, ${Math.floor(12 * (1 - fogFactor))})`;
+    ctx.fillRect(pxCenter - spriteW * 0.30, legY + legH - spriteH * 0.06, legW * 1.15, spriteH * 0.06);
+    ctx.fillRect(pxCenter + spriteW * 0.04, legY + legH - spriteH * 0.06, legW * 1.15, spriteH * 0.06);
+
+    // 3. Torso / Ballistic Body Armor Vest
+    const torsoW = spriteW * 0.62;
+    const torsoH = spriteH * 0.42;
+    const torsoY = pyTop + spriteH * 0.26;
+    
+    // Base tactical jacket (Team / Player tinted)
+    ctx.fillStyle = `rgb(${fr},${fg},${fb})`;
+    ctx.fillRect(pxCenter - torsoW/2, torsoY, torsoW, torsoH);
+
+    // Heavy Kevlar Plate Carrier Vest overlay
+    ctx.fillStyle = `rgba(18, 22, 28, ${0.9 * (1 - fogFactor * 0.5)})`;
+    ctx.fillRect(pxCenter - torsoW * 0.42, torsoY + spriteH * 0.04, torsoW * 0.84, torsoH * 0.82);
+
+    // Arm sleeves
+    ctx.fillStyle = `rgb(${Math.floor(fr * 0.85)},${Math.floor(fg * 0.85)},${Math.floor(fb * 0.85)})`;
+    ctx.fillRect(pxCenter - torsoW/2 - spriteW * 0.12, torsoY + spriteH * 0.02, spriteW * 0.12, torsoH * 0.7);
+    ctx.fillRect(pxCenter + torsoW/2, torsoY + spriteH * 0.02, spriteW * 0.12, torsoH * 0.7);
+
+    // 4. Tactical Rifle in hands (Pointed forward)
+    ctx.fillStyle = `rgb(${Math.floor(20 * (1-fogFactor))},${Math.floor(20 * (1-fogFactor))},${Math.floor(24 * (1-fogFactor))})`;
+    ctx.fillRect(pxCenter - spriteW * 0.05, torsoY + torsoH * 0.35, spriteW * 0.52, spriteH * 0.07);
+
+    // 5. Head & Ballistic Combat Helmet
+    const headSize = spriteH * 0.22;
+    const headY = pyTop + spriteH * 0.04;
+    
+    // Head / Face mask
+    ctx.fillStyle = `rgb(${Math.floor(180 * (1 - fogFactor))}, ${Math.floor(140 * (1 - fogFactor))}, ${Math.floor(120 * (1 - fogFactor))})`;
+    ctx.beginPath();
+    ctx.arc(pxCenter, headY + headSize/2, headSize * 0.42, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ballistic Helmet & Night Visor
+    ctx.fillStyle = `rgb(${Math.floor(24 * (1-fogFactor))}, ${Math.floor(28 * (1-fogFactor))}, ${Math.floor(34 * (1-fogFactor))})`;
+    ctx.beginPath();
+    ctx.arc(pxCenter, headY + headSize * 0.38, headSize * 0.46, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    // Tactical Visor / Goggles (Glint)
+    ctx.fillStyle = sp.player.team === 1 ? '#00e5ff' : '#39ff14';
+    ctx.fillRect(pxCenter - headSize * 0.28, headY + headSize * 0.42, headSize * 0.56, headSize * 0.12);
+
+    // Player Name tag / Health pip floating above head
+    if (perpDist < 12) {
+      ctx.fillStyle = `rgba(0,0,0,0.65)`;
+      ctx.fillRect(pxCenter - 30, pyTop - 14, 60, 11);
+      ctx.fillStyle = sp.player.color;
+      ctx.font = "bold 8px 'Chakra Petch'";
+      ctx.textAlign = 'center';
+      ctx.fillText(sp.player.name, pxCenter, pyTop - 5);
+    }
   }
 
   // --- GRENADE ENTITIES ---
