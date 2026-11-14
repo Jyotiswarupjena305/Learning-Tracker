@@ -90,8 +90,54 @@
   }
   .player-level span { font-family: var(--font-mono); font-weight: 700; color: var(--xp-color); font-size: 16px; }
 
-  /* Desktop Grid */
-  .layout { display: grid; grid-template-columns: 340px 1fr 340px; flex: 1; overflow: hidden; position: relative; height: 100%; }
+  /* ---------- HUB VIEW & CARDS ---------- */
+  #hubView {
+    flex: 1; overflow-y: auto; padding: 32px 24px 60px; display: flex; flex-direction: column; align-items: center;
+  }
+  .hub-title-section { text-align: center; margin-bottom: 28px; }
+  .hub-title-section h2 { font-size: 28px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .hub-title-section p { color: var(--text-muted); font-size: 14px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; }
+
+  .hub-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; width: 100%; max-width: 1200px;
+  }
+  .hub-card {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; display: flex; flex-direction: column; justify-content: space-between;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; position: relative; overflow: hidden;
+    min-height: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+  .hub-card:hover {
+    transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    border-color: var(--card-accent, var(--xp-color));
+  }
+  .hub-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--card-accent, var(--xp-color)); opacity: 0.8;
+  }
+  .hub-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .hub-card-icon { font-size: 36px; line-height: 1; }
+  .hub-card-tag {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.06); color: var(--card-accent, #fff);
+    border: 1px solid rgba(255,255,255,0.1); letter-spacing: 1px;
+  }
+  .hub-card-body h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; }
+  .hub-card-body p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 18px; }
+  .hub-card-btn {
+    width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--card-accent, var(--border));
+    background: rgba(255,255,255,0.04); color: #fff; font-family: var(--font-mono); font-size: 12px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .hub-card:hover .hub-card-btn {
+    background: var(--card-accent, var(--xp-color)); color: #000; font-weight: 800;
+  }
+
+  /* Desktop Grid for Training view */
+  #trainingView { display: none; height: 100%; width: 100%; flex: 1; overflow: hidden; position: relative; }
+  .layout { display: grid; grid-template-columns: 340px 1fr 340px; flex: 1; overflow: hidden; position: relative; height: 100%; width: 100%; }
   .panel { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
   .left-panel { border-right: 1px solid var(--border); background: linear-gradient(90deg, rgba(24,24,27,0.7) 0%, transparent 100%); }
   .right-panel { border-left: 1px solid var(--border); background: linear-gradient(-90deg, rgba(24,24,27,0.7) 0%, transparent 100%); }
@@ -245,14 +291,12 @@
 <!-- MAIN APP -->
 <div id="appContent">
   <div class="hud-header">
-    <div class="brand"><h1>NEXUS</h1></div>
+    <div class="brand">
+      <h1>NEXUS</h1>
+      <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase;">// Universal Hub</span>
+    </div>
     <div class="hud-actions">
-      <button class="btn-hud" style="border-color: #00ff88; color: #00ff88;" onclick="openPoseWall()">⚡ Pose Arena</button>
-      <button class="btn-hud" style="border-color: #38bdf8; color: #38bdf8;" onclick="openCricket()">🏏 Cricket</button>
-      <button class="btn-hud" style="border-color: #fbbf24; color: #fbbf24;" onclick="openTempleRun()">🏃 Temple Run</button>
-      <button class="btn-hud" style="border-color: #f97316; color: #f97316;" onclick="openRacing()">🏎️ Off-Road</button>
-      <button class="btn-hud" style="border-color: #ec4899; color: #ec4899;" onclick="openFighting()">⚔️ Stick Fight</button>
-      <button class="btn-hud" style="border-color: #ef4444; color: #ef4444;" onclick="openFps()">🔫 Tactical FPS</button>
+      <button class="btn-hud" id="navHubBtn" style="border-color: #fbbf24; color: #fbbf24; display:none;" onclick="switchView('hub')">⊞ Hub Arena</button>
       <button class="btn-hud" id="castTvBtn" style="border-color: #a78bfa; color: #a78bfa;" onclick="castToTV()">📺 Cast TV</button>
       <button class="btn-hud accent" onclick="toggleModal('leaderboardOverlay')">🏆 Global Ranks</button>
       <button class="btn-hud" onclick="toggleModal('trackerOverlay')">▤ Player Archive</button>
@@ -261,39 +305,160 @@
     </div>
   </div>
 
-  <div class="layout">
-    <div class="panel left-panel">
-      <div class="section-title">Skill Tree</div>
-      <div class="skill-list" id="skillContainer"></div>
-      <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-        <div class="input-row">
-          <input type="text" id="newSubjectInput" placeholder="Initialize New Subject..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addSubject(); }">
-          <button class="action-btn" onclick="addSubject()">Add</button>
-        </div>
-      </div>
+  <!-- VIEW 1: ARENA HUB CARDS -->
+  <div id="hubView">
+    <div class="hub-title-section">
+      <h2>Arcade & Skill Arena</h2>
+      <p>Select an arena module or enter the Nexus Training Tree</p>
     </div>
 
-    <div class="center-stage">
-      <div id="canvas-container"></div>
-      <div class="active-quest-card" id="activeCard">
-        <div class="status" id="activeStatus">System Idle</div>
-        <h2 id="activeName">Select a Skill</h2>
-        <div class="timer" id="activeTimer" style="color: var(--text-muted);">00:00:00</div>
-        <div class="xp-gain" id="activeXpRate">Gain XP by tracking time or completing quests</div>
+    <div class="hub-grid">
+      <!-- Card: NEXUS (Skill Training Tree & Quest Log) -->
+      <div class="hub-card" style="--card-accent: #fbbf24;" onclick="switchView('training')">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">⚡</div>
+            <div class="hub-card-tag">Core System</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>NEXUS</h3>
+            <p>Skill training tree, interactive 3D core, timer tracker, and daily quest bounty board.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Enter Training Tree →</button>
+      </div>
+
+      <!-- Card: POSE ARENA -->
+      <div class="hub-card" style="--card-accent: #00ff88;" onclick="openPoseWall()">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">🤸</div>
+            <div class="hub-card-tag">Camera Tracking</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>Pose Arena</h3>
+            <p>Pose in the Hole & Body Tracking wall challenge using your webcam or phone camera.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Launch Pose Arena →</button>
+      </div>
+
+      <!-- Card: CRICKET -->
+      <div class="hub-card" style="--card-accent: #38bdf8;" onclick="openCricket()">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">🏏</div>
+            <div class="hub-card-tag">Motion Cricket</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>Cricket Arena</h3>
+            <p>Motion bat tracking, shot detection, ball trajectory physics, and boundary hitting.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Launch Cricket →</button>
+      </div>
+
+      <!-- Card: TEMPLE RUN -->
+      <div class="hub-card" style="--card-accent: #facc15;" onclick="openTempleRun()">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">🏃</div>
+            <div class="hub-card-tag">Endless Runner</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>Temple Run</h3>
+            <p>Full-body jump, slide, and lane-switch camera motion runner across temple ruins.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Launch Temple Run →</button>
+      </div>
+
+      <!-- Card: OFF-ROAD RACING -->
+      <div class="hub-card" style="--card-accent: #f97316;" onclick="openRacing()">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">🏎️</div>
+            <div class="hub-card-tag">Local Split-Screen</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>Off-Road Racing</h3>
+            <p>Dirt 5 inspired 1–4 player split-screen racing. Drift mechanics, nitro boosts, and 3 tracks.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Launch Off-Road →</button>
+      </div>
+
+      <!-- Card: STICK FIGHT -->
+      <div class="hub-card" style="--card-accent: #ec4899;" onclick="openFighting()">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">⚔️</div>
+            <div class="hub-card-tag">Couch Brawler</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>Stick Fight</h3>
+            <p>2–4 player physics arena brawl. 4 elemental powers, swords, parries, and destructible arenas.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Launch Stick Fight →</button>
+      </div>
+
+      <!-- Card: TACTICAL FPS -->
+      <div class="hub-card" style="--card-accent: #ef4444;" onclick="openFps()">
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">🔫</div>
+            <div class="hub-card-tag">Split-Screen Shooter</div>
+          </div>
+          <div class="hub-card-body">
+            <h3>Tactical FPS</h3>
+            <p>CS-inspired split-screen shooter. $800 buy menu, dual-stick gamepads, and AI bots.</p>
+          </div>
+        </div>
+        <button class="hub-card-btn">Launch Tactical FPS →</button>
       </div>
     </div>
+  </div>
 
-    <div class="panel right-panel">
-      <div class="section-title">Quest Log</div>
-      <div class="quest-input-group">
-        <input type="text" id="taskInput" placeholder="Define objective..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addTask(); }">
-        <div class="input-row">
-          <select id="taskSubjectSelect" style="flex:1;"></select>
-          <button class="action-btn" onclick="addTask()">Deploy</button>
+  <!-- VIEW 2: NEXUS SKILL TRAINING & QUEST TREE -->
+  <div id="trainingView">
+    <div class="layout">
+      <div class="panel left-panel">
+        <div class="section-title">
+          <span>Skill Tree</span>
+          <button class="action-btn" style="padding:4px 10px; font-size:10px;" onclick="switchView('hub')">← Back to Hub</button>
+        </div>
+        <div class="skill-list" id="skillContainer"></div>
+        <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+          <div class="input-row">
+            <input type="text" id="newSubjectInput" placeholder="Initialize New Subject..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addSubject(); }">
+            <button class="action-btn" onclick="addSubject()">Add</button>
+          </div>
         </div>
       </div>
-      <div class="quest-list" id="questContainer"></div>
-      <button class="btn-hud" style="width:100%; justify-content:center; margin-top:16px; padding: 14px;" onclick="resetBoard()">[ Wipe Daily Board ]</button>
+
+      <div class="center-stage">
+        <div id="canvas-container"></div>
+        <div class="active-quest-card" id="activeCard">
+          <div class="status" id="activeStatus">System Idle</div>
+          <h2 id="activeName">Select a Skill</h2>
+          <div class="timer" id="activeTimer" style="color: var(--text-muted);">00:00:00</div>
+          <div class="xp-gain" id="activeXpRate">Gain XP by tracking time or completing quests</div>
+        </div>
+      </div>
+
+      <div class="panel right-panel">
+        <div class="section-title">Quest Log</div>
+        <div class="quest-input-group">
+          <input type="text" id="taskInput" placeholder="Define objective..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); addTask(); }">
+          <div class="input-row">
+            <select id="taskSubjectSelect" style="flex:1;"></select>
+            <button class="action-btn" onclick="addTask()">Deploy</button>
+          </div>
+        </div>
+        <div class="quest-list" id="questContainer"></div>
+        <button class="btn-hud" style="width:100%; justify-content:center; margin-top:16px; padding: 14px;" onclick="resetBoard()">[ Wipe Daily Board ]</button>
+      </div>
     </div>
   </div>
 </div>
@@ -906,6 +1071,32 @@ window.openCricket = () => flushAndNavigate('cricket.html');
 window.openRacing = () => flushAndNavigate('racing.html');
 window.openFighting = () => flushAndNavigate('fighting.html');
 window.openFps = () => flushAndNavigate('fps.html');
+
+/* =========================================
+   HUB & TRAINING VIEW SWITCHER
+   ========================================= */
+window.switchView = function(viewName) {
+  const hub = document.getElementById('hubView');
+  const training = document.getElementById('trainingView');
+  const hubBtn = document.getElementById('navHubBtn');
+
+  if (viewName === 'training') {
+    hub.style.display = 'none';
+    training.style.display = 'flex';
+    if (hubBtn) hubBtn.style.display = 'flex';
+    if (!sceneInitialized) {
+      init3D();
+      sceneInitialized = true;
+    }
+    update3DCore();
+    renderUI();
+  } else {
+    // Return to hub
+    hub.style.display = 'flex';
+    training.style.display = 'none';
+    if (hubBtn) hubBtn.style.display = 'none';
+  }
+};
 
 /* =========================================
    CLEANUP
