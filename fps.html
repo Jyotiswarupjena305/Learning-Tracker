@@ -1677,6 +1677,8 @@ function buyItem(player, item) {
 function updateAiBot(bot, dt) {
   if (!bot.alive) return;
 
+  const diffParams = DIFFICULTY_SETTINGS[botDifficulty] || DIFFICULTY_SETTINGS.medium;
+
   // Bot automatically buys in freeze time if funds allow
   if (roundPhase === 'freeze') {
     if (bot.weapons.length === 1 && bot.money >= 2700) {
@@ -1732,16 +1734,17 @@ function updateAiBot(bot, dt) {
   bot.aiReactionTimer = (bot.aiReactionTimer || 0) + dt;
 
   if (hasLos && closestEnemy) {
-    // Engage state: aim directly at enemy
+    // Engage state: aim directly at enemy tuned by difficulty aim speed
     let diff = targetAngle - bot.angle;
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
-    bot.angle += diff * Math.min(1.0, 5.0 * dt);
+    bot.angle += diff * Math.min(1.0, diffParams.aimSpeed * dt);
 
-    // Fire weapon if aimed reasonably well
-    if (Math.abs(diff) < 0.25 && !bot.reloading && !bot.switching) {
+    // Fire weapon if aimed reasonably well based on difficulty threshold
+    if (Math.abs(diff) < diffParams.shootSpread && !bot.reloading && !bot.switching) {
       const now = Date.now();
-      if (now - bot.lastFireTime >= (wpnDef ? wpnDef.fireRate : 400)) {
+      const fireInterval = Math.max(diffParams.fireDelay, (wpnDef ? wpnDef.fireRate : 300));
+      if (now - bot.lastFireTime >= fireInterval) {
         if (bot.ammo[wpn] > 0) {
           fireWeapon(bot);
           bot.lastFireTime = now;
@@ -1753,9 +1756,9 @@ function updateAiBot(bot, dt) {
     let moveAngle = targetAngle;
     if (closestDist < 3.5) moveAngle += Math.PI; // back up
     else if (closestDist > 6.0) moveAngle = targetAngle; // close in
-    else moveAngle += Math.PI / 2 * (Math.sin(Date.now() * 0.002) > 0 ? 1 : -1); // strafe
+    else moveAngle += Math.PI / 2 * (Math.sin(Date.now() * 0.003) > 0 ? 1 : -1); // strafe
 
-    const speed = PLAYER_SPEED * 0.85 * dt;
+    const speed = PLAYER_SPEED * diffParams.strafeSpeed * dt;
     const newX = bot.x + Math.cos(moveAngle) * speed;
     const newY = bot.y + Math.sin(moveAngle) * speed;
     if (!isWall(newX, bot.y, PLAYER_RADIUS/TILE)) bot.x = newX;
@@ -1766,7 +1769,7 @@ function updateAiBot(bot, dt) {
     // Wander & patrol towards center or enemy general direction
     bot.aiWanderTimer = (bot.aiWanderTimer || 0) - dt;
     if (bot.aiWanderTimer <= 0) {
-      bot.aiWanderTimer = 1.5 + Math.random() * 2;
+      bot.aiWanderTimer = 1.2 + Math.random() * 1.8;
       if (closestEnemy) {
         bot.aiWanderAngle = Math.atan2(closestEnemy.y - bot.y, closestEnemy.x - bot.x) + (Math.random() - 0.5) * 1.0;
       } else {
@@ -1777,7 +1780,7 @@ function updateAiBot(bot, dt) {
     let diff = bot.aiWanderAngle - bot.angle;
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
-    bot.angle += diff * Math.min(1.0, 3.0 * dt);
+    bot.angle += diff * Math.min(1.0, 3.2 * dt);
 
     const speed = PLAYER_SPEED * 0.75 * dt;
     const stepX = Math.cos(bot.angle) * speed;
@@ -2748,6 +2751,23 @@ function setMode(mode) {
   document.getElementById('modeBtnFFA').className = 'menu-btn' + (mode === 'ffa' ? ' active' : '');
   document.getElementById('modeBtnTeam').className = 'menu-btn' + (mode === 'team' ? ' active' : '');
   updateLobbyDisplay();
+}
+
+function setSplitMode(mode) {
+  splitScreenMode = mode;
+  document.getElementById('splitBtnV').className = 'menu-btn' + (mode === 'v' ? ' active' : '');
+  document.getElementById('splitBtnH').className = 'menu-btn' + (mode === 'h' ? ' active' : '');
+}
+
+function setBotDifficulty(diff) {
+  botDifficulty = diff;
+  ['easy', 'medium', 'hard', 'expert'].forEach(d => {
+    const btn = document.getElementById('diffBtn' + d.charAt(0).toUpperCase() + d.slice(1));
+    if (btn) {
+      if (d === diff) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
 }
 
 function setRounds(n) {
